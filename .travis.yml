@@ -1,0 +1,14 @@
+
+language: php
+
+php:
+  - 7.0
+  - nightly
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y valgrind
+
+install: phpize && ./configure --enable-pcs && make install
+
+script: sh travis/run-test.sh

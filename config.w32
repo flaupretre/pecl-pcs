@@ -1,0 +1,7 @@
+// vim:ft=javascript
+
+ARG_ENABLE("pcs", "enable the PHP Code Service extension", "no");
+
+if (PHP_PCS != "no") {
+        EXTENSION("pcs", "php_pcs.c", PHP_PCS_SHARED, "/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1");
+}
