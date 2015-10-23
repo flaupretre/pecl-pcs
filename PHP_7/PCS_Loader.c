@@ -37,7 +37,7 @@ static void PCS_Loader_registerHook(TSRMLS_D)
 
 	call_user_function(NULL, NULL, &func, &ret, 3, args);
 
-	zval_dtor(&ret);
+	zval_ptr_dtor(&ret);
 }
 
 /*---------------------------------------------------------------*/
@@ -172,11 +172,20 @@ static void PCS_Loader_loadNode(PCS_Node *node)
 
 	zend_hash_add_empty_element(&EG(included_files), node->uri);
 
-	zend_execute(op_array, &zret);
+    EG(no_extensions)=1;
+	zend_try {
+		ZVAL_UNDEF(&zret);
+		zend_execute(op_array, &zret);
+	} zend_catch {
+		destroy_op_array(op_array);
+		efree_size(op_array, sizeof(zend_op_array));
+		zend_bailout();
+	} zend_end_try();
+	EG(no_extensions)=0;
 
-	zval_dtor(&zret);
+	zval_ptr_dtor(&zret);
 	destroy_op_array(op_array);
-	EFREE(op_array);
+	efree_size(op_array, sizeof(zend_op_array));
 }
 
 /*--------------------*/
@@ -240,6 +249,7 @@ static int PCS_Loader_registerNode(PCS_Node *node)
 	int do_parse, status;
 	char *suf;
 	zval zdata, func, ret, *zkey;
+	zend_string *data;
 
 	ZEND_ASSERT(PCS_NODE_IS_FILE(node));
 
@@ -265,19 +275,20 @@ static int PCS_Loader_registerNode(PCS_Node *node)
 
 	if (! do_parse) return SUCCESS;
 
-	/* Execute parser on script (parser is autoloaded) */
+	/* Execute parser on script */
 
-	ZVAL_STRINGL(&zdata, PCS_FILE_DATA(node), PCS_FILE_LEN(node));
+	data = zend_string_init(PCS_FILE_DATA(node), PCS_FILE_LEN(node), 0);
+	ZVAL_STR(&zdata, data);
 	ZVAL_STR(&func, parser_func_name);
 	status = call_user_function(NULL, NULL, &func, &ret, 1, &zdata);
-	zval_dtor(&zdata);
+	zend_string_release(data);
 	if (status == FAILURE) {
-		zval_dtor(&ret);
+		zval_ptr_dtor(&ret);
 		return FAILURE;
 	}
 
 	if (Z_TYPE(ret) != IS_ARRAY) {
-		zval_dtor(&ret);
+		zval_ptr_dtor(&ret);
 		php_error(E_CORE_ERROR, "%s: Parser result should be an array"
 			, ZSTR_VAL(node->uri));
 		return FAILURE;
@@ -287,19 +298,20 @@ static int PCS_Loader_registerNode(PCS_Node *node)
 
 	ZEND_HASH_FOREACH_VAL(Z_ARRVAL(ret), zkey) {
 		if (Z_TYPE_P(zkey) != IS_STRING) {
-			zval_dtor(&ret);
+			zval_ptr_dtor(&ret);
 			php_error(E_CORE_ERROR, "%s: Elements returned by the parser should be strings"
 				, ZSTR_VAL(node->uri));
 			return FAILURE;
 		}
-		status = PCS_Loader_registerKey(Z_STR_P(zkey), node);
+		/* Register a persistent copy of the returned symbol */
+		status = PCS_Loader_registerKey(zend_string_dup(Z_STR_P(zkey), 1), node);
 		if (status == FAILURE) {
-			zval_dtor(&ret);
+			zval_ptr_dtor(&ret);
 			return FAILURE;
 		}
 	} ZEND_HASH_FOREACH_END();
 
-	zval_dtor(&ret);
+	zval_ptr_dtor(&ret);
 	return SUCCESS;
 }
 
@@ -310,6 +322,7 @@ static int PCS_Loader_registerKey(zend_string *key, PCS_Node *node)
 	PCS_Node *oldnode;
 
 	ZEND_ASSERT(key);
+	ZEND_ASSERT(GC_FLAGS(key) & IS_STR_PERSISTENT); /* Input key must be persistent */
 	ZEND_ASSERT(node);
 
 	oldnode = zend_hash_find_ptr(symbols, key);
@@ -327,7 +340,6 @@ static int PCS_Loader_registerKey(zend_string *key, PCS_Node *node)
 			, PCS_Loader_keyTypeString(ZSTR_VAL(key)[0]));
 		return FAILURE;
 	}
-
 	return SUCCESS;
 }
 

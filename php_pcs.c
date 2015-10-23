@@ -262,8 +262,6 @@ static PHP_MSHUTDOWN_FUNCTION(pcs)
 /*---------------------------------------------------------------*/
 /*-- Functions --*/
 
-/* These functions are always available, as they are used by the parser */
-
 static zend_function_entry pcs_functions[] = {
     {NULL, NULL, NULL}  /* must be the last line */
 };

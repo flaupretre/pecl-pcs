@@ -1,0 +1,7 @@
+// vim:ft=javascript
+
+ARG_ENABLE("ex1", "enable EX1", "no");
+
+if (PHP_EX1 != "no") {
+        EXTENSION("ex1", "php_ex1.c", PHP_EX1_SHARED, "/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1");
+}
