@@ -16,8 +16,12 @@
   +----------------------------------------------------------------------+
 */
 
-/* Example extension */
+/* An example extension using PCS to embed some PHP code */
 
+/* In this file, sections enclosed in '!!!...' lines signal the locations where
+   some PCS-related modifications are present. Outside of these blocks, nothing
+   differs from an 'usual' PHP extension.
+*/
 /*============================================================================*/
 
 #ifdef HAVE_CONFIG_H
@@ -27,10 +31,26 @@
 #include "php.h"
 #include "ext/standard/info.h"
 
+/*============================================================================*/
+/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+/* Include the pcs client header file. This file contains the definition of the
+   PCS API available to client extensions.
+   
+   In a real PCS client extension, the 'pcs_client' directory would be
+   duplicated from the PCS extension source tree to the client source tree (so,
+   there would be no '../..' prefix in the path below).
+   Here, we use a single pcs_client directory, without duplicating it in every
+   example, to avoid redundancies and synchronization mistakes.
+*/
+
+#include "../../pcs_client/client.h"
+
+/*============================================================================*/
+
 #include "php_ex1.h"
 
 #if PHP_MAJOR_VERSION >= 7
-#define PHP_7
+#	define PHP_7
 #endif
 
 /*------------------------*/
@@ -64,7 +84,16 @@ ZEND_DECLARE_MODULE_GLOBALS(ex1)
 
 int pcs_file_count;
 
+/*============================================================================*/
+/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+/* Here, we include the PHP code converted to a C-compatible format by
+   pcs_process_code.php. The path of the generated file is defined in
+   php/Makefile.
+*/
+
 #include "php/php.c/code.php.c"
+
+/*============================================================================*/
 
 /*---------------------------------------------------------------*/
 /* phpinfo() output                                              */
@@ -77,6 +106,8 @@ static PHP_MINFO_FUNCTION(ex1)
 
 	php_info_print_table_row(2, "EX1", "enabled");
 	php_info_print_table_row(2, "Version", PHP_EX1_VERSION);
+
+	/* Let's display the number of PHP scripts we registered in PCS */
 
 	sprintf(buf,"%d", pcs_file_count);
 	php_info_print_table_row(2, "Scripts registered in PCS", buf);
@@ -120,21 +151,61 @@ static PHP_RSHUTDOWN_FUNCTION(ex1)
 }
 
 /*---------------------------------------------------------------*/
-/* We use a separate init function because client extensions can
-*  be initialized before EX1. So, EX1 may need to be initialized
-*  before its own MINIT().
-*/
 
 static PHP_MINIT_FUNCTION(ex1)
 {
 	ZEND_INIT_MODULE_GLOBALS(ex1, ex1_globals_ctor, NULL);
 
-	/* Register PHP code in PCS */
+/*============================================================================*/
+/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+/* Here we register our PHP scripts in PCS.
+
+   That's the only interaction we'll have with PCS as, once it is done, PCS
+   will autoload these scripts everytime it is needed.
+   
+   Note that PCS_registerDescriptors() returns the number of scripts registered.
+   You may store this value or discard it, but you must at least test whether
+   the return value is equal to FAILURE. If it is the case, you *must* abort
+   function execution and return FAILURE too. This will abort PHP execution.
+*/
 
 	pcs_file_count = PCS_registerDescriptors(code, 0);
 	if (pcs_file_count < 0) return FAILURE;
+/*============================================================================*/
 	
 	return SUCCESS;
+}
+
+/*---------------------------------------------------------------*/
+/* Dummy function called from PHP */
+
+PHP_FUNCTION(ex1_add)
+{
+	zend_long a, b;
+	
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ll", &a, &b) == FAILURE) {
+                return;
+        }
+	
+	RETURN_LONG(a + b);
+}
+
+/*---------------------------------------------------------------*/
+/* Dummy function calling PHP from C */
+
+PHP_FUNCTION(ex1_c_to_php_test)
+{
+	zval func, arg;
+	zend_string *msg;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &msg) == FAILURE) {
+                return;
+        }
+	
+	ZVAL_STRING(&func, "Example1\\Dummy5::hello");
+	ZVAL_STR(&arg, msg);
+	call_user_function(NULL, NULL, &func, return_value, 1, &arg);
+	zval_ptr_dtor(&func);
 }
 
 /*---------------------------------------------------------------*/
@@ -151,14 +222,38 @@ static PHP_MSHUTDOWN_FUNCTION(ex1)
 /*---------------------------------------------------------------*/
 /*-- Functions --*/
 
+ZEND_BEGIN_ARG_INFO_EX(UT_1arg_arginfo, 0, 0, 1)
+ZEND_ARG_INFO(0, arg1)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(UT_2args_arginfo, 0, 0, 2)
+ZEND_ARG_INFO(0, arg1)
+ZEND_ARG_INFO(0, arg2)
+ZEND_END_ARG_INFO()
+
 static zend_function_entry ex1_functions[] = {
-    {NULL, NULL, NULL}  /* must be the last line */
+	PHP_FE(ex1_c_to_php_test, UT_1arg_arginfo)
+	PHP_FE(ex1_add, UT_2args_arginfo)
+    PHP_FE_END  /* must be the last line */
 };
 
 /*---------------------------------------------------------------*/
 /*-- Module definition --*/
 
-/* This module depends on the PCS extension, which must be activated first */
+/*============================================================================*/
+/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+/* Here, we define a dependency from our extension to PCS
+
+   This dependency ensures that PCS will be started (MINIT) *before* our
+   extension. This is important because the call to PCS_registerDescriptors()
+   above will fail if the PCS extension was not started yet.
+
+   As we cannot know in advance which extension will be compiled statically
+   and dynamically, the only way to ensure they are started in the right order
+   is to create a dependency. In a future version, if PCS is included in the
+   core distribution and configured to be always compiled statically, this
+   constraint will disappear.
+*/
 
 static const zend_module_dep ex1_deps[] = {
 	ZEND_MOD_REQUIRED("pcs")
@@ -169,6 +264,7 @@ zend_module_entry ex1_module_entry = {
 	STANDARD_MODULE_HEADER_EX,
 	NULL,
 	ex1_deps,
+/*============================================================================*/
 	PHP_EX1_EXTNAME,
 	ex1_functions,
 	PHP_MINIT(ex1),

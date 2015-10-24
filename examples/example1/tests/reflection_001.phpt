@@ -6,15 +6,12 @@ pcs
 <?php if (!extension_loaded("ex1")) print "skip"; ?>
 --FILE--
 <?php
-$cname = "Example1\\Dummy3";
-
-var_dump(class_exists($cname));
+$cname = "Example1\\Dummy2";
 
 $c = new ReflectionClass($cname);
 var_dump($c->getFileName());
 ?>
 ===DONE===
 --EXPECT--
-bool(true)
-string(24) "pcs://ext/ex1/Dummy3.php"
+string(24) "pcs://ext/ex1/Dummy2.php"
 ===DONE===
