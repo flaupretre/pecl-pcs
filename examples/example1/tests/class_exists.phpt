@@ -6,8 +6,8 @@ pcs
 <?php if (!extension_loaded("ex1")) print "skip"; ?>
 --FILE--
 <?php
-var_dump(class_exists("Example1\\Dummy2", false);
-var_dump(class_exists("Example1\\Dummy2");
+var_dump(class_exists("Example1\\Dummy2", false));
+var_dump(class_exists("Example1\\Dummy2"));
 ?>
 ===DONE===
 --EXPECT--

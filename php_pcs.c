@@ -17,7 +17,7 @@
 */
 
 /* Uncomment to display debug messages */
-#define PCS_DEBUG
+/*#define PCS_DEBUG*/
 /* Uncomment to prefix debug messages with timestamps */
 /*#define UT_DBG_TIMESTAMPS*/
 
