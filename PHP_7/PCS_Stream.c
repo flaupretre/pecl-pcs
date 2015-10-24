@@ -159,8 +159,20 @@ static int PCS_Stream_seek(php_stream *stream, zend_off_t offset, int whence
 
 static PCS_Node *PCS_Stream_getNodeFromURI(const char *uri, size_t len)
 {
+	PCS_Node *node;
+
+	ZEND_ASSERT(uri);
+	DBG_MSG1("-> PCS_Stream_getNodeFromURI(%s)", uri);
+
 	if (len < 6) return NULL;
-	return PCS_Tree_getNodeFromPath(uri + 6, len - 6);
+	node = PCS_Tree_getNodeFromPath(uri + 6, len - 6);
+	if (! node) {
+		DBG_MSG1("*** PCS_Stream_getNodeFromURI(%s) failed", uri);
+	} else {
+		DBG_MSG1("<- PCS_Stream_getNodeFromURI() => %s", ZSTR_VAL(node->path));
+	}
+	
+	return node;
 }
 
 /*--------------------*/
@@ -169,15 +181,13 @@ static PCS_Node *PCS_Stream_getNodeFromURI(const char *uri, size_t len)
 static int do_stat(php_stream_wrapper *wrapper, const char *uri
 	, PCS_STREAM_DATA *dp, php_stream_statbuf *ssb TSRMLS_DC)
 {
-	DBG_MSG1("Starting do_stat(%s)", uri);
+	DBG_MSG1("-> do_stat(%s)", uri);
 
 	/*-- Get node */
 
 	if (!(dp->node)) {
-		DBG_MSG("do_stat: Getting node");
 		dp->node = PCS_Stream_getNodeFromURI(uri, (size_t)strlen(uri));
 		if (!(dp->node)) {
-			DBG_MSG("do_stat: File not found - aborting");
 			php_stream_wrapper_log_error(wrapper, dp->show_errors TSRMLS_CC
 										 , "%s: File not found", uri);
 			return -1;
@@ -199,7 +209,7 @@ static int do_stat(php_stream_wrapper *wrapper, const char *uri
 	ssb->sb.st_blocks = -1;
 #endif
 
-	DBG_MSG("Exiting do_stat()");
+	DBG_MSG("<- do_stat()");
 	return 0;
 }
 
@@ -273,7 +283,7 @@ static int PCS_Stream_seekdir(php_stream *stream, zend_off_t offset
 
 #define ABORT_PCS_STREAM_OPEN() \
 	{ \
-	DBG_MSG("Aborting generic_open()"); \
+	DBG_MSG("<** Aborting generic_open()"); \
 	free_dp(&dp); \
 	return NULL; \
 	}
@@ -285,7 +295,7 @@ static php_stream *PCS_Stream_generic_open(int dir, php_stream_wrapper *wrapper
 	PCS_STREAM_DATA *dp = NULL;
 	size_t uri_len;
 
-	DBG_MSG2("Starting generic_open(%s, %s)", (dir ? "dir" : "file"), uri);
+	DBG_MSG2("-> generic_open(%s %s)", (dir ? "dir" : "file"), uri);
 
 	uri_len = (size_t)strlen(uri);
 
@@ -314,7 +324,6 @@ static php_stream *PCS_Stream_generic_open(int dir, php_stream_wrapper *wrapper
 	dp->node = PCS_Stream_getNodeFromURI(uri, uri_len);
 	if (!(dp->node))
 		{
-		DBG_MSG("do_stat: File not found");
 		php_stream_wrapper_log_error(wrapper, options TSRMLS_CC
 									 , "%s: File not found", uri);
 		ABORT_PCS_STREAM_OPEN();
@@ -329,7 +338,7 @@ static php_stream *PCS_Stream_generic_open(int dir, php_stream_wrapper *wrapper
 
 	if (opened_path) (*opened_path) = zend_string_init(uri, uri_len, 0);
 
-	DBG_MSG("Exiting generic_open()");
+	DBG_MSG("<- generic_open()");
 	return php_stream_alloc((dir ? &pcs_dirops : &pcs_ops), dp, NULL, mode);
 }
 

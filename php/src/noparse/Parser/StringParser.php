@@ -21,8 +21,6 @@
 
 namespace PCS\Parser {
 
-include(__DIR__.'/ParserInterface.php');
-
 //=============================================================================
 //-- For PHP version < 5.3.0
 

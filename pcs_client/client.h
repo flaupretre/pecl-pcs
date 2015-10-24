@@ -28,7 +28,7 @@
 /*-- Flags --*/
 
 /* Whether to parse and autoload the file */
-/* Default (0): Only compile filenames with '.php'/'.PHP' suffix */
+/* Default (0): Only compile filenames with php|PHP suffix */
 
 #define PCS_AUTOLOAD_FORCE		0x01
 #define PCS_AUTOLOAD_DISABLE	0x02
@@ -46,6 +46,7 @@ typedef struct {
 
 /*============================================================================*/
 
+/*----------------------------------------------------------------------------*/
 /* Registers a descriptor list, terminated with a '{ NULL }' entry
    Returns FAILURE on error. Otherwise, returns the number of registered scripts.
    Can be called during MINIT only.
@@ -53,6 +54,7 @@ typedef struct {
 
 PHPAPI int PCS_registerDescriptors(PCS_DESCRIPTOR *list, zend_long flags);
 
+/*----------------------------------------------------------------------------*/
 /* Registers a script contained in memory
    Data is not duplicated. So, it must be persistent and never overwritten
    Returns NULL on error.
@@ -62,6 +64,7 @@ PHPAPI int PCS_registerDescriptors(PCS_DESCRIPTOR *list, zend_long flags);
 PHPAPI PCS_NODE_ID PCS_registerData(char *data, size_t data_len
 	, const char *path, size_t pathlen, zend_long flags);
 
+/*----------------------------------------------------------------------------*/
 /* Registers an external file/tree. filename is a path to an existing
    file or directory.
    If it is a directory, the subtree is recursively crawled and registered.
@@ -73,17 +76,20 @@ PHPAPI PCS_NODE_ID PCS_registerData(char *data, size_t data_len
 PHPAPI PCS_NODE_ID PCS_registerPath(const char *filename, size_t filename_len
 	, const char *virtual_path, size_t virtual_path_len, zend_long flags);
 
+/*----------------------------------------------------------------------------*/
 /*	Execute a registered PHP script.
-	The input arg is the value returned by a PCS_registerxxx()
-	function or by PCS_getNodeID().
+	The input arg is the value returned by a PCS_registerxxx() function or by
+    PCS_getNodeID().
 	Use only when script cannot be autoloaded.
+	Cannot be called during MINIT.
 	Throws exception on error.
 */
 
 PHPAPI void PCS_loadScript(PCS_NODE_ID id);
 
-/* Get the node ID of a registered script, knowing its virtual path */
-/* Returns NULL on error.
+/*----------------------------------------------------------------------------*/
+/*	Get the node ID of a registered script, knowing its virtual path
+	Returns NULL on error.
 */
 
 PHPAPI PCS_NODE_ID PCS_getNodeID(const char *path, size_t pathlen);

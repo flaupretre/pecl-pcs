@@ -19,7 +19,14 @@
 #ifndef __PHP_EX1_H
 #define __PHP_EX1_H
 
-#include "pcs_client/client.h"
+/* In a real PCS client extension, the 'pcs_client' directory would be
+   duplicated from the PCS tree to the client tree (there would be no
+   '../..' prefix in the path below.
+   In the examples, we use only one 'pcs_client' directory to avoid
+   manual copies after each modification.
+*/
+
+#include "../../pcs_client/client.h"
 
 /*============================================================================*/
 

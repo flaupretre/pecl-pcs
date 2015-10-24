@@ -31,7 +31,7 @@
 #define MutexDeclare(x)		MUTEX_T x ## _mutex;
 #define StaticMutexDeclare(x)	static MUTEX_T x ## _mutex;
 #define MutexSetup(x)		{ x ## _mutex = tsrm_mutex_alloc(); }
-#define MutexShutdown(x)	{ tsrm_mutex_free(x ## _mutex); }
+#define MutexShutdown(x)	{ tsrm_mutex_free(x ## _mutex); x ## _mutex = NULL; }
 #define MutexLock(x)		{ tsrm_mutex_lock(x ## _mutex); }
 #define MutexUnlock(x)		{ tsrm_mutex_unlock(x ## _mutex); }
 #else

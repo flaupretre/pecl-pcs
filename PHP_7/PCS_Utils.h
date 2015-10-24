@@ -1,6 +1,6 @@
 /*
   +----------------------------------------------------------------------+
-  | Common utility function for PHP extensions                           |
+  | PCS extension <http://PCS.tekwire.net>                       |
   +----------------------------------------------------------------------+
   | Copyright (c) 2015 The PHP Group                                     |
   +----------------------------------------------------------------------+
@@ -16,51 +16,21 @@
   +----------------------------------------------------------------------+
 */
 
-#ifndef __PECL_UTILS_MISC_H
-#define __PECL_UTILS_MISC_H 1
-
-#include <fcntl.h>
+#ifndef __PCS_UTILS_H
+#define __PCS_UTILS_H
 
 /*============================================================================*/
 
-#define CLEAR_DATA(_v)	memset(&(_v),'\0',sizeof(_v)); \
-
-#define ENSURE_LONG(zp) { if (Z_TYPE_P((zp))!=IS_LONG) convert_to_long((zp)); }
-#define ENSURE_BOOL(zp) { if (Z_TYPE_P((zp))!=IS_BOOL) convert_to_boolean((zp)); }
-#define ENSURE_STRING(zp) { if (Z_TYPE_P((zp))!=IS_STRING) convert_to_string((zp)); }
-
-#ifndef S_ISDIR
-#	define S_ISDIR(mode)	(((mode)&S_IFMT) == S_IFDIR)
-#endif
-#ifndef S_ISREG
-#	define S_ISREG(mode)	(((mode)&S_IFMT) == S_IFREG)
-#endif
-
-#define IMM_STRL(_str)	_str, sizeof(_str) - 1
-
-/*---------------------------------------------------------------*/
-
-zend_module_entry *ut_current_module = NULL;
+static int in_startup = 1;
 
 /*-----------------------------------------------------*/
 
-static zend_always_inline zend_module_entry *ut_getModuleData()
-{
-	if (! ut_current_module) {
-		zend_string *name;
-		
-		name = zend_string_init(IMM_STRL(MODULE_NAME), 0);
-		ut_current_module = zend_hash_find_ptr(&module_registry, name);
-		zend_string_release(name);
-	}
-	
-	return ut_current_module;
-}
-	
-/*---------------------------------------------------------------*/
+static int PCS_Utils_assertModuleIsStarted(void);
 
-static int ut_is_web();
-static int ut_extension_loaded(char *name, int len TSRMLS_DC);
+static int MINIT_PCS_Utils(TSRMLS_D);
+static int MSHUTDOWN_PCS_Utils(TSRMLS_D);
+static int RINIT_PCS_Utils(TSRMLS_D);
+static int RSHUTDOWN_PCS_Utils(TSRMLS_D);
 
 /*============================================================================*/
-#endif	/* __PECL_UTILS_MISC_H */
+#endif

@@ -17,7 +17,9 @@
 */
 
 /* Uncomment to display debug messages */
-/*#define PCS_DEBUG*/
+#define PCS_DEBUG
+/* Uncomment to prefix debug messages with timestamps */
+/*#define UT_DBG_TIMESTAMPS*/
 
 /*============================================================================*/
 
@@ -68,11 +70,18 @@
 
 /*---------------------------------------------------------------*/
 
+#define MODULE_NAME PHP_PCS_EXTNAME
+#define MODULE_VERSION PHP_PCS_VERSION
+
+/*---------------------------------------------------------------*/
+
 #include "php_pcs.h"
+
 #include "common/compat.h"
 #include "common/utils.h"
 
 #ifdef PHP_7
+#	include "PHP_7/PCS_Utils.h"
 #	include "PHP_7/PCS_Tree.h"
 #	include "PHP_7/PCS_Class.h"
 #	include "PHP_7/PCS_Stream.h"
@@ -120,15 +129,12 @@ PHP_INI_BEGIN()
 PHP_INI_END()
 
 /*------------------------*/
-
-static int init_done=0;
-
-/*------------------------*/
 /* Including C code allows to export a minimal set of symbols */
 
 #include "common/utils.c"
 
 #ifdef PHP_7
+#	include "PHP_7/PCS_Utils.c"
 #	include "PHP_7/PCS_Tree.c"
 #	include "PHP_7/PCS_Class.c"
 #	include "PHP_7/PCS_Stream.c"
@@ -182,8 +188,11 @@ static void pcs_globals_dtor(zend_pcs_globals * globals TSRMLS_DC)
 
 static PHP_RINIT_FUNCTION(pcs)
 {
-	DBG_INIT();
+	DBG_MSG("-> PCS RINIT");
+	
+	in_startup = 0;
 
+	if (RINIT_PCS_Utils(TSRMLS_C) == FAILURE) return FAILURE;
 	if (RINIT_PCS_Tree(TSRMLS_C) == FAILURE) return FAILURE;
 	if (RINIT_PCS_Class(TSRMLS_C) == FAILURE) return FAILURE;
 	if (RINIT_PCS_Stream(TSRMLS_C) == FAILURE) return FAILURE;
@@ -202,40 +211,28 @@ static PHP_RSHUTDOWN_FUNCTION(pcs)
 	if (RSHUTDOWN_PCS_Stream(TSRMLS_C) == FAILURE) return FAILURE;
 	if (RSHUTDOWN_PCS_Class(TSRMLS_C) == FAILURE) return FAILURE;
 	if (RSHUTDOWN_PCS_Tree(TSRMLS_C) == FAILURE) return FAILURE;
+	if (RSHUTDOWN_PCS_Utils(TSRMLS_C) == FAILURE) return FAILURE;
 
 	return SUCCESS;
 }
 
 /*---------------------------------------------------------------*/
 
-static int PCS_init()
+static PHP_MINIT_FUNCTION(pcs)
 {
-	if (init_done) return SUCCESS;
-	init_done=1;
+	DBG_INIT();
+	DBG_MSG("-> PCS MINIT");
+
+	REGISTER_INI_ENTRIES();
 
 	ZEND_INIT_MODULE_GLOBALS(pcs, pcs_globals_ctor, NULL);
 
+	if (MINIT_PCS_Utils(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MINIT_PCS_Tree(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MINIT_PCS_Class(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MINIT_PCS_Stream(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MINIT_PCS_Loader(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MINIT_PCS_API(TSRMLS_C) == FAILURE) return FAILURE;
-
-	return SUCCESS;
-}
-/*---------------------------------------------------------------*/
-/* We use a separate init function because client extensions can
-*  be initialized before PCS. So, PCS may need to be initialized
-*  before its own MINIT().
-*/
-
-static PHP_MINIT_FUNCTION(pcs)
-{
-	REGISTER_INI_ENTRIES();
-
-	if (PCS_init() == FAILURE) {
-		return FAILURE;
-	}
 
 	return SUCCESS;
 }
@@ -253,6 +250,7 @@ static PHP_MSHUTDOWN_FUNCTION(pcs)
 	if (MSHUTDOWN_PCS_Stream(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MSHUTDOWN_PCS_Class(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MSHUTDOWN_PCS_Tree(TSRMLS_C) == FAILURE) return FAILURE;
+	if (MSHUTDOWN_PCS_Utils(TSRMLS_C) == FAILURE) return FAILURE;
 
 	UNREGISTER_INI_ENTRIES();
 
@@ -262,7 +260,7 @@ static PHP_MSHUTDOWN_FUNCTION(pcs)
 /*---------------------------------------------------------------*/
 /*-- Functions --*/
 
-static zend_function_entry pcs_functions[] = {
+static zend_function_entry module_functions[] = {
     {NULL, NULL, NULL}  /* must be the last line */
 };
 
@@ -273,15 +271,15 @@ zend_module_entry pcs_module_entry = {
 #if ZEND_MODULE_API_NO >= 20010901
 	STANDARD_MODULE_HEADER,
 #endif
-	PHP_PCS_EXTNAME,
-	pcs_functions,
+	MODULE_NAME,
+	module_functions,
 	PHP_MINIT(pcs),
 	PHP_MSHUTDOWN(pcs),
 	PHP_RINIT(pcs),
 	PHP_RSHUTDOWN(pcs),
 	PHP_MINFO(pcs),
 #if ZEND_MODULE_API_NO >= 20010901
-	PHP_PCS_VERSION,
+	MODULE_VERSION,
 #endif
 	STANDARD_MODULE_PROPERTIES
 };

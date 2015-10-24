@@ -1,6 +1,7 @@
+<?php
 /*
   +----------------------------------------------------------------------+
-  | Common utility function for PHP extensions                           |
+  | PCS extension <http://pcs.tekwire.net>                               |
   +----------------------------------------------------------------------+
   | Copyright (c) 2015 The PHP Group                                     |
   +----------------------------------------------------------------------+
@@ -16,49 +17,22 @@
   +----------------------------------------------------------------------+
 */
 
-#ifdef UT_DEBUG
-/*---------------------------------------------------------------*/
+//=============================================================================
 
-#include "php.h"
+namespace Example1 {
 
-/*---------------------------------------------------------------*/
-
-#ifdef HAVE_GETTIMEOFDAY
-static struct timeval _ut_base_tp;
-#endif
-
-/*------------*/
-
-static void ut_dbg_init_time()
+class Dummy3
 {
-#ifdef HAVE_GETTIMEOFDAY
-	struct timezone tz;
 
-	(void)gettimeofday(&_ut_base_tp,&tz);
-#endif
-}
+//-------
 
-/*------------*/
-
-static void ut_dbg_print_time()
+public function hello()
 {
-#ifdef UT_DBG_TIMESTAMPS
-#ifdef HAVE_GETTIMEOFDAY
-	struct timeval tp;
-	struct timezone tz;
-	time_t sec;
-
-	(void)gettimeofday(&tp,&tz);
-	sec=tp.tv_sec-_ut_base_tp.tv_sec;
-	if (ut_is_web()) php_printf("<br>");
-	php_printf("<");
-	if (sec) php_printf("(%ld s) ",sec);
-	else php_printf("(%ld µs) ",(tp.tv_usec-_ut_base_tp.tv_usec));
-	memmove(&_ut_base_tp,&tp,sizeof(tp));
-#endif
-#endif
+	echo "My name is Dummy3 !\n";
 }
-
-#endif	/* UT_DEBUG */
-
-/*============================================================================*/
+	
+//---
+} // End of class
+//===========================================================================
+} // End of namespace
+//===========================================================================

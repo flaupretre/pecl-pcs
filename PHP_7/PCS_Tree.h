@@ -43,7 +43,7 @@
 
 /*---*/
 
-typedef struct _PCS_Node {
+struct _PCS_Node {
 	struct _PCS_Node *parent;
 	int type;
 	zend_long flags;
@@ -59,7 +59,9 @@ typedef struct _PCS_Node {
 			HashTable items; /* <entry name> => (PCS_Node *) (ptr) */
 		} d;
 	} u;
-} PCS_Node;
+};
+
+typedef struct _PCS_Node PCS_Node;
 
 /*---------------------------------------------------------------*/
 /* Persistent data */

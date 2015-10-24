@@ -54,11 +54,11 @@ static PHP_METHOD(PCS, autoloadHook)
 		,&type,&tlen)==FAILURE) EXCEPTION_ABORT("Cannot parse parameters");
 
 	ctype = (type ? (*type) : PCS_T_CLASS);
-	DBG_MSG2("Entering PCS autoloader(%c %s)", ctype, symbol);
+	DBG_MSG2("-> PCS autoloader(%s %s)", PCS_Loader_keyTypeString(ctype), symbol);
 
 	PCS_Loader_loadSymbol(ctype , symbol, slen, 1, 0);
 
-	DBG_MSG("Exiting PCS autoloader");
+	DBG_MSG("<- PCS autoloader");
 }
 
 /*---------------------------------------------------------------*/
@@ -70,7 +70,7 @@ static int PCS_Loader_loadSymbol(char type, char *symbol, size_t slen, zend_bool
 	zend_string *key = NULL;
 	PCS_Node *node;
 
-	DBG_MSG2("Starting PCS_Loader_loadSymbol(%c, %s)", type, symbol);
+	DBG_MSG2("-> PCS_Loader_loadSymbol(%c, %s)", type, symbol);
 
 	/* If executed from the autoloader, no need to check for symbol existence */
 	if ((!autoload) && PCS_Loader_symbolIsDefined(type, symbol, slen)) {
@@ -151,7 +151,8 @@ static void PCS_Loader_loadNode(PCS_Node *node)
 	zend_file_handle file_handle;
 
 	ZEND_ASSERT(node);
-
+	DBG_MSG1("-> PCS_Loader_loadNode(%s)",ZSTR_VAL(node->path));
+	
 	if (!PCS_NODE_IS_FILE(node)) {
 		EXCEPTION_ABORT_1("%s: node is not a regular file - load aborted"
 			, ZSTR_VAL(node->uri));
@@ -170,7 +171,8 @@ static void PCS_Loader_loadNode(PCS_Node *node)
 		EXCEPTION_ABORT_1("%s: Error compiling script", ZSTR_VAL(node->uri));
 	}
 
-	zend_hash_add_empty_element(&EG(included_files), node->uri);
+	/* Not sure we should list this in included_files() */
+	/* zend_hash_add_empty_element(&EG(included_files), node->uri); */
 
     EG(no_extensions)=1;
 	zend_try {
@@ -252,6 +254,7 @@ static int PCS_Loader_registerNode(PCS_Node *node)
 	zend_string *data;
 
 	ZEND_ASSERT(PCS_NODE_IS_FILE(node));
+	DBG_MSG1("-> PCS_Loader_registerNode(%s)",ZSTR_VAL(node->path));
 
 	/* Should we parse this script ? */
 
@@ -352,12 +355,11 @@ static int PCS_Loader_registerKey(zend_string *key, PCS_Node *node)
 static int PCS_Loader_moduleInit()
 {
 	PCS_Node *node;
-	zend_string *key;
-	int status;
 
 	/* Init symbol table */
 	/* No destructor because PCS_Node structs are destroyed with the tree */
 
+	MutexSetup(symbols);
 	symbols = ut_pallocate(NULL, sizeof(*symbols));
 	zend_hash_init(symbols, 32, 0, NULL, 1);
 
@@ -373,12 +375,6 @@ static int PCS_Loader_moduleInit()
 		return FAILURE;
 	}
 	ParserInterface_node = node;
-	key = zend_string_init(IMM_STRL("LPCS\\Parser\\ParserInterface"), 1);
-	status = PCS_Loader_registerKey(key, node);
-	zend_string_release(key);
-	if (status == FAILURE) {
-		return FAILURE;
-	}
 
 	node = PCS_Tree_getNodeFromPath(IMM_STRL("internal/Parser/StringParser.php"));
 	if (!node) {
@@ -386,12 +382,6 @@ static int PCS_Loader_moduleInit()
 		return FAILURE;
 	}
 	StringParser_node = node;
-	key = zend_string_init(IMM_STRL("LPCS\\Parser\\StringParser"), 1);
-	status = PCS_Loader_registerKey(key, node);
-	zend_string_release(key);
-	if (status == FAILURE) {
-		return FAILURE;
-	}
 
 	return SUCCESS;
 }
@@ -406,6 +396,13 @@ static int PCS_Loader_Init()
 {
 	PCS_Node *node;
 
+	/* Load parser */
+	
+	PCS_Loader_loadNode(ParserInterface_node);
+	ON_EXCEPTION_RETURN(FAILURE);
+	PCS_Loader_loadNode(StringParser_node);
+	ON_EXCEPTION_RETURN(FAILURE);
+	
 	ZEND_HASH_FOREACH_PTR(fileList, node) {
 		PCS_Loader_registerNode(node);
 	} ZEND_HASH_FOREACH_END();
@@ -450,6 +447,7 @@ static int MSHUTDOWN_PCS_Loader(TSRMLS_D)
 
 	zend_hash_destroy(symbols);
 	PFREE(symbols);
+	MutexShutdown(symbols);
 
 	return SUCCESS;
 }
@@ -461,6 +459,8 @@ static int RINIT_PCS_Loader(TSRMLS_D)
 	int status;
 
 	PCS_Loader_registerHook();
+
+	/* Mutex ensures symbol table is populated only once */
 
 	MutexLock(symbols);
 	if (! loader_init_done) {

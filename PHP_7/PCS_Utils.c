@@ -1,8 +1,8 @@
 /*
   +----------------------------------------------------------------------+
-  | Common utility function for PHP extensions                           |
+  | PCS extension <http://PCS.tekwire.net>                       |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2015 The PHP Group                                     |
+  | Copyright (c) 2005-2015 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -16,49 +16,46 @@
   +----------------------------------------------------------------------+
 */
 
-#ifdef UT_DEBUG
 /*---------------------------------------------------------------*/
 
-#include "php.h"
+int PCS_Utils_assertModuleIsStarted()
+{
+	zend_module_entry *module;
+	
+	module = ut_getModuleData();
+	if (! module->module_started) {
+		php_error(E_CORE_ERROR,"Cannot call PCS before it is started. Please use a module dependency");
+		return FAILURE;
+	}
+	
+	return SUCCESS;
+}
+
+/*===============================================================*/
+
+static int MINIT_PCS_Utils(TSRMLS_D)
+{
+	return SUCCESS;
+}
 
 /*---------------------------------------------------------------*/
 
-#ifdef HAVE_GETTIMEOFDAY
-static struct timeval _ut_base_tp;
-#endif
-
-/*------------*/
-
-static void ut_dbg_init_time()
+static int MSHUTDOWN_PCS_Utils(TSRMLS_D)
 {
-#ifdef HAVE_GETTIMEOFDAY
-	struct timezone tz;
-
-	(void)gettimeofday(&_ut_base_tp,&tz);
-#endif
+	return SUCCESS;
 }
 
-/*------------*/
+/*---------------------------------------------------------------*/
 
-static void ut_dbg_print_time()
+static int RINIT_PCS_Utils(TSRMLS_D)
 {
-#ifdef UT_DBG_TIMESTAMPS
-#ifdef HAVE_GETTIMEOFDAY
-	struct timeval tp;
-	struct timezone tz;
-	time_t sec;
+	return SUCCESS;
+}
+/*---------------------------------------------------------------*/
 
-	(void)gettimeofday(&tp,&tz);
-	sec=tp.tv_sec-_ut_base_tp.tv_sec;
-	if (ut_is_web()) php_printf("<br>");
-	php_printf("<");
-	if (sec) php_printf("(%ld s) ",sec);
-	else php_printf("(%ld µs) ",(tp.tv_usec-_ut_base_tp.tv_usec));
-	memmove(&_ut_base_tp,&tp,sizeof(tp));
-#endif
-#endif
+static int RSHUTDOWN_PCS_Utils(TSRMLS_D)
+{
+	return SUCCESS;
 }
 
-#endif	/* UT_DEBUG */
-
-/*============================================================================*/
+/*===============================================================*/
