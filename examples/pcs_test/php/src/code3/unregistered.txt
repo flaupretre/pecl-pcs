@@ -1,0 +1,13 @@
+<?php
+// This script mustn't be registered as its file suffix is not recognized
+
+class Unregistered
+{
+
+public function hello()
+{
+echo "Hello from Unregistered class !\n";
+}
+
+}
+
