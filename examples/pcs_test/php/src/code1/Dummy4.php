@@ -1,6 +1,7 @@
+<?php
 /*
   +----------------------------------------------------------------------+
-  | PCS extension <http://PCS.tekwire.net>                       |
+  | PCS extension <http://pcs.tekwire.net>                               |
   +----------------------------------------------------------------------+
   | Copyright (c) 2015 The PHP Group                                     |
   +----------------------------------------------------------------------+
@@ -16,25 +17,22 @@
   +----------------------------------------------------------------------+
 */
 
-#ifndef __PCS_API_H
-#define __PCS_API_H
+//=============================================================================
 
-/*============================================================================*/
+namespace PCS_Test {
 
-typedef struct {
-	int version;		/* Descriptor format */
-	char *data;			/* File contents */
-	size_t data_len;
-	char *path;			/* Virtual path (no leading/trailing '/') */
-	size_t path_len;
-} PCS_DESCRIPTOR;
+class Dummy4
+{
 
-/*---------------*/
+//-------
 
-static int MINIT_PCS_API(TSRMLS_D);
-static int MSHUTDOWN_PCS_API(TSRMLS_D);
-static int RINIT_PCS_API(TSRMLS_D);
-static int RSHUTDOWN_PCS_API(TSRMLS_D);
-
-/*============================================================================*/
-#endif
+public function compute($a, $b)
+{
+	return ptest_add($a, $b);
+}
+	
+//---
+} // End of class
+//===========================================================================
+} // End of namespace
+//===========================================================================

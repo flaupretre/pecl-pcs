@@ -369,14 +369,14 @@ static int PCS_Loader_moduleInit()
 		return FAILURE;
 	}
 
-	node = PCS_Tree_getNodeFromPath(IMM_STRL("internal/Parser/ParserInterface.php"));
+	node = PCS_Tree_getNodeFromPath(IMM_STRL("internal/Parser/ParserInterface.php"), 0);
 	if (!node) {
 		php_error(E_CORE_ERROR, "Registering PCS parser - Cannot get node (internal/Parser/ParserInterface.php)");
 		return FAILURE;
 	}
 	ParserInterface_node = node;
 
-	node = PCS_Tree_getNodeFromPath(IMM_STRL("internal/Parser/StringParser.php"));
+	node = PCS_Tree_getNodeFromPath(IMM_STRL("internal/Parser/StringParser.php"), 0);
 	if (!node) {
 		php_error(E_CORE_ERROR, "Registering PCS parser - Cannot get node (internal/Parser/StringParser.php)");
 		return FAILURE;

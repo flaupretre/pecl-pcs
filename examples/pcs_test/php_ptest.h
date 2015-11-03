@@ -1,6 +1,6 @@
 /*
   +----------------------------------------------------------------------+
-  | PCS extension <http://PCS.tekwire.net>                       |
+  | PCS test extension <http://ptest.tekwire.net>                        |
   +----------------------------------------------------------------------+
   | Copyright (c) 2015 The PHP Group                                     |
   +----------------------------------------------------------------------+
@@ -16,25 +16,18 @@
   +----------------------------------------------------------------------+
 */
 
-#ifndef __PCS_API_H
-#define __PCS_API_H
+#ifndef __PHP_PTEST_H
+#define __PHP_PTEST_H
 
 /*============================================================================*/
 
-typedef struct {
-	int version;		/* Descriptor format */
-	char *data;			/* File contents */
-	size_t data_len;
-	char *path;			/* Virtual path (no leading/trailing '/') */
-	size_t path_len;
-} PCS_DESCRIPTOR;
+#define PHP_PTEST_VERSION "0.0.1" /* The extension version */
 
-/*---------------*/
+#define PHP_PTEST_EXTNAME "ptest"
 
-static int MINIT_PCS_API(TSRMLS_D);
-static int MSHUTDOWN_PCS_API(TSRMLS_D);
-static int RINIT_PCS_API(TSRMLS_D);
-static int RSHUTDOWN_PCS_API(TSRMLS_D);
+extern zend_module_entry ptest_module_entry;
+
+#define phpext_ptest_ptr &ptest_module_entry
 
 /*============================================================================*/
-#endif
+#endif /* __PHP_PTEST_H */

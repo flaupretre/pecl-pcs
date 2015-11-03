@@ -21,7 +21,7 @@
 
 #include <stdlib.h>
 
-#include "Zend/zend_types.h"
+#include "zend_types.h"
 
 /*============================================================================*/
 
@@ -35,64 +35,59 @@
 
 /*-----------------*/
 
-typedef void *PCS_NODE_ID;
-
-typedef struct {
-	char *data;			/* File contents */
-	size_t data_len;
-	char *path;			/* Virtual path (no leading/trailing '/') */
-	size_t path_len;
-} PCS_DESCRIPTOR;
+typedef zend_long PCS_ID;
 
 /*============================================================================*/
 
 /*----------------------------------------------------------------------------*/
-/* Registers a descriptor list, terminated with a '{ NULL }' entry
-   Returns FAILURE on error. Otherwise, returns the number of registered scripts.
+/* Registers a descriptor list, created by the pcs_process_code.php script.
+   Returns the number of registered scripts, or FAILURE on error.
    Can be called during MINIT only.
 */
 
-PHPAPI int PCS_registerDescriptors(PCS_DESCRIPTOR *list, zend_long flags);
+PHPAPI int PCS_registerDescriptors(void *list, zend_long flags);
 
 /*----------------------------------------------------------------------------*/
 /* Registers a script contained in memory
    Data is not duplicated. So, it must be persistent and never overwritten
-   Returns NULL on error.
+   Returns the ID of the registered file, or FAILURE on error.
    Can be called during MINIT only.
 */
 
-PHPAPI PCS_NODE_ID PCS_registerData(char *data, size_t data_len
+PHPAPI PCS_ID PCS_registerData(char *data, size_t data_len
 	, const char *path, size_t pathlen, zend_long flags);
 
 /*----------------------------------------------------------------------------*/
 /* Registers an external file/tree. filename is a path to an existing
    file or directory.
    If it is a directory, the subtree is recursively crawled and registered.
-   In this case (directory), the function returns the ID of the base directory.
-   Returns NULL on error.
+   The source path must be absolute (don't assume anything about the
+   current working directory when this function is executed).
+   Stream-wrapped paths are accepted.
+   Returns the number of registered scripts, or FAILURE on error.
    Can be called during MINIT only.
 */
 
-PHPAPI PCS_NODE_ID PCS_registerPath(const char *filename, size_t filename_len
+PHPAPI int PCS_registerPath(const char *filename, size_t filename_len
 	, const char *virtual_path, size_t virtual_path_len, zend_long flags);
 
 /*----------------------------------------------------------------------------*/
 /*	Execute a registered PHP script.
-	The input arg is the value returned by a PCS_registerxxx() function or by
-    PCS_getNodeID().
+	The input arg is a PCS_ID.
 	Use only when script cannot be autoloaded.
 	Cannot be called during MINIT.
 	Throws exception on error.
 */
 
-PHPAPI void PCS_loadScript(PCS_NODE_ID id);
+PHPAPI void PCS_loadScript(PCS_ID id);
 
 /*----------------------------------------------------------------------------*/
-/*	Get the node ID of a registered script, knowing its virtual path
-	Returns NULL on error.
+/*	Returns the node ID of a registered script, knowing its virtual path
+	Returns FAILURE on error.
+	If the 'throw' arg is non-null, also throws an exception on error.
 */
 
-PHPAPI PCS_NODE_ID PCS_getNodeID(const char *path, size_t pathlen);
+PHPAPI PCS_ID PCS_getID(const char *path, size_t pathlen, int throw);
 
 /*============================================================================*/
 #endif /* __PCS_CLIENT_H */

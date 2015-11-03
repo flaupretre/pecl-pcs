@@ -49,13 +49,15 @@ static PCS_Node *PCS_Tree_addSubNode(PCS_Node *parent, const char *name
 					return node; /* Dir exists already, return it */
 				} else {
 					php_error(E_CORE_ERROR
-						,"Cannot create file, a directory with that name does already exist"
+						,"%s: Cannot create file, a directory with that name does already exist"
+						, ZSTR_VAL(node->path)
 						);
 					return NULL;
 				}
 			} else { /* Existing node is a file -> error */
 					php_error(E_CORE_ERROR
-						,"Cannot create %s, a file with that name does already exist"
+						,"%s: Cannot create %s, a file with that name does already exist"
+						, ZSTR_VAL(node->path)
 						, ((type == PCS_TYPE_DIR) ? "dir" : "file"));
 					return NULL;
 			}
@@ -112,7 +114,8 @@ static PCS_Node *PCS_Tree_addSubNode(PCS_Node *parent, const char *name
 			break;
 
 		case PCS_TYPE_FILE:
-			/* Nothing to do */
+			node->u.f.id = zend_hash_next_free_element(fileList);
+			zend_hash_next_index_insert_ptr(fileList, node);
 			break;
 	}
 
@@ -164,9 +167,6 @@ static PCS_Node *PCS_Tree_addFile(const char *path, size_t pathlen
 	node->u.f.data = data;
 	node->u.f.len = datalen;
 	node->u.f.alloc = alloc;
-
-	zend_hash_next_index_insert_ptr(fileList, node);
-	PCS_G(nb_files)++;
 
 	return node;
 }
@@ -250,6 +250,8 @@ static PCS_Node *PCS_Tree_resolvePath(zend_string *path)
 	size_t remaining, len;
 	char *start, *end;
 
+	DBG_MSG1("-> PCS_Tree_resolvePath(%s)", ZSTR_VAL(path));
+
 	node = root;
 	start = ZSTR_VAL(path);
 	while (1) {
@@ -265,20 +267,23 @@ static PCS_Node *PCS_Tree_resolvePath(zend_string *path)
 			node = zend_hash_str_find_ptr(PCS_DIR_HT(node), start
 										  , (end ? len : remaining));
 		}
-		if (end || (!node)) break;
+		if ((!end) || (!node)) break;
 		if (! PCS_NODE_IS_DIR(node)) return NULL;
 		start = end + 1;
 	}
+	DBG_MSG("<- PCS_Tree_resolvePath()");
 	return node;
 }
 
 /*--------------------*/
 /* If path is valid but not in pathList, add it using the mutex */
 
-static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, size_t len)
+static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, size_t len, int throw)
 {
-	zend_string *cpath;
+	zend_string *cpath, *pcpath;
 	PCS_Node *node;
+
+	DBG_MSG1("-> PCS_Tree_getNodeFromPath(%s)", path);
 
 	cpath = PCS_Tree_cleanPath(path, len);
 
@@ -289,14 +294,33 @@ static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, size_t len)
 		if (!node) {
 			node = PCS_Tree_resolvePath(cpath);
 			if (node) { /* Register unknown path in path list */
+				DBG_MSG1("%s: Registering path in pathList", ZSTR_VAL(cpath));
 				MutexLock(pathList);
-				zend_hash_add_new_ptr(pathList, cpath, node);
+				pcpath = zend_string_dup(cpath, 1); /* Make persistent */
+				zend_hash_add_new_ptr(pathList, pcpath, node);
 				MutexUnlock(pathList);
+			} else if(throw) {
+				THROW_EXCEPTION_1("%s: PCS path not found", path);
 			}
 		}
 	}
 
 	zend_string_release(cpath);
+	return node;
+}
+
+/*--------------------*/
+/* If path is valid but not in pathList, add it using the mutex */
+
+static PCS_Node *PCS_Tree_getNodeFromID(PCS_ID id, int throw)
+{
+	PCS_Node *node;
+
+	node = zend_hash_index_find_ptr(fileList, (zend_ulong)id);
+	if ((!node) && throw) {
+		EXCEPTION_ABORT_RET_1(NULL, "%d: Invalid PCS ID", (int)id);
+	}
+
 	return node;
 }
 

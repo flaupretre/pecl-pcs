@@ -21,6 +21,7 @@
 
 class VFile
 {
+const DESCRIPTOR_VERSION = 0;
 
 private $data; /* File contents */
 private $path;
@@ -109,12 +110,13 @@ function dump_data($prefix, $index)
 }
 
 /*------------------------------------------------------------------*/
-/* Return the PCS_DESCRIPTOR struct definition */
+/* Return the descriptor struct definition */
 
 function dump_descriptor($prefix, $index)
 {
-	return "  { ".$prefix.'_string'.$index.", ".strlen($this->data)
-		.", \"".$this->vpath."\", ".strlen($this->vpath)." },\n";
+	return "  { ".self::DESCRIPTOR_VERSION.", ".$prefix.'_string'.$index
+		.", ".strlen($this->data).", \"".$this->vpath."\", "
+		.strlen($this->vpath)." },\n";
 }
 
 /*------------------------------------------------------------------*/
@@ -133,11 +135,12 @@ function dump_files($prefix, $table)
 	if ($GLOBALS['static']) {
 		$ret .= 'static ';
 	}
-	$ret .= "PCS_DESCRIPTOR ".$prefix."[".(count($table) + 1)."] = {\n";
+	$ret .= "struct {\n	int version;\n	char *data;\n	size_t data_len;\n	char *path;\n	size_t path_len;\n} "
+		.$prefix."[".(count($table) + 1)."] = {\n";
 	foreach($table as $index => $file) {
 		$ret .= $file->dump_descriptor($prefix, $index);
 	}
-	$ret .= "  { NULL }\n};\n";
+	$ret .= "  { ".VFile::DESCRIPTOR_VERSION.", NULL }\n};\n";
 
 	return $ret;
 }

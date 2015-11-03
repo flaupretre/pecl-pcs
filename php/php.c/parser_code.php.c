@@ -373,8 +373,14 @@ static char parser_code_string1[]= { /* internal/Parser/StringParser.php */
   125, 32, 10, 10, 0 };
 
 
-static PCS_DESCRIPTOR parser_code[3] = {
-  { parser_code_string0, 134, "internal/Parser/ParserInterface.php", 35 },
-  { parser_code_string1, 5716, "internal/Parser/StringParser.php", 32 },
-  { NULL }
+static struct {
+	int version;
+	char *data;
+	size_t data_len;
+	char *path;
+	size_t path_len;
+} parser_code[3] = {
+  { 0, parser_code_string0, 134, "internal/Parser/ParserInterface.php", 35 },
+  { 0, parser_code_string1, 5716, "internal/Parser/StringParser.php", 32 },
+  { 0, NULL }
 };

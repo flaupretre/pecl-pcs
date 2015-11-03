@@ -165,11 +165,11 @@ static PCS_Node *PCS_Stream_getNodeFromURI(const char *uri, size_t len)
 	DBG_MSG1("-> PCS_Stream_getNodeFromURI(%s)", uri);
 
 	if (len < 6) return NULL;
-	node = PCS_Tree_getNodeFromPath(uri + 6, len - 6);
+	node = PCS_Tree_getNodeFromPath(uri + 6, len - 6, 0);
 	if (! node) {
 		DBG_MSG1("*** PCS_Stream_getNodeFromURI(%s) failed", uri);
 	} else {
-		DBG_MSG1("<- PCS_Stream_getNodeFromURI() => %s", ZSTR_VAL(node->path));
+		DBG_MSG2("<- PCS_Stream_getNodeFromURI(%s) => %s", uri, ZSTR_VAL(node->path));
 	}
 	
 	return node;
@@ -196,7 +196,8 @@ static int do_stat(php_stream_wrapper *wrapper, const char *uri
 
 	memset(ssb, 0, sizeof(*ssb));
 
-	ssb->sb.st_size = (off_t)(PCS_FILE_LEN(dp->node));
+	ssb->sb.st_size = (off_t)(PCS_NODE_IS_DIR(dp->node)
+		? zend_hash_num_elements(PCS_DIR_HT(dp->node)) : PCS_FILE_LEN(dp->node));
 	ssb->sb.st_mode = (mode_t) (PCS_NODE_IS_DIR(dp->node) ? S_IFDIR|0555 : S_IFREG|0444);
 	ssb->sb.st_nlink = 1;
 #ifdef HAVE_ST_RDEV
@@ -219,8 +220,6 @@ static int do_stat(php_stream_wrapper *wrapper, const char *uri
 static int PCS_Stream_fstat(php_stream *stream, php_stream_statbuf *ssb TSRMLS_DC)
 {
 	PCS_STREAM_DATA *dp = stream->abstract;
-
-	ZEND_ASSERT(PCS_NODE_IS_FILE(dp->node));
 
 	if (!ssb) return -1;
 
@@ -328,6 +327,21 @@ static php_stream *PCS_Stream_generic_open(int dir, php_stream_wrapper *wrapper
 									 , "%s: File not found", uri);
 		ABORT_PCS_STREAM_OPEN();
 	}
+
+	/* Check node type */
+
+	if (dir && (!PCS_NODE_IS_DIR(dp->node))) {
+		php_stream_wrapper_log_error(wrapper, options TSRMLS_CC
+									 , "%s: Node is not a directory", uri);
+		ABORT_PCS_STREAM_OPEN();
+	}
+	if ((!dir) && (!PCS_NODE_IS_FILE(dp->node))) {
+		php_stream_wrapper_log_error(wrapper, options TSRMLS_CC
+									 , "%s: Node is not a regular file", uri);
+		ABORT_PCS_STREAM_OPEN();
+	}
+		
+	/* Init dp data */
 
 	if (dir) {
 		/*DBG_MSG1("Nb entries: %d", zend_hash_num_elements(PCS_DIR_HT(dp->node))); */

@@ -54,6 +54,7 @@ struct _PCS_Node {
 			char *data;
 			size_t len;
 			int alloc;
+			zend_long id;
 		} f;
 		struct {
 			HashTable items; /* <entry name> => (PCS_Node *) (ptr) */
@@ -65,17 +66,14 @@ typedef struct _PCS_Node PCS_Node;
 
 /*---------------------------------------------------------------*/
 /* Persistent data */
-
-/* We don't set a mutex on the tree because there cannot be concurrent writes
-   (it is never modified after MINIT).
-*/
+/* We don't set mutexes on elements which cannot be modified after MINIT. */
 
 static PCS_Node *root;	/* Root dir */
 
 static HashTable *pathList;	/* path => (PCS_Node *) (ptr) */
 StaticMutexDeclare(pathList)
 
-static HashTable *fileList; /* list of file nodes */
+static HashTable *fileList; /* list of file nodes (index = file id) */
 
 /*---------------------------------------------------------------*/
 
@@ -125,6 +123,15 @@ static zend_always_inline int PCS_FILE_ALLOC(PCS_Node *node)
 
 /*------*/
 
+static zend_always_inline zend_long PCS_FILE_ID(PCS_Node *node)
+{
+	PCS_CHECK_NODE(node);
+	ZEND_ASSERT(PCS_NODE_IS_FILE(node));
+	return node->u.f.id;
+}
+
+/*------*/
+
 static zend_always_inline HashTable *PCS_DIR_HT(PCS_Node *node)
 {
 	PCS_CHECK_NODE(node);
@@ -144,7 +151,8 @@ static PCS_Node *PCS_Tree_addFile(const char *path, size_t pathlen
 static void PCS_Tree_destroyNode(zval *zp);
 static zend_string *PCS_Tree_cleanPath(const char *path, size_t len);
 static PCS_Node *PCS_Tree_resolvePath(zend_string *path);
-static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, size_t len);
+static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, size_t len, int throw);
+static PCS_Node *PCS_Tree_getNodeFromID(PCS_ID id, int throw);
 
 static int MINIT_PCS_Tree(TSRMLS_D);
 static int MSHUTDOWN_PCS_Tree(TSRMLS_D);

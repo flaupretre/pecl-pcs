@@ -27,11 +27,10 @@
 /* Public API */
 
 /*--------------------*/
-/* Register a set of preprocessed PHP scripts */
-/* Return the number of registered descriptors or FAILURE on error */
 
-PHPAPI int PCS_registerDescriptors(PCS_DESCRIPTOR *list, zend_long flags)
+PHPAPI int PCS_registerDescriptors(void *vlist, zend_long flags)
 {
+	PCS_DESCRIPTOR *list = (PCS_DESCRIPTOR *)vlist;
 	PCS_Node *node;
 	int count;
 
@@ -46,6 +45,11 @@ PHPAPI int PCS_registerDescriptors(PCS_DESCRIPTOR *list, zend_long flags)
 
 	count = 0;
 	while (list->data) {
+		/* Only descriptor version 0 can be handled */
+		if (list->version != 0) {
+			php_error(E_CORE_ERROR,"Cannot handle descriptor version (%d)", list->version);
+			return FAILURE;
+		}
 		node = PCS_Tree_addFile(list->path, list->path_len, list->data
 			, list->data_len, 0, flags);
 		if (! node) return FAILURE;
@@ -57,33 +61,26 @@ PHPAPI int PCS_registerDescriptors(PCS_DESCRIPTOR *list, zend_long flags)
 }
 
 /*--------------------*/
-/* Register a script contained in memory.
-   Returns NULL on error
-*/
 
-PHPAPI PCS_NODE_ID PCS_registerData(char *data, size_t data_len
+PHPAPI PCS_ID PCS_registerData(char *data, size_t data_len
 	, const char *path, size_t path_len, zend_long flags)
 {
+	PCS_Node *node;
+
 	if (! in_startup) {
 		php_error(E_CORE_ERROR, "PCS_registerData() can be called during MINIT only");
-		return NULL;
+		return FAILURE;
 	}
 
 	if (PCS_Utils_assertModuleIsStarted() == FAILURE) {
-		return NULL;
+		return FAILURE;
 	}
 
-	return PCS_Tree_addFile(path, path_len, data, data_len, 0, flags);
+	node = PCS_Tree_addFile(path, path_len, data, data_len, 0, flags);
+	return (node ? PCS_FILE_ID(node) : FAILURE);
 }
 
 /*--------------------*/
-/* Register a file or a file tree from an external path */
-/* The source path must be an absolute path (don't assume anything about the
-   current working directory when this function is executed).
-   Stream-wrapped paths are accepted.
-   Returns the address of the node corresponding to the filename argument . If
-   this is a regular file, this value can be sent later to PCS_loadScriptByID().
-*/
 
 #define CLEANUP_PCS_registerPath() { \
 	if (type) zend_string_release(type); \
@@ -99,23 +96,22 @@ PHPAPI PCS_NODE_ID PCS_registerData(char *data, size_t data_len
 #define ABORT_PCS_registerPath() { \
 	EFREE(data); \
 	CLEANUP_PCS_registerPath(); \
-	return NULL; \
+	return FAILURE; \
 	}
 
-PHPAPI PCS_NODE_ID PCS_registerPath(const char *filename, size_t filename_len
+PHPAPI int PCS_registerPath(const char *filename, size_t filename_len
 	, const char *virtual_path, size_t virtual_path_len, zend_long flags)
 {
 	php_stream *stream;
 	char *data = NULL, *sub_fname, *sub_vpath;
 	size_t datalen, sub_fname_len, sub_vpath_len;
-	PCS_Node *node, *subnode;
 	zval zv;
 	zend_string *contents, **namelist = NULL, *type = NULL, *zsp;
-	int i, children_count = 0;
+	int i, status, fcount = 0, children_count = 0;
 
 	if (! in_startup) {
 		php_error(E_CORE_ERROR, "PCS_registerPath() can be called during MINIT only");
-		return NULL;
+		ABORT_PCS_registerPath();
 	}
 
 	if (PCS_Utils_assertModuleIsStarted() == FAILURE) {
@@ -123,13 +119,17 @@ PHPAPI PCS_NODE_ID PCS_registerPath(const char *filename, size_t filename_len
 	}
 
 	php_stat(filename, filename_len, FS_TYPE, &zv);
-	if (Z_TYPE(zv) != IS_STRING) ABORT_PCS_registerPath();
+	if (Z_TYPE(zv) != IS_STRING) {
+		ABORT_PCS_registerPath();
+	}
 	type = Z_STR(zv);
 
 	/* If path is a directory */
 
 	if (!strcmp(ZSTR_VAL(type), "dir")) {
-		node = PCS_Tree_addDir(virtual_path, virtual_path_len, flags);
+		if (! PCS_Tree_addDir(virtual_path, virtual_path_len, flags)) {
+			ABORT_PCS_registerPath();
+		}
 		
 		/* Recurse on dir entries */
 	
@@ -151,13 +151,14 @@ PHPAPI PCS_NODE_ID PCS_registerPath(const char *filename, size_t filename_len
 				sub_fname_len = filename_len + 1 + ZSTR_LEN(namelist[i]);
 				spprintf(&sub_vpath, 0, "%s/%s", virtual_path, ZSTR_VAL(namelist[i]));
 				sub_vpath_len = virtual_path_len + 1 + ZSTR_LEN(namelist[i]);
-				subnode = PCS_registerPath(sub_fname, sub_fname_len, sub_vpath
+				status = PCS_registerPath(sub_fname, sub_fname_len, sub_vpath
 									, sub_vpath_len, flags);
 				EFREE(sub_fname);
 				EFREE(sub_vpath);
-				if (!subnode) {
+				if (status == FAILURE) {
 					ABORT_PCS_registerPath();
 				}
+				fcount += status;
 			}
 		}
 	
@@ -178,7 +179,11 @@ PHPAPI PCS_NODE_ID PCS_registerPath(const char *filename, size_t filename_len
 		datalen = ZSTR_LEN(contents);
 		data = ut_duplicate(ZSTR_VAL(contents), datalen+1, 1);
 		zend_string_release(contents);
-		node = PCS_Tree_addFile(virtual_path, virtual_path_len, data, datalen, 1, flags);
+		if (! PCS_Tree_addFile(virtual_path, virtual_path_len, data, datalen, 1, flags)) {
+			ABORT_PCS_registerPath();
+		}
+		fcount = 1;
+			
 	
 	/* Other file types are unsupported */
 
@@ -188,14 +193,15 @@ PHPAPI PCS_NODE_ID PCS_registerPath(const char *filename, size_t filename_len
 	}
 
 	CLEANUP_PCS_registerPath();
-	return node;
+	return fcount;
 }
 
 /*--------------------*/
-/* On errors, throws exception */
 
-PHPAPI void PCS_loadScript(PCS_NODE_ID id)
+PHPAPI void PCS_loadScript(PCS_ID id)
 {
+	PCS_Node *node;
+
 	if (in_startup) {
 		EXCEPTION_ABORT("PCS_loadScript() cannot be called during MINIT");
 		return;
@@ -205,19 +211,29 @@ PHPAPI void PCS_loadScript(PCS_NODE_ID id)
 		return;
 	}
 
-	PCS_Loader_loadNode((PCS_Node *)id);
+	node = PCS_Tree_getNodeFromID(id, 1);
+	if (EG(exception)) {
+		return;
+	}
+	PCS_Loader_loadNode(node);
 }
 
 /*--------------------*/
-/* Returns SUCCESS|FAILURE */
 
-PHPAPI PCS_NODE_ID PCS_Loader_getNodeID(const char *path, size_t pathlen)
+PHPAPI PCS_ID PCS_getID(const char *path, size_t pathlen, int throw)
 {
+	PCS_Node *node;
+
 	if (PCS_Utils_assertModuleIsStarted() == FAILURE) {
-		return NULL;
+		return FAILURE;
 	}
 
-	return PCS_Tree_getNodeFromPath(path, pathlen);
+	node = PCS_Tree_getNodeFromPath(path, pathlen, 1);
+	if (EG(exception)) {
+		return FAILURE;
+	}
+
+	return PCS_FILE_ID(node);
 }
 
 /*===============================================================*/

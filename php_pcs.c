@@ -105,8 +105,6 @@
 
 ZEND_BEGIN_MODULE_GLOBALS(pcs)
 
-int nb_files; /* Number of registered files (info) */
-
 ZEND_END_MODULE_GLOBALS(pcs)
 
 ZEND_DECLARE_MODULE_GLOBALS(pcs)
@@ -155,7 +153,7 @@ static PHP_MINFO_FUNCTION(pcs)
 	php_info_print_table_row(2, "PHP Code Service", "enabled");
 	php_info_print_table_row(2, "Version", PHP_PCS_VERSION);
 
-	sprintf(buf,"%d",PCS_G(nb_files));
+	sprintf(buf, "%d", (int)zend_hash_num_elements(fileList));
 	php_info_print_table_row(2, "Registered script count",buf);
 
 	php_info_print_table_end();
