@@ -27,6 +27,7 @@ Note:
    - File data is not initialized.
    - Adding an already-existing subdir is OK.
    - name arg doesn't have to be null-terminated.
+   - '.' and '..' are forbidden as node name
    - Null 'parent' means we are creating the root node
    - On error, returns NULL
 */
@@ -39,7 +40,12 @@ static PCS_Node *PCS_Tree_addSubNode(PCS_Node *parent, const char *name
 
 	ZEND_ASSERT(!(parent && (len <= 0))); /* Accept empty name for root only */
 
-	/* First, check if entry already exists */
+	if ((len <= 2) && (name[0]=='.') && ((name[1]=='.') || (len == 1))) {
+		php_error(E_CORE_ERROR, "Cannot create node named '.' or '..'");
+		return NULL;
+	}
+	
+	/* Check if entry already exists */
 
 	if (parent) {
 		node = (PCS_Node *)zend_hash_str_find_ptr(PCS_DIR_HT(parent), name, len);
@@ -131,11 +137,13 @@ static PCS_Node *PCS_Tree_addNode(const char *path, size_t pathlen
 	PCS_Node *node;
 	size_t remaining, len;
 	const char *start, *found;
+	zend_string *cpath;
 
+	cpath = PCS_Tree_cleanPath(path, pathlen);
+	start = ZSTR_VAL(cpath);
 	node = root;
-	start = path;
 	while (1) {
-		remaining = pathlen - (size_t)(start - path);
+		remaining = ZSTR_LEN(cpath) - (size_t)(start - ZSTR_VAL(cpath));
 		found = memchr(start, '/', remaining);
 		len = (found ? (size_t)(found - start) : remaining);
 		node = PCS_Tree_addSubNode(node, start, len, (found ?  PCS_TYPE_DIR : type)
@@ -144,6 +152,8 @@ static PCS_Node *PCS_Tree_addNode(const char *path, size_t pathlen
 		if (! found) break;
 		start = found + 1;
 	}
+
+	zend_string_release(cpath);
 	return node;
 }
 
@@ -196,7 +206,7 @@ static void PCS_Tree_destroyNode(zval *zp)
 }
 
 /*--------------------*/
-/* Returns a newly-allocated string (must be freed by caller)
+/* Returns a newly-allocated string (must be released by caller)
    Replace '\' with '/'
    Remove leading and trailing '/', multiple '/'
    Note : 'name' input arg does not have to be null-terminated.
@@ -240,8 +250,8 @@ static zend_string *PCS_Tree_cleanPath(const char *path, size_t len)
 /*--------------------*/
 /* Resolve a path not existing in pathList
    On entry, path is 'clean', ie produced by PCS_Tree_cleanPath()
-   Returns NULL if node does not exist
    Handles '.' and '..' special dir entries
+   Returns NULL if node does not exist
 */
 
 static PCS_Node *PCS_Tree_resolvePath(zend_string *path)
@@ -310,7 +320,6 @@ static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, size_t len, int thro
 }
 
 /*--------------------*/
-/* If path is valid but not in pathList, add it using the mutex */
 
 static PCS_Node *PCS_Tree_getNodeFromID(PCS_ID id, int throw)
 {
