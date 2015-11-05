@@ -280,6 +280,7 @@ static int PCS_Loader_registerNode(PCS_Node *node)
 
 	/* Execute parser on script */
 
+	DBG_MSG1("Parsing script %s", ZSTR_VAL(node->path));
 	data = zend_string_init(PCS_FILE_DATA(node), PCS_FILE_LEN(node), 0);
 	ZVAL_STR(&zdata, data);
 	ZVAL_STR(&func, parser_func_name);
@@ -343,6 +344,8 @@ static int PCS_Loader_registerKey(zend_string *key, PCS_Node *node)
 			, PCS_Loader_keyTypeString(ZSTR_VAL(key)[0]));
 		return FAILURE;
 	}
+	DBG_MSG1("%s: Registered key in PCS autoloader", ZSTR_VAL(key));
+
 	return SUCCESS;
 }
 
