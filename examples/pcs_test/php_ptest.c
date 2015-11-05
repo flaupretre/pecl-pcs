@@ -30,15 +30,11 @@
 
 #include "../../pcs_client/client.h"
 
-/*============================================================================*/
-
 #include "php_ptest.h"
 
 #if PHP_MAJOR_VERSION >= 7
 #	define PHP_7
 #endif
-
-/*------------------------*/
 
 #ifdef COMPILE_DL_PTEST
 #	ifdef PHP_7
@@ -74,6 +70,18 @@ ZEND_DECLARE_MODULE_GLOBALS(ptest)
 #endif
 
 zend_long pcs_file_count;
+
+char data1[] = "<?php\n\
+namespace PCS_Test {\n\
+class data1\n\
+{\n\
+public function hello()\n\
+{\n\
+	echo \"Hello from \".__CLASS__.\"\\n\";\n\
+}\n\
+} // End of class\n\
+} // End of namespace\n\
+";
 
 /*============================================================================*/
 
@@ -182,6 +190,29 @@ PHP_INI_END()
 
 /*---------------------------------------------------------------*/
 
+static PCS_ID register_data1(char *path, zend_long flags)
+{
+	PCS_ID id;
+	zend_string *rpath;
+
+	id = PCS_registerData(data1, strlen(data1), path, strlen(path), flags);
+	if (id == FAILURE) {
+		php_error(E_CORE_ERROR, "Error registering data1 as %s: PCS_registerData() failed", path);
+		return FAILURE;
+	}
+	if (id == FAILURE) return FAILURE;
+	rpath = PCS_getPath(id, 1);
+	if (! rpath) {
+		php_error(E_CORE_ERROR, "Error registering data1 as %s: Cannot retrieve path", path);
+		return FAILURE;
+	}
+	php_printf("Registered data1 as %s => %s\n", path, ZSTR_VAL(rpath));
+	
+	return id;
+}
+
+/*---------------------------------------------------------------*/
+
 static PHP_RINIT_FUNCTION(ptest)
 {
 	return SUCCESS;
@@ -199,6 +230,7 @@ static PHP_RSHUTDOWN_FUNCTION(ptest)
 static PHP_MINIT_FUNCTION(ptest)
 {
 	zend_long count;
+	PCS_ID id;
 
 	ZEND_INIT_MODULE_GLOBALS(ptest, ptest_globals_ctor, NULL);
 	REGISTER_INI_ENTRIES();
@@ -228,7 +260,41 @@ static PHP_MINIT_FUNCTION(ptest)
 		php_printf("Loaded empty set\n");
 		pcs_file_count += count;
 	}
-	
+
+		switch(PTEST_G(test_case)) {
+			case 1:
+				id = register_data1("ext/ptest/data1.php", 0);
+				break;
+			case 2:
+				id = register_data1("ext/ptest/data1.txt", 0);
+				break;
+			case 3:
+				id = register_data1("ext/ptest/data1.php", PCS_AUTOLOAD_DISABLE);
+				break;
+			case 4:
+				id = register_data1("ext/ptest/data1.txt", PCS_AUTOLOAD_FORCE);
+				break;
+			case 5:
+				id = register_data1("ext/ptest/../data1.php", 0);
+				break;
+			case 6:
+				id = register_data1("ext/ptest/./data1.php", 0);
+				break;
+			case 7:
+				id = register_data1("/ext/ptest/data1.php", 0);
+				break;
+			case 8:
+				id = register_data1("ext/ptest/data1.php/", 0);
+				break;
+			case 9:
+				id = register_data1("/ext/ptest///data1.php/", 0);
+				break;
+			case 20:
+				if ((count = PCS_registerDescriptors(code3, PCS_AUTOLOAD_FORCE)) == FAILURE) return FAILURE;
+				php_printf("Loaded code3 set (autoload force\n");
+				pcs_file_count += count;
+		}
+
 	return SUCCESS;
 }
 
