@@ -82,6 +82,16 @@ PHPAPI int PCS_registerPath(const char *filename, size_t filename_len
 PHPAPI void PCS_loadScript(PCS_ID id);
 
 /*----------------------------------------------------------------------------*/
+/*	Returns the path corresponding to a given ID.
+	The input arg is a PCS_ID.
+	Returns NULL on error.
+	If the 'throw' arg is non-null, also throws an exception on error.
+	If non-null, returned zend_string must be released.
+*/
+
+PHPAPI zend_string *PCS_getPath(PCS_ID id, int throw);
+
+/*----------------------------------------------------------------------------*/
 /*	Returns the node ID of a registered script, knowing its virtual path
 	Returns FAILURE on error.
 	If the 'throw' arg is non-null, also throws an exception on error.

@@ -220,6 +220,25 @@ PHPAPI void PCS_loadScript(PCS_ID id)
 
 /*--------------------*/
 
+PHPAPI zend_string *PCS_getPath(PCS_ID id, int throw)
+{
+	PCS_Node *node;
+
+	if (PCS_Utils_assertModuleIsStarted() == FAILURE) {
+		return NULL;
+	}
+
+	node = PCS_Tree_getNodeFromID(id, throw);
+	if (! node) {
+		return NULL;
+	}
+
+	zend_string_addref(node->path);
+	return node->path;
+}
+
+/*--------------------*/
+
 PHPAPI PCS_ID PCS_getID(const char *path, size_t pathlen, int throw)
 {
 	PCS_Node *node;
