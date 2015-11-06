@@ -40,27 +40,9 @@
 
 /*---------------------------------------------------------------*/
 
-zend_module_entry *ut_current_module = NULL;
-
-/*-----------------------------------------------------*/
-
-static zend_always_inline zend_module_entry *ut_getModuleData()
-{
-	if (! ut_current_module) {
-		zend_string *name;
-		
-		name = zend_string_init(IMM_STRL(MODULE_NAME), 0);
-		ut_current_module = zend_hash_find_ptr(&module_registry, name);
-		zend_string_release(name);
-	}
-	
-	return ut_current_module;
-}
-	
-/*---------------------------------------------------------------*/
-
 static int ut_is_web();
 static int ut_extension_loaded(char *name, int len TSRMLS_DC);
+static zend_module_entry *ut_getModuleData();
 
 /*============================================================================*/
 #endif	/* __PECL_UTILS_MISC_H */

@@ -13,7 +13,7 @@ phpenv config-rm xdebug.ini || :
 # -m : test using valgrind
 # -q : No interaction
 
-REPORT_EXIT_STATUS=1 TEST_PHP_ARGS='-m -q' USE_ZEND_ALLOC=0 make test
+TEST_PHP_ARGS='-m -q' make test
 
 ret=0
 

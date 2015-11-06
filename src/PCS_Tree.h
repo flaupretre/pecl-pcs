@@ -19,8 +19,6 @@
 #ifndef __PCS_TREE_H
 #define __PCS_TREE_H
 
-#include "Zend/zend_portability.h"
-
 /*---------------------------------------------------------------*/
 
 /* Node types */
@@ -151,8 +149,8 @@ static PCS_Node *PCS_Tree_addFile(const char *path, PCS_SIZE_T pathlen
 static void PCS_Tree_destroyNode(zval *zp);
 static zend_string *PCS_Tree_cleanPath(const char *path, PCS_SIZE_T len);
 static PCS_Node *PCS_Tree_resolvePath(zend_string *path);
-static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, PCS_SIZE_T len, int throw);
-static PCS_Node *PCS_Tree_getNodeFromID(PCS_ID id, int throw);
+static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, PCS_SIZE_T len);
+static PCS_Node *PCS_Tree_getNodeFromID(PCS_ID id);
 
 static int MINIT_PCS_Tree(TSRMLS_D);
 static int MSHUTDOWN_PCS_Tree(TSRMLS_D);

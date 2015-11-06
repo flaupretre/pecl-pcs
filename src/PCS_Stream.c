@@ -94,7 +94,7 @@ static void free_dp(PCS_STREAM_DATA **dpp)
 /*--------------------*/
 /* File read */
 
-static PCS_SIZE_T PCS_Stream_read(php_stream *stream, char *buf, PCS_SIZE_T count TSRMLS_DC)
+static size_t PCS_Stream_read(php_stream *stream, char *buf, size_t count TSRMLS_DC)
 {
 	PCS_SIZE_T max;
 	PCS_STREAM_DATA *dp = stream->abstract;
@@ -175,7 +175,7 @@ static PCS_Node *PCS_Stream_getNodeFromURI(const char *uri, PCS_SIZE_T len)
 	DBG_MSG1("-> PCS_Stream_getNodeFromURI(%s)", uri);
 
 	if (len < 6) return NULL;
-	node = PCS_Tree_getNodeFromPath(uri + 6, len - 6, 0);
+	node = PCS_Tree_getNodeFromPath(uri + 6, len - 6);
 	if (! node) {
 		DBG_MSG1("*** PCS_Stream_getNodeFromURI(%s) failed", uri);
 	} else {
@@ -239,7 +239,7 @@ static int PCS_Stream_fstat(php_stream *stream, php_stream_statbuf *ssb TSRMLS_D
 /*---------------------------------------------------------------*/
 /* readdir */
 
-static PCS_SIZE_T PCS_Stream_readdir(php_stream *stream, char *buf, PCS_SIZE_T count TSRMLS_DC)
+static size_t PCS_Stream_readdir(php_stream *stream, char *buf, size_t count TSRMLS_DC)
 {
 	php_stream_dirent *ent = (php_stream_dirent *) buf;
 	PCS_STREAM_DATA *dp = stream->abstract;
@@ -300,7 +300,7 @@ static int PCS_Stream_seekdir(php_stream *stream, zend_off_t offset
 	}
 
 static php_stream *PCS_Stream_generic_open(int dir, php_stream_wrapper *wrapper
-	, const char *uri, const char *mode, int options, zend_string **opened_path
+	, const char *uri, const char *mode, int options, OPENED_PATH_PTR *opened_path
 	, php_stream_context *context STREAMS_DC TSRMLS_DC)
 {
 	PCS_STREAM_DATA *dp = NULL;
@@ -355,11 +355,16 @@ static php_stream *PCS_Stream_generic_open(int dir, php_stream_wrapper *wrapper
 	if (persistent) {
 		spprintf(&persistent_id, 0, "streams_pcs_%c_%s", open_flags
 			, ZSTR_VAL(dp->node->path));
-		switch (php_stream_from_persistent_id(persistent_id, &ret)) {
+		switch (php_stream_from_persistent_id(persistent_id, &ret TSRMLS_CC)) {
 			case PHP_STREAM_PERSISTENT_SUCCESS:
 				if (opened_path) {
+#ifdef PHP_7
 					zend_string_addref(dp->node->uri);
 					(*opened_path) = dp->node->uri;
+#else
+					(*opened_path) = ut_eduplicate(ZSTR_VAL(dp->node->uri)
+						, ZSTR_LEN(dp->node->uri) + 1);
+#endif
 				}
 			/* fall through */
 			case PHP_STREAM_PERSISTENT_FAILURE:
@@ -378,8 +383,13 @@ static php_stream *PCS_Stream_generic_open(int dir, php_stream_wrapper *wrapper
 	}
 
 	if (opened_path) { /* Return canonical path as opened path */
+#ifdef PHP_7
 		zend_string_addref(dp->node->uri);
 		(*opened_path) = dp->node->uri;
+#else
+		(*opened_path) = ut_eduplicate(ZSTR_VAL(dp->node->uri)
+			, ZSTR_LEN(dp->node->uri) + 1);
+#endif
 	}
 
 	DBG_MSG("<- generic_open()");
@@ -392,7 +402,7 @@ static php_stream *PCS_Stream_generic_open(int dir, php_stream_wrapper *wrapper
 /*--------------------*/
 
 static php_stream *PCS_Stream_openfile(php_stream_wrapper *wrapper
-	, const char *uri, const char *mode, int options, zend_string **opened_path
+	, const char *uri, const char *mode, int options, OPENED_PATH_PTR *opened_path
 	, php_stream_context *context STREAMS_DC TSRMLS_DC)
 {
 	return PCS_Stream_generic_open(0, wrapper, uri, mode, options
@@ -417,7 +427,7 @@ static int PCS_Stream_url_stat(php_stream_wrapper *wrapper, const char *uri
 /*--------------------*/
 
 static php_stream *PCS_Stream_opendir(php_stream_wrapper * wrapper
-	, const char *uri, const char *mode, int options, zend_string **opened_path
+	, const char *uri, const char *mode, int options, OPENED_PATH_PTR *opened_path
 	, php_stream_context *context STREAMS_DC TSRMLS_DC)
 {
 	return PCS_Stream_generic_open(1, wrapper, uri, mode, options

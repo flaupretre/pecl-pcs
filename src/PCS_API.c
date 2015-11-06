@@ -222,29 +222,38 @@ PHPAPI int PCS_registerPath(const char *filename, PCS_SIZE_T filename_len
 
 /*--------------------*/
 
-PHPAPI void PCS_loadScript(PCS_ID id)
+PHPAPI int PCS_loadScript(PCS_ID id, int throw TSRMLS_DC)
 {
 	PCS_Node *node;
 
 	if (in_startup) {
-		EXCEPTION_ABORT("PCS_loadScript() cannot be called during MINIT");
-		return;
+		if (throw) {
+			THROW_EXCEPTION("PCS_loadScript() cannot be called during MINIT");
+		}
+		return FAILURE;
 	}
 
 	if (PCS_Utils_assertModuleIsStarted() == FAILURE) {
-		return;
+		if (throw) {
+			THROW_EXCEPTION("PCS module is not active");
+		}
+		return FAILURE;
 	}
 
-	node = PCS_Tree_getNodeFromID(id, 1);
-	if (EG(exception)) {
-		return;
+	node = PCS_Tree_getNodeFromID(id);
+	if (! node) {
+		if (throw) {
+			THROW_EXCEPTION_1("Cannot get PCS node from ID (%ld)", id);
+		}
+		return FAILURE;
 	}
-	PCS_Loader_loadNode(node);
+
+	return PCS_Loader_loadNode(node, throw TSRMLS_CC);
 }
 
 /*--------------------*/
 
-PHPAPI char *PCS_getPath(PCS_ID id, int throw)
+PHPAPI char *PCS_getPath(PCS_ID id)
 {
 	PCS_Node *node;
 
@@ -252,7 +261,7 @@ PHPAPI char *PCS_getPath(PCS_ID id, int throw)
 		return NULL;
 	}
 
-	node = PCS_Tree_getNodeFromID(id, throw);
+	node = PCS_Tree_getNodeFromID(id);
 	if (! node) {
 		return NULL;
 	}
@@ -262,7 +271,7 @@ PHPAPI char *PCS_getPath(PCS_ID id, int throw)
 
 /*--------------------*/
 
-PHPAPI PCS_ID PCS_getID(const char *path, PCS_SIZE_T pathlen, int throw)
+PHPAPI PCS_ID PCS_getID(const char *path, PCS_SIZE_T pathlen)
 {
 	PCS_Node *node;
 
@@ -270,8 +279,8 @@ PHPAPI PCS_ID PCS_getID(const char *path, PCS_SIZE_T pathlen, int throw)
 		return FAILURE;
 	}
 
-	node = PCS_Tree_getNodeFromPath(path, pathlen, 1);
-	if (EG(exception)) {
+	node = PCS_Tree_getNodeFromPath(path, pathlen);
+	if (! node) {
 		return FAILURE;
 	}
 

@@ -195,17 +195,21 @@ PHP_FUNCTION(ex1_add)
 
 PHP_FUNCTION(ex1_c_to_php_test)
 {
-	zval func, arg;
-	zend_string *msg;
+	zval func, *msg;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &msg) == FAILURE) {
-                return;
-        }
-	
-	ZVAL_STRING(&func, "Example1\\Dummy5::hello");
-	ZVAL_STR(&arg, msg);
-	call_user_function(NULL, NULL, &func, return_value, 1, &arg);
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &msg) == FAILURE) {
+		return;
+	}
+
+#ifdef PHP_7	
+	ZVAL_STRINGL(&func, "Example1\\Dummy5::hello", sizeof("Example1\\Dummy5::hello") - 1);
+	call_user_function(NULL, NULL, &func, return_value, 1, msg);
 	zval_ptr_dtor(&func);
+#else
+	ZVAL_STRINGL(&func, "Example1\\Dummy5::hello", sizeof("Example1\\Dummy5::hello") - 1, 1);
+	call_user_function(NULL, NULL, &func, return_value, 1, &msg TSRMLS_CC);
+	zval_dtor(&func);
+#endif
 }
 
 /*---------------------------------------------------------------*/

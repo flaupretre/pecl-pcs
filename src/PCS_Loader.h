@@ -55,18 +55,18 @@ static void PCS_Loader_registerHook(TSRMLS_D);
 static PHP_METHOD(PCS, autoloadHook);
 static int PCS_Loader_loadSymbol(char type, char *symbol, PCS_SIZE_T slen, zend_bool autoload
 	, zend_bool exception TSRMLS_DC);
-static int PCS_Loader_symbolIsDefined(char type, char *symbol, PCS_SIZE_T slen);
-static void PCS_Loader_loadNode(PCS_Node *node);
+static int PCS_Loader_symbolIsDefined(char type, char *symbol, PCS_SIZE_T slen TSRMLS_DC);
+static int PCS_Loader_loadNode(PCS_Node *node, int throw TSRMLS_DC);
 static char *PCS_Loader_keyTypeString(char c);
 
 PCS_DECLARE_GET_REQUIRE_FUNCTIONS(Function)
 PCS_DECLARE_GET_REQUIRE_FUNCTIONS(Constant)
 PCS_DECLARE_GET_REQUIRE_FUNCTIONS(Class)
 
-static int PCS_Loader_registerNode(PCS_Node *node);
+static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC);
 static int PCS_Loader_registerKey(zend_string *key, PCS_Node *node);
 static int PCS_Loader_moduleInit();
-static int PCS_Loader_Init();
+static int PCS_Loader_Init(TSRMLS_D);
 
 static int MINIT_PCS_Loader(TSRMLS_D);
 static int MSHUTDOWN_PCS_Loader(TSRMLS_D);

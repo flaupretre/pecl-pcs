@@ -35,7 +35,7 @@ static void PCS_Loader_registerHook(TSRMLS_D)
 	ZVAL_TRUE(&(args[1]));	/* do_throw */
 	ZVAL_TRUE(&(args[2]));	/* prepend */
 
-	call_user_function(NULL, NULL, &func, &ret, 3, args);
+	call_user_function(NULL, NULL, &func, &ret, 3, args TSRMLS_CC);
 
 	zval_ptr_dtor(&ret);
 }
@@ -56,7 +56,7 @@ static PHP_METHOD(PCS, autoloadHook)
 	ctype = (type ? (*type) : PCS_T_CLASS);
 	DBG_MSG2("-> PCS autoloader(%s %s)", PCS_Loader_keyTypeString(ctype), symbol);
 
-	PCS_Loader_loadSymbol(ctype , symbol, slen, 1, 0);
+	PCS_Loader_loadSymbol(ctype , symbol, slen, 1, 0 TSRMLS_CC);
 
 	DBG_MSG("<- PCS autoloader");
 }
@@ -73,7 +73,7 @@ static int PCS_Loader_loadSymbol(char type, char *symbol, PCS_SIZE_T slen, zend_
 	DBG_MSG2("-> PCS_Loader_loadSymbol(%c, %s)", type, symbol);
 
 	/* If executed from the autoloader, no need to check for symbol existence */
-	if ((!autoload) && PCS_Loader_symbolIsDefined(type, symbol, slen)) {
+	if ((!autoload) && PCS_Loader_symbolIsDefined(type, symbol, slen TSRMLS_CC)) {
 		return SUCCESS;
 	}
 
@@ -86,14 +86,14 @@ static int PCS_Loader_loadSymbol(char type, char *symbol, PCS_SIZE_T slen, zend_
 	if (! node) {
 		if ((exception)&&(!EG(exception))) {
 			THROW_EXCEPTION_2("PCS: Unknown %s (%s)"
-				, PCS_Loader_keyTypeString(type)
-				, symbol);
+				, PCS_Loader_keyTypeString(type), symbol);
 		}
 		return FAILURE;
 	}
 
-	PCS_Loader_loadNode(node);
-	ON_EXCEPTION_RETURN(FAILURE);
+	if (FAILURE == PCS_Loader_loadNode(node, exception TSRMLS_CC)) {
+		return FAILURE;
+	}
 
 	return SUCCESS;
 }
@@ -101,7 +101,7 @@ static int PCS_Loader_loadSymbol(char type, char *symbol, PCS_SIZE_T slen, zend_
 /*---------------------------------------------------------------*/
 /* Return 0|1 */
 
-static int PCS_Loader_symbolIsDefined(char type, char *symbol, PCS_SIZE_T slen)
+static int PCS_Loader_symbolIsDefined(char type, char *symbol, PCS_SIZE_T slen TSRMLS_DC)
 {
 	char *lc_symbol = NULL;
 	int status;
@@ -141,10 +141,11 @@ static int PCS_Loader_symbolIsDefined(char type, char *symbol, PCS_SIZE_T slen)
    Adapted from zend_execute_scripts()
    We use zend_compile_file() and not zend_compile_string() because, in the
    future, opcache will cache PCS URIs.
-   On error, throws exception
+   Returns SUCCESS|FAILURE
+   if throw arg is set, throws exception on error
 */
 
-static void PCS_Loader_loadNode(PCS_Node *node)
+static int PCS_Loader_loadNode(PCS_Node *node, int throw TSRMLS_DC)
 {
 	zend_op_array *op_array;
 	zval zret;
@@ -154,8 +155,11 @@ static void PCS_Loader_loadNode(PCS_Node *node)
 	DBG_MSG1("-> PCS_Loader_loadNode(%s)",ZSTR_VAL(node->path));
 	
 	if (!PCS_NODE_IS_FILE(node)) {
-		EXCEPTION_ABORT_1("%s: node is not a regular file - load aborted"
-			, ZSTR_VAL(node->uri));
+		if (throw) {
+			THROW_EXCEPTION_1("%s: node is not a regular file - load aborted"
+				, ZSTR_VAL(node->uri));
+		}
+		return FAILURE;
 	}
 
 	file_handle.type = ZEND_HANDLE_FILENAME;
@@ -165,13 +169,17 @@ static void PCS_Loader_loadNode(PCS_Node *node)
 	file_handle.opened_path = NULL;
 	file_handle.free_filename = 0;
 
-	op_array = zend_compile_file(&file_handle, ZEND_REQUIRE);
-	zend_destroy_file_handle(&file_handle);
+	op_array = zend_compile_file(&file_handle, ZEND_REQUIRE TSRMLS_CC);
+	zend_destroy_file_handle(&file_handle TSRMLS_CC);
 	if (!op_array) {
-		EXCEPTION_ABORT_1("%s: Error compiling script", ZSTR_VAL(node->uri));
+		if (throw) {
+			THROW_EXCEPTION_1("%s: Error compiling script - load aborted"
+				, ZSTR_VAL(node->uri));
+		}
+		return FAILURE;
 	}
 
-	/* Not sure we should list this in included_files() */
+	/* FIXME: Should we list this in included_files() ? */
 	/* zend_hash_add_empty_element(&EG(included_files), node->uri); */
 
     EG(no_extensions)=1;
@@ -179,15 +187,17 @@ static void PCS_Loader_loadNode(PCS_Node *node)
 		ZVAL_UNDEF(&zret);
 		zend_execute(op_array, &zret);
 	} zend_catch {
-		destroy_op_array(op_array);
-		efree_size(op_array, sizeof(zend_op_array));
+		destroy_op_array(op_array TSRMLS_CC);
+		EFREE(op_array);
 		zend_bailout();
 	} zend_end_try();
 	EG(no_extensions)=0;
 
 	zval_ptr_dtor(&zret);
-	destroy_op_array(op_array);
-	efree_size(op_array, sizeof(zend_op_array));
+	destroy_op_array(op_array TSRMLS_CC);
+	EFREE(op_array);
+
+	return SUCCESS;
 }
 
 /*--------------------*/
@@ -224,13 +234,13 @@ static char *PCS_Loader_keyTypeString(char c)
 		PCS_SIZE_T slen; \
 		zend_bool autoload = 0; \
  \
-		if (zend_parse_parameters(ZEND_NUM_ARGS()TSRMLS_CC, "s|b", &symbol \
+		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|b", &symbol \
 			, &slen, &autoload) == FAILURE) { \
 			EXCEPTION_ABORT("Cannot parse parameters"); \
 		} \
  \
 		RETURN_BOOL(PCS_Loader_loadSymbol(_type, symbol, slen \
-			, autoload, _exception) == SUCCESS); \
+			, autoload, _exception TSRMLS_CC) == SUCCESS); \
 	}
 
 PCS_GET_FUNCTION(Function,PCS_T_FUNCTION)
@@ -246,7 +256,7 @@ PCS_REQUIRE_FUNCTION(Class,PCS_T_CLASS)
 
 /*---------------------------------------------------------------*/
 
-static int PCS_Loader_registerNode(PCS_Node *node)
+static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 {
 	int do_parse, status;
 	char *suf;
@@ -284,7 +294,7 @@ static int PCS_Loader_registerNode(PCS_Node *node)
 	data = zend_string_init(PCS_FILE_DATA(node), PCS_FILE_LEN(node), 0);
 	ZVAL_STR(&zdata, data);
 	ZVAL_STR(&func, parser_func_name);
-	status = call_user_function(NULL, NULL, &func, &ret, 1, &zdata);
+	status = call_user_function(NULL, NULL, &func, &ret, 1, &zdata TSRMLS_CC);
 	zend_string_release(data);
 	if (status == FAILURE) {
 		zval_ptr_dtor(&ret);
@@ -326,7 +336,7 @@ static int PCS_Loader_registerKey(zend_string *key, PCS_Node *node)
 	PCS_Node *oldnode;
 
 	ZEND_ASSERT(key);
-	ZEND_ASSERT(GC_FLAGS(key) & IS_STR_PERSISTENT); /* Input key must be persistent */
+	ZEND_ASSERT(zend_string_is_persistent(key)); /* Input key must be persistent */
 	ZEND_ASSERT(node);
 
 	oldnode = zend_hash_find_ptr(symbols, key);
@@ -372,14 +382,14 @@ static int PCS_Loader_moduleInit()
 		return FAILURE;
 	}
 
-	node = PCS_Tree_getNodeFromPath(IMM_STRL("internal/Parser/ParserInterface.php"), 0);
+	node = PCS_Tree_getNodeFromPath(IMM_STRL("internal/Parser/ParserInterface.php"));
 	if (!node) {
 		php_error(E_CORE_ERROR, "Registering PCS parser - Cannot get node (internal/Parser/ParserInterface.php)");
 		return FAILURE;
 	}
 	ParserInterface_node = node;
 
-	node = PCS_Tree_getNodeFromPath(IMM_STRL("internal/Parser/StringParser.php"), 0);
+	node = PCS_Tree_getNodeFromPath(IMM_STRL("internal/Parser/StringParser.php"));
 	if (!node) {
 		php_error(E_CORE_ERROR, "Registering PCS parser - Cannot get node (internal/Parser/StringParser.php)");
 		return FAILURE;
@@ -390,24 +400,24 @@ static int PCS_Loader_moduleInit()
 }
 
 /*--------------------*/
-/* Register symbols from the file tree
+/* Register symbols from the file tree during RINIT
    This cannot be done during MINIT because the parser is written in PHP
    On entry, the parser is already registered
 */
 
-static int PCS_Loader_Init()
+static int PCS_Loader_Init(TSRMLS_D)
 {
 	PCS_Node *node;
 
 	/* Load parser */
 	
-	PCS_Loader_loadNode(ParserInterface_node);
+	PCS_Loader_loadNode(ParserInterface_node, 1 TSRMLS_CC);
 	ON_EXCEPTION_RETURN(FAILURE);
-	PCS_Loader_loadNode(StringParser_node);
+	PCS_Loader_loadNode(StringParser_node, 1 TSRMLS_CC);
 	ON_EXCEPTION_RETURN(FAILURE);
 	
 	ZEND_HASH_FOREACH_PTR(fileList, node) {
-		PCS_Loader_registerNode(node);
+		PCS_Loader_registerNode(node TSRMLS_CC);
 	} ZEND_HASH_FOREACH_END();
 
 	loader_init_done = 1;
@@ -461,13 +471,13 @@ static int RINIT_PCS_Loader(TSRMLS_D)
 {
 	int status;
 
-	PCS_Loader_registerHook();
+	PCS_Loader_registerHook(TSRMLS_C);
 
 	/* Mutex ensures symbol table is populated only once */
 
 	MutexLock(symbols);
 	if (! loader_init_done) {
-		status = PCS_Loader_Init();
+		status = PCS_Loader_Init(TSRMLS_C);
 		}
 	MutexUnlock(symbols);
 	if (status == FAILURE) return FAILURE;

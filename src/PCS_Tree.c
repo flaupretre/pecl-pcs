@@ -288,7 +288,7 @@ static PCS_Node *PCS_Tree_resolvePath(zend_string *path)
 /*--------------------*/
 /* If path is valid but not in pathList, add it using the mutex */
 
-static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, PCS_SIZE_T len, int throw)
+static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, PCS_SIZE_T len)
 {
 	zend_string *cpath, *pcpath;
 	PCS_Node *node;
@@ -309,8 +309,6 @@ static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, PCS_SIZE_T len, int 
 				pcpath = zend_string_dup(cpath, 1); /* Make persistent */
 				zend_hash_add_new_ptr(pathList, pcpath, node);
 				MutexUnlock(pathList);
-			} else if(throw) {
-				THROW_EXCEPTION_1("%s: PCS path not found", path);
 			}
 		}
 	}
@@ -321,16 +319,9 @@ static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, PCS_SIZE_T len, int 
 
 /*--------------------*/
 
-static PCS_Node *PCS_Tree_getNodeFromID(PCS_ID id, int throw)
+static PCS_Node *PCS_Tree_getNodeFromID(PCS_ID id)
 {
-	PCS_Node *node;
-
-	node = zend_hash_index_find_ptr(fileList, (zend_ulong)id);
-	if ((!node) && throw) {
-		EXCEPTION_ABORT_RET_1(NULL, "%d: Invalid PCS ID", (int)id);
-	}
-
-	return node;
+	return zend_hash_index_find_ptr(fileList, (zend_ulong)id);
 }
 
 /*===============================================================*/

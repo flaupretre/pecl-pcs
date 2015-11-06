@@ -17,6 +17,11 @@
 */
 
 #include "main/SAPI.h"
+#include "zend_modules.h"
+
+/*---------------------------------------------------------------*/
+
+static zend_module_entry *ut_current_module = NULL;
 
 /*============================================================================*/
 
@@ -49,4 +54,19 @@ static int ut_extension_loaded(char *name, int len TSRMLS_DC)
 	return status;
 }
 
+/*-----------------------------------------------------*/
+
+static zend_module_entry *ut_getModuleData()
+{
+	if (! ut_current_module) {
+		zend_string *name;
+		
+		name = zend_string_init(IMM_STRL(MODULE_NAME), 0);
+		ut_current_module = zend_hash_find_ptr(&module_registry, name);
+		zend_string_release(name);
+	}
+	
+	return ut_current_module;
+}
+	
 /*============================================================================*/

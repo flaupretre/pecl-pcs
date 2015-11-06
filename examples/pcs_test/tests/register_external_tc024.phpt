@@ -1,9 +1,9 @@
 --TEST--
-Register a single external file
+Register a single external file (forcing autoload)
 --EXTENSIONS--
 pcs
 --INI--
-ptest.test_case=21
+ptest.test_case=24
 --SKIPIF--
 <?php if (!extension_loaded("pcs")) print "skip"; ?>
 --FILE--

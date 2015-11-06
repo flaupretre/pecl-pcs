@@ -23,4 +23,7 @@
 #define PHP_7
 #endif
 
+#include "compat/misc.h"
+#include "compat/zend_string.h"
+
 #endif /* _COMPAT_H */

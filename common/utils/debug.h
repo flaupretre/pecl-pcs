@@ -28,7 +28,9 @@
 #include <sys/time.h>
 #endif
 
+#ifdef PHP_7
 #include "Zend/zend_portability.h"
+#endif
 
 /*---------------------------------------------------------------*/
 

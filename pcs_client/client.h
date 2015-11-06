@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 
+#include "zend.h"
 #include "zend_types.h"
 
 #if PHP_MAJOR_VERSION >= 7
@@ -84,30 +85,29 @@ PHPAPI int PCS_registerPath(const char *filename, PCS_SIZE_T filename_len
 	The input arg is a PCS_ID.
 	Use only when script cannot be autoloaded.
 	Cannot be called during MINIT.
-	Throws exception on error.
+	Returns SUCCESS|FAILURE.
+	If throw arg is set, generates exception on failure
 */
 
-PHPAPI void PCS_loadScript(PCS_ID id);
+PHPAPI int PCS_loadScript(PCS_ID id, int throw TSRMLS_DC);
 
 /*----------------------------------------------------------------------------*/
 /*	Returns the path corresponding to a given ID as a null-terminated string.
 	The input arg is a PCS_ID.
 	Returns NULL on error.
-	If the 'throw' arg is non-null, also throws an exception on error.
 	Returned string must NOT be modified nor freed.
 	Can be called at any time, even during MINIT.
 */
 
-PHPAPI char *PCS_getPath(PCS_ID id, int throw);
+PHPAPI char *PCS_getPath(PCS_ID id);
 
 /*----------------------------------------------------------------------------*/
 /*	Returns the ID of a registered script, knowing its virtual path
 	Returns FAILURE on error.
-	If the 'throw' arg is non-null, also throws an exception on error.
 	Can be called at any time, even during MINIT.
 */
 
-PHPAPI PCS_ID PCS_getID(const char *path, PCS_SIZE_T pathlen, int throw);
+PHPAPI PCS_ID PCS_getID(const char *path, PCS_SIZE_T pathlen);
 
 /*============================================================================*/
 #endif /* __PCS_CLIENT_H */

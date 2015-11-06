@@ -59,8 +59,15 @@
 #endif
 
 #include "php.h"
+#include "zend_extensions.h"
 #include "ext/standard/info.h"
+
+#include "common/compat.h"
+#include "common/utils.h"
+
+#ifdef PHP_7
 #include "Zend/zend_portability.h"
+#endif
 
 #if ZEND_EXTENSION_API_NO >= PHP_5_6_X_API_NO
 #include "zend_virtual_cwd.h"
@@ -77,18 +84,12 @@
 
 #include "php_pcs.h"
 
-#include "common/compat.h"
-#include "common/utils.h"
-
-#ifdef PHP_7
-#	include "PHP_7/PCS_Utils.h"
-#	include "PHP_7/PCS_Tree.h"
-#	include "PHP_7/PCS_Class.h"
-#	include "PHP_7/PCS_Stream.h"
-#	include "PHP_7/PCS_Loader.h"
-#	include "PHP_7/PCS_API.h"
-#else
-#endif
+#include "src/PCS_Utils.h"
+#include "src/PCS_Tree.h"
+#include "src/PCS_Class.h"
+#include "src/PCS_Stream.h"
+#include "src/PCS_Loader.h"
+#include "src/PCS_API.h"
 
 /*------------------------*/
 
@@ -131,15 +132,12 @@ PHP_INI_END()
 
 #include "common/utils.c"
 
-#ifdef PHP_7
-#	include "PHP_7/PCS_Utils.c"
-#	include "PHP_7/PCS_Tree.c"
-#	include "PHP_7/PCS_Class.c"
-#	include "PHP_7/PCS_Stream.c"
-#	include "PHP_7/PCS_Loader.c"
-#	include "PHP_7/PCS_API.c"
-#else
-#endif
+#include "src/PCS_Utils.c"
+#include "src/PCS_Tree.c"
+#include "src/PCS_Class.c"
+#include "src/PCS_Stream.c"
+#include "src/PCS_Loader.c"
+#include "src/PCS_API.c"
 
 /*---------------------------------------------------------------*/
 /* phpinfo() output                                              */
