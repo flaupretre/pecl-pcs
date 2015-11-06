@@ -30,8 +30,9 @@
 #define PEALLOCATE(ptr, size, persistent)	ptr=ut_allocate(ptr, size, persistent)
 #define EALLOCATE(ptr, size)	PEALLOCATE(ptr, size, 0)
 #define PALLOCATE(ptr, size)	PEALLOCATE(ptr, size, 1)
-#define EFREE(ptr)				EALLOCATE(ptr, 0)
-#define PFREE(ptr)				PALLOCATE(ptr, 0)
+#define PEFREE(ptr, persistent)	PEALLOCATE(ptr, 0, persistent)
+#define EFREE(ptr)				PEFREE(ptr, 0)
+#define PFREE(ptr)				PEFREE(ptr, 1)
 
 #define ut_eduplicate(ptr, size) ut_duplicate(ptr, size, 0)
 #define ut_pduplicate(ptr, size) ut_duplicate(ptr, size, 1)

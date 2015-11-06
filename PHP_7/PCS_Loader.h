@@ -53,9 +53,9 @@ static zend_string *parser_func_name;
 
 static void PCS_Loader_registerHook(TSRMLS_D);
 static PHP_METHOD(PCS, autoloadHook);
-static int PCS_Loader_loadSymbol(char type, char *symbol, size_t slen, zend_bool autoload
+static int PCS_Loader_loadSymbol(char type, char *symbol, PCS_SIZE_T slen, zend_bool autoload
 	, zend_bool exception TSRMLS_DC);
-static int PCS_Loader_symbolIsDefined(char type, char *symbol, size_t slen);
+static int PCS_Loader_symbolIsDefined(char type, char *symbol, PCS_SIZE_T slen);
 static void PCS_Loader_loadNode(PCS_Node *node);
 static char *PCS_Loader_keyTypeString(char c);
 

@@ -46,7 +46,7 @@ static void PCS_Loader_registerHook(TSRMLS_D)
 static PHP_METHOD(PCS, autoloadHook)
 {
 	char *symbol,*type, ctype;
-	size_t slen,tlen;
+	PCS_SIZE_T slen,tlen;
 
 	type=NULL;
 
@@ -64,7 +64,7 @@ static PHP_METHOD(PCS, autoloadHook)
 /*---------------------------------------------------------------*/
 /* Returns SUCCESS/FAILURE */
 
-static int PCS_Loader_loadSymbol(char type, char *symbol, size_t slen, zend_bool autoload
+static int PCS_Loader_loadSymbol(char type, char *symbol, PCS_SIZE_T slen, zend_bool autoload
 	, zend_bool exception TSRMLS_DC)
 {
 	zend_string *key = NULL;
@@ -101,7 +101,7 @@ static int PCS_Loader_loadSymbol(char type, char *symbol, size_t slen, zend_bool
 /*---------------------------------------------------------------*/
 /* Return 0|1 */
 
-static int PCS_Loader_symbolIsDefined(char type, char *symbol, size_t slen)
+static int PCS_Loader_symbolIsDefined(char type, char *symbol, PCS_SIZE_T slen)
 {
 	char *lc_symbol = NULL;
 	int status;
@@ -221,7 +221,7 @@ static char *PCS_Loader_keyTypeString(char c)
 	static PHP_METHOD(PCS, _gtype ## _name) \
 	{ \
 		char *symbol; \
-		size_t slen; \
+		PCS_SIZE_T slen; \
 		zend_bool autoload = 0; \
  \
 		if (zend_parse_parameters(ZEND_NUM_ARGS()TSRMLS_CC, "s|b", &symbol \

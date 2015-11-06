@@ -16,18 +16,18 @@ function load($path)
 
 var_dump(class_exists("PCS_Test\\Dummy1", false));
 var_dump(class_exists("PCS_Test\\Dummy2", false));
-var_dump(class_exists("PCS_Test\\Dummy3", false));
 var_dump(class_exists("PCS_Test\\Dummy4", false));
+var_dump(class_exists("PCS_Test\\Dummy5", false));
 
 load('pcs://ext/../ext/ptest/./../ptest/Dummy1.php');
 load('pcs://ext/../../../ext/ptest/Dummy2.php');
-load('pcs://../../ext/../../../ext/ptest/Dummy3.php');
-load('pcs://./ext/.././../../ext/../../../ext/./ptest/Dummy4.php');
+load('pcs://../../ext/../../../ext/ptest/dir/../dir/Dummy4.php');
+load('pcs://./ext/.././../../ext/../../../ext/./ptest/dir/Dummy5.php/');
 
 var_dump(class_exists("PCS_Test\\Dummy1", false));
 var_dump(class_exists("PCS_Test\\Dummy2", false));
-var_dump(class_exists("PCS_Test\\Dummy3", false));
 var_dump(class_exists("PCS_Test\\Dummy4", false));
+var_dump(class_exists("PCS_Test\\Dummy5", false));
 ?>
 ===DONE===
 --EXPECT--
@@ -38,8 +38,8 @@ bool(false)
 bool(false)
 Loading pcs://ext/../ext/ptest/./../ptest/Dummy1.php
 Loading pcs://ext/../../../ext/ptest/Dummy2.php
-Loading pcs://../../ext/../../../ext/ptest/Dummy3.php
-Loading pcs://./ext/.././../../ext/../../../ext/./ptest/Dummy4.php
+Loading pcs://../../ext/../../../ext/ptest/dir/../dir/Dummy4.php
+Loading pcs://./ext/.././../../ext/../../../ext/./ptest/dir/Dummy5.php/
 bool(true)
 bool(true)
 bool(true)

@@ -181,7 +181,7 @@ static PHP_MINIT_FUNCTION(ex1)
 
 PHP_FUNCTION(ex1_add)
 {
-	zend_long a, b;
+	PCS_LONG_T a, b;
 	
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ll", &a, &b) == FAILURE) {
                 return;

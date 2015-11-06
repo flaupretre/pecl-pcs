@@ -27,18 +27,7 @@ static char code1_string1[]= { /* ext/ptest/Dummy2.php */
   68, 117, 109, 109, 121, 50, 32, 33, 92, 110, 34, 59, 10, 125, 10, 10, 
   10, 125, 32, 10, 10, 125, 32, 10, 10, 0 };
 
-static char code1_string2[]= { /* ext/ptest/Dummy3.php */
-  60, 63, 112, 104, 112, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 
-  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 110, 97, 109, 101, 115, 112, 
-  97, 99, 101, 32, 80, 67, 83, 95, 84, 101, 115, 116, 32, 123, 10, 10, 
-  99, 108, 97, 115, 115, 32, 68, 117, 109, 109, 121, 51, 10, 123, 10, 10, 
-  10, 10, 112, 117, 98, 108, 105, 99, 32, 102, 117, 110, 99, 116, 105, 111, 
-  110, 32, 104, 101, 108, 108, 111, 40, 41, 10, 123, 10, 101, 99, 104, 111, 
-  32, 34, 77, 121, 32, 110, 97, 109, 101, 32, 105, 115, 32, 68, 117, 109, 
-  109, 121, 51, 32, 33, 92, 110, 34, 59, 10, 125, 10, 10, 10, 125, 32, 
-  10, 10, 125, 32, 10, 10, 0 };
-
-static char code1_string3[]= { /* ext/ptest/Dummy4.php */
+static char code1_string2[]= { /* ext/ptest/dir/Dummy4.php */
   60, 63, 112, 104, 112, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 
   10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 110, 97, 109, 101, 115, 112, 
   97, 99, 101, 32, 80, 67, 83, 95, 84, 101, 115, 116, 32, 123, 10, 10, 
@@ -49,7 +38,7 @@ static char code1_string3[]= { /* ext/ptest/Dummy4.php */
   95, 97, 100, 100, 40, 36, 97, 44, 32, 36, 98, 41, 59, 10, 125, 10, 
   10, 10, 125, 32, 10, 10, 125, 32, 10, 10, 0 };
 
-static char code1_string4[]= { /* ext/ptest/Dummy5.php */
+static char code1_string3[]= { /* ext/ptest/dir/Dummy5.php */
   60, 63, 112, 104, 112, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 
   10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 110, 97, 109, 101, 115, 112, 
   97, 99, 101, 32, 80, 67, 83, 95, 84, 101, 115, 116, 32, 123, 10, 10, 
@@ -66,14 +55,13 @@ static char code1_string4[]= { /* ext/ptest/Dummy5.php */
 static struct {
 	int version;
 	char *data;
-	size_t data_len;
+	PCS_SIZE_T data_len;
 	char *path;
-	size_t path_len;
-} code1[6] = {
+	PCS_SIZE_T path_len;
+} code1[5] = {
   { 0, code1_string0, 163, "ext/ptest/Dummy1.php", 20 },
   { 0, code1_string1, 169, "ext/ptest/Dummy2.php", 20 },
-  { 0, code1_string2, 134, "ext/ptest/Dummy3.php", 20 },
-  { 0, code1_string3, 138, "ext/ptest/Dummy4.php", 20 },
-  { 0, code1_string4, 168, "ext/ptest/Dummy5.php", 20 },
+  { 0, code1_string2, 138, "ext/ptest/dir/Dummy4.php", 24 },
+  { 0, code1_string3, 168, "ext/ptest/dir/Dummy5.php", 24 },
   { 0, NULL }
 };

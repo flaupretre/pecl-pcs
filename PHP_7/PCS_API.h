@@ -24,9 +24,9 @@
 typedef struct {
 	int version;		/* Descriptor format */
 	char *data;			/* File contents */
-	size_t data_len;
+	PCS_SIZE_T data_len;
 	char *path;			/* Virtual path (no leading/trailing '/') */
-	size_t path_len;
+	PCS_SIZE_T path_len;
 } PCS_DESCRIPTOR;
 
 /*---------------*/

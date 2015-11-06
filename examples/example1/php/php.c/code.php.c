@@ -66,9 +66,9 @@ static char code_string4[]= { /* ext/ex1/Dummy5.php */
 static struct {
 	int version;
 	char *data;
-	size_t data_len;
+	PCS_SIZE_T data_len;
 	char *path;
-	size_t path_len;
+	PCS_SIZE_T path_len;
 } code[6] = {
   { 0, code_string0, 163, "ext/ex1/Dummy1.php", 18 },
   { 0, code_string1, 169, "ext/ex1/Dummy2.php", 18 },

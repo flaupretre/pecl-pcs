@@ -16,19 +16,41 @@
   +----------------------------------------------------------------------+
 */
 
+#include <stdio.h>
 #include <errno.h>
+#include <sys/stat.h>
 
-#include "php_streams.h"
+#ifdef HAVE_SYS_DIR_H
+# include <sys/dir.h>
+#endif
+
+#ifdef PHP_WIN32
+# include "config.w32.h"
+# include "win32/readdir.h"
+#else
+# include <php_config.h>
+#endif
+
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
+
+#ifdef HAVE_DIRENT_H
+# include <dirent.h>
+#endif
+
+#include "ext/standard/file.h"
 #include "ext/standard/php_filestat.h"
 #include "main/spprintf.h"
 #include "main/php.h"
+#include "zend_list.h"
 
 /*===============================================================*/
 /* Public API */
 
 /*--------------------*/
 
-PHPAPI int PCS_registerDescriptors(void *vlist, zend_long flags)
+PHPAPI int PCS_registerDescriptors(void *vlist, PCS_LONG_T flags)
 {
 	PCS_DESCRIPTOR *list = (PCS_DESCRIPTOR *)vlist;
 	PCS_Node *node;
@@ -62,8 +84,8 @@ PHPAPI int PCS_registerDescriptors(void *vlist, zend_long flags)
 
 /*--------------------*/
 
-PHPAPI PCS_ID PCS_registerData(char *data, size_t data_len
-	, const char *path, size_t path_len, zend_long flags)
+PHPAPI PCS_ID PCS_registerData(char *data, PCS_SIZE_T data_len
+	, const char *path, PCS_SIZE_T path_len, PCS_LONG_T flags)
 {
 	PCS_Node *node;
 
@@ -81,33 +103,30 @@ PHPAPI PCS_ID PCS_registerData(char *data, size_t data_len
 }
 
 /*--------------------*/
+/* Note: Stream wrapper open/opendir functions cannot be used during MINIT */
+/* So, we need to revert to stdio functions. */
 
 #define CLEANUP_PCS_registerPath() { \
-	if (type) zend_string_release(type); \
-	if (children_count && namelist) { \
-		for (i = 0; i < children_count ; i++) { \
-			zend_string_release(namelist[i]); \
-			namelist[i] = NULL; /* Security */ \
-		} \
-	} \
-	EFREE(namelist); \
+	if (dir) closedir(dir); \
+	if (fp) fclose(fp); \
+	PFREE(data); \
 	}
 
 #define ABORT_PCS_registerPath() { \
-	EFREE(data); \
 	CLEANUP_PCS_registerPath(); \
 	return FAILURE; \
 	}
 
-PHPAPI int PCS_registerPath(const char *filename, size_t filename_len
-	, const char *virtual_path, size_t virtual_path_len, zend_long flags)
+PHPAPI int PCS_registerPath(const char *filename, PCS_SIZE_T filename_len
+	, const char *virtual_path, PCS_SIZE_T virtual_path_len, PCS_LONG_T flags)
 {
-	php_stream *stream;
-	char *data = NULL, *sub_fname, *sub_vpath;
-	size_t datalen, sub_fname_len, sub_vpath_len;
-	zval zv;
-	zend_string *contents, **namelist = NULL, *type = NULL, *zsp;
-	int i, status, fcount = 0, children_count = 0;
+	char *data = NULL, *sub_fname, *sub_vpath, *dname;
+	PCS_SIZE_T datalen, sub_fname_len, sub_vpath_len;
+	int status, fcount = 0;
+	DIR *dir = NULL;
+	struct dirent *entry;
+	FILE *fp = NULL;
+	struct stat st;
 
 	if (! in_startup) {
 		php_error(E_CORE_ERROR, "PCS_registerPath() can be called during MINIT only");
@@ -118,78 +137,83 @@ PHPAPI int PCS_registerPath(const char *filename, size_t filename_len
 		ABORT_PCS_registerPath();
 	}
 
-	php_stat(filename, filename_len, FS_TYPE, &zv);
-	if (Z_TYPE(zv) != IS_STRING) {
+
+	if (stat(filename, &st)) {
+		php_error(E_CORE_ERROR, "%s: %s (errno=%d)", filename, strerror(errno), errno);
 		ABORT_PCS_registerPath();
 	}
-	type = Z_STR(zv);
 
 	/* If path is a directory */
 
-	if (!strcmp(ZSTR_VAL(type), "dir")) {
+	if (S_ISDIR(st.st_mode)) {
 		if (! PCS_Tree_addDir(virtual_path, virtual_path_len, flags)) {
 			ABORT_PCS_registerPath();
 		}
 		
 		/* Recurse on dir entries */
-	
-		children_count = php_stream_scandir(filename, &namelist, NULL, NULL);
-		if (children_count < 0) {
-			php_error(E_CORE_ERROR, "%s: %s (errno %d)", filename, strerror(errno), errno);
+
+		dir = opendir(filename);
+#ifdef PHP_WIN32
+		if (!dir) {
+			php_win32_docref2_from_error(GetLastError(), path, path);
+			ABORT_PCS_registerPath();
+			}
+
+		if (dir->finished) {
+			ABORT_PCS_registerPath();
+			}
+#endif
+		if (! dir) {
+			php_error(E_CORE_ERROR, "%s: %s (errno=%d)", filename, strerror(errno), errno);
 			ABORT_PCS_registerPath();
 		}
-		if (children_count) {
-			for (i = 0; i < children_count ; i++) {
-				zsp = namelist[i];
-				if (((ZSTR_LEN(zsp) == 1) && (ZSTR_VAL(zsp)[0] == '.')) ||
-					((ZSTR_LEN(zsp) == 2) && (ZSTR_VAL(zsp)[0] == '.')
-						&& (ZSTR_VAL(zsp)[1] == '.'))) {
-					/* Ignore '.' and '..' */
-					continue;
-				}
-				spprintf(&sub_fname, 0, "%s%s%s", filename, PHP_DIR_SEPARATOR, ZSTR_VAL(namelist[i]));
-				sub_fname_len = filename_len + 1 + ZSTR_LEN(namelist[i]);
-				spprintf(&sub_vpath, 0, "%s/%s", virtual_path, ZSTR_VAL(namelist[i]));
-				sub_vpath_len = virtual_path_len + 1 + ZSTR_LEN(namelist[i]);
-				status = PCS_registerPath(sub_fname, sub_fname_len, sub_vpath
-									, sub_vpath_len, flags);
-				EFREE(sub_fname);
-				EFREE(sub_vpath);
-				if (status == FAILURE) {
-					ABORT_PCS_registerPath();
-				}
-				fcount += status;
+
+		/* No need to use readdir_r() as this is run during MINIT only */
+		while (1) {
+			entry = readdir(dir);
+			if (! entry) {
+				break;
 			}
+			dname = entry->d_name;
+			if ((dname[0] == '.') && ((dname[1] == '\0') || ((dname[1] == '.') || (dname[2] == '\0')))) {
+				continue;
+			}
+			spprintf(&sub_fname, 0, "%s%c%s", filename, PHP_DIR_SEPARATOR, dname);
+			sub_fname_len = strlen(sub_fname);
+			spprintf(&sub_vpath, 0, "%s/%s", virtual_path, dname);
+			sub_vpath_len = strlen(sub_vpath);
+			status = PCS_registerPath(sub_fname, sub_fname_len, sub_vpath, sub_vpath_len, flags);
+			EFREE(sub_fname);
+			EFREE(sub_vpath);
+			if (status == FAILURE) {
+				ABORT_PCS_registerPath();
+			}
+			fcount += status;
 		}
 	
 	/* If path is a regular file */
 
-	} else if (!strcmp(ZSTR_VAL(type), "file")) {
-		stream = php_stream_open_wrapper(filename, "rb", REPORT_ERRORS, NULL);
-		if (!stream) {
-			php_error(E_CORE_ERROR, "%s: File not found", filename);
+	} else if (S_ISREG(st.st_mode)) {
+		
+		fp=fopen(filename, "rb");
+		if (!fp) {
+			php_error(E_CORE_ERROR, "%s: %s (errno=%d)", filename, strerror(errno), errno);
 			ABORT_PCS_registerPath();
 		}
-		contents = php_stream_copy_to_mem(stream, PHP_STREAM_COPY_ALL, 1);
-		if (!contents) {
-			php_error(E_CORE_ERROR, "%s: Cannot read file", filename);
-			php_stream_close(stream);
-			ABORT_PCS_registerPath();
+		fstat(fileno(fp),&st);
+		datalen = (PCS_SIZE_T)(st.st_size);
+		PALLOCATE(data, datalen + 1);
+		if (datalen) {
+			while (!fread(data, datalen, 1, fp)) {}
 		}
-		datalen = ZSTR_LEN(contents);
-		data = ut_duplicate(ZSTR_VAL(contents), datalen+1, 1);
-		zend_string_release(contents);
+		data[datalen]='\0';
 		if (! PCS_Tree_addFile(virtual_path, virtual_path_len, data, datalen, 1, flags)) {
 			ABORT_PCS_registerPath();
 		}
+		data = NULL;
 		fcount = 1;
-			
 	
-	/* Other file types are unsupported */
-
-	} else {
-		php_error(E_CORE_ERROR, "%s: PCS unsupported file type (%s)", filename, Z_STRVAL(zv));
-		ABORT_PCS_registerPath();
+	/* Other file types are silently ignored */
 	}
 
 	CLEANUP_PCS_registerPath();
@@ -220,7 +244,7 @@ PHPAPI void PCS_loadScript(PCS_ID id)
 
 /*--------------------*/
 
-PHPAPI zend_string *PCS_getPath(PCS_ID id, int throw)
+PHPAPI char *PCS_getPath(PCS_ID id, int throw)
 {
 	PCS_Node *node;
 
@@ -233,13 +257,12 @@ PHPAPI zend_string *PCS_getPath(PCS_ID id, int throw)
 		return NULL;
 	}
 
-	zend_string_addref(node->path);
-	return node->path;
+	return ZSTR_VAL(node->path);
 }
 
 /*--------------------*/
 
-PHPAPI PCS_ID PCS_getID(const char *path, size_t pathlen, int throw)
+PHPAPI PCS_ID PCS_getID(const char *path, PCS_SIZE_T pathlen, int throw)
 {
 	PCS_Node *node;
 

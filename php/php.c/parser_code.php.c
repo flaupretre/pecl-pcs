@@ -376,9 +376,9 @@ static char parser_code_string1[]= { /* internal/Parser/StringParser.php */
 static struct {
 	int version;
 	char *data;
-	size_t data_len;
+	PCS_SIZE_T data_len;
 	char *path;
-	size_t path_len;
+	PCS_SIZE_T path_len;
 } parser_code[3] = {
   { 0, parser_code_string0, 134, "internal/Parser/ParserInterface.php", 35 },
   { 0, parser_code_string1, 5716, "internal/Parser/StringParser.php", 32 },

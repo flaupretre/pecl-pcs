@@ -46,15 +46,15 @@
 struct _PCS_Node {
 	struct _PCS_Node *parent;
 	int type;
-	zend_long flags;
+	PCS_LONG_T flags;
 	zend_string *path;
 	zend_string *uri;
 	union {
 		struct {
 			char *data;
-			size_t len;
+			PCS_SIZE_T len;
 			int alloc;
-			zend_long id;
+			PCS_LONG_T id;
 		} f;
 		struct {
 			HashTable items; /* <entry name> => (PCS_Node *) (ptr) */
@@ -105,7 +105,7 @@ static zend_always_inline char *PCS_FILE_DATA(PCS_Node *node)
 
 /*------*/
 
-static zend_always_inline size_t PCS_FILE_LEN(PCS_Node *node)
+static zend_always_inline PCS_SIZE_T PCS_FILE_LEN(PCS_Node *node)
 {
 	PCS_CHECK_NODE(node);
 	ZEND_ASSERT(PCS_NODE_IS_FILE(node));
@@ -123,7 +123,7 @@ static zend_always_inline int PCS_FILE_ALLOC(PCS_Node *node)
 
 /*------*/
 
-static zend_always_inline zend_long PCS_FILE_ID(PCS_Node *node)
+static zend_always_inline PCS_LONG_T PCS_FILE_ID(PCS_Node *node)
 {
 	PCS_CHECK_NODE(node);
 	ZEND_ASSERT(PCS_NODE_IS_FILE(node));
@@ -142,16 +142,16 @@ static zend_always_inline HashTable *PCS_DIR_HT(PCS_Node *node)
 /*============================================================================*/
 
 static PCS_Node *PCS_Tree_addSubNode(PCS_Node *parent, const char *name
-	, size_t len, int type, zend_long flags);
-static PCS_Node *PCS_Tree_addNode(const char *path, size_t pathlen
-	, int type, zend_long flags);
-static PCS_Node *PCS_Tree_addDir(const char *path, size_t pathlen, zend_long flags);
-static PCS_Node *PCS_Tree_addFile(const char *path, size_t pathlen
-	, char *data, size_t datalen, int alloc, zend_long flags);
+	, PCS_SIZE_T len, int type, PCS_LONG_T flags);
+static PCS_Node *PCS_Tree_addNode(const char *path, PCS_SIZE_T pathlen
+	, int type, PCS_LONG_T flags);
+static PCS_Node *PCS_Tree_addDir(const char *path, PCS_SIZE_T pathlen, PCS_LONG_T flags);
+static PCS_Node *PCS_Tree_addFile(const char *path, PCS_SIZE_T pathlen
+	, char *data, PCS_SIZE_T datalen, int alloc, PCS_LONG_T flags);
 static void PCS_Tree_destroyNode(zval *zp);
-static zend_string *PCS_Tree_cleanPath(const char *path, size_t len);
+static zend_string *PCS_Tree_cleanPath(const char *path, PCS_SIZE_T len);
 static PCS_Node *PCS_Tree_resolvePath(zend_string *path);
-static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, size_t len, int throw);
+static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, PCS_SIZE_T len, int throw);
 static PCS_Node *PCS_Tree_getNodeFromID(PCS_ID id, int throw);
 
 static int MINIT_PCS_Tree(TSRMLS_D);
