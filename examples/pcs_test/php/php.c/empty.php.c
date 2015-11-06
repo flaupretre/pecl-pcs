@@ -5,9 +5,9 @@
 static struct {
 	int version;
 	char *data;
-	size_t data_len;
+	PCS_SIZE_T data_len;
 	char *path;
-	size_t path_len;
+	PCS_SIZE_T path_len;
 } empty[1] = {
   { 0, NULL }
 };

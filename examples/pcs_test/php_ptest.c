@@ -45,11 +45,13 @@
 	ZEND_GET_MODULE(ptest)
 #endif
 
+#define IMM_STRL(_str)	_str, sizeof(_str) - 1
+
 /*------------------------*/
 
 ZEND_BEGIN_MODULE_GLOBALS(ptest)
 
-zend_long test_case;
+PCS_LONG_T test_case;
 zend_bool load_code1;
 zend_bool load_code2;
 zend_bool load_code3;
@@ -69,7 +71,7 @@ ZEND_DECLARE_MODULE_GLOBALS(ptest)
 #	define PTEST_G(v) (ptest_globals.v)
 #endif
 
-zend_long pcs_file_count;
+PCS_LONG_T pcs_file_count;
 
 char data1[] = "<?php\n\
 namespace PCS_Test {\n\
@@ -99,7 +101,7 @@ public function hello()\n\
 
 PHP_FUNCTION(ptest_add)
 {
-	zend_long a, b;
+	PCS_LONG_T a, b;
 	
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ll", &a, &b) == FAILURE) {
 		return;
@@ -190,10 +192,10 @@ PHP_INI_END()
 
 /*---------------------------------------------------------------*/
 
-static PCS_ID register_data1(char *path, zend_long flags)
+static PCS_ID register_data1(char *path, PCS_LONG_T flags)
 {
 	PCS_ID id;
-	zend_string *rpath;
+	char *rpath;
 
 	id = PCS_registerData(data1, strlen(data1), path, strlen(path), flags);
 	if (id == FAILURE) {
@@ -206,7 +208,7 @@ static PCS_ID register_data1(char *path, zend_long flags)
 		php_error(E_CORE_ERROR, "Error registering data1 as %s: Cannot retrieve path", path);
 		return FAILURE;
 	}
-	php_printf("Registered data1 as %s => %s\n", path, ZSTR_VAL(rpath));
+	php_printf("Registered data1 as %s => %s\n", path, rpath);
 	
 	return id;
 }
@@ -229,7 +231,7 @@ static PHP_RSHUTDOWN_FUNCTION(ptest)
 
 static PHP_MINIT_FUNCTION(ptest)
 {
-	zend_long count;
+	PCS_LONG_T count;
 	PCS_ID id;
 
 	ZEND_INIT_MODULE_GLOBALS(ptest, ptest_globals_ctor, NULL);
@@ -262,6 +264,7 @@ static PHP_MINIT_FUNCTION(ptest)
 	}
 
 		switch(PTEST_G(test_case)) {
+			/* Register data */
 			case 1:
 				id = register_data1("ext/ptest/data1.php", 0);
 				break;
@@ -289,9 +292,32 @@ static PHP_MINIT_FUNCTION(ptest)
 			case 9:
 				id = register_data1("/ext/ptest///data1.php/", 0);
 				break;
+			/* Register external path*/
 			case 20:
+				count = PCS_registerPath(IMM_STRL("./php/src/code1")
+					, IMM_STRL("ext/pcs/external/code1"), 0);
+				if (count == FAILURE) return FAILURE;
+				php_printf("Loaded code1 set from external file tree (%d files)\n", count);
+				pcs_file_count += count;
+				break;
+			case 21: /* Register a single file */
+				count = PCS_registerPath(IMM_STRL("./php/src/code1/dir/Dummy4.php")
+					, IMM_STRL("ext/pcs/d.php"), 0);
+				if (count == FAILURE) return FAILURE;
+				php_printf("Loaded %d file\n", count);
+				pcs_file_count += count;
+				break;
+			case 22: /* Error on non-existing source */
+				count = PCS_registerPath(IMM_STRL("./unexisting/src/code1")
+					, IMM_STRL("ext/pcs/external/code1"), 0);
+				if (count == FAILURE) return FAILURE;
+				php_printf("Loaded unknown set from external file tree (%d files)\n", count);
+				pcs_file_count += count;
+				break;
+			/* Register descriptor set forcing autoload */
+			case 30:
 				if ((count = PCS_registerDescriptors(code3, PCS_AUTOLOAD_FORCE)) == FAILURE) return FAILURE;
-				php_printf("Loaded code3 set (autoload force\n");
+				php_printf("Loaded code3 set (autoload force)\n");
 				pcs_file_count += count;
 		}
 
