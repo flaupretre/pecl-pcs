@@ -1,5 +1,5 @@
 --TEST--
-Register an external file tree
+Register an external file tree (basic)
 --EXTENSIONS--
 pcs
 --INI--
