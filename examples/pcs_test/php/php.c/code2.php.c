@@ -9,13 +9,7 @@ static char code2_string0[]= { /* ext/ptest/Dummy1.php */
   10, 125, 32, 10, 10, 125, 32, 10, 10, 0 };
 
 
-static struct {
-	int version;
-	char *data;
-	PCS_SIZE_T data_len;
-	char *path;
-	PCS_SIZE_T path_len;
-} code2[2] = {
+static PCS_DESCRIPTOR code2[2] = {
   { 0, code2_string0, 73, "ext/ptest/Dummy1.php", 20 },
   { 0, NULL }
 };

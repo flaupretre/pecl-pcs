@@ -52,13 +52,7 @@ static char code1_string3[]= { /* ext/ptest/dir/Dummy5.php */
   125, 32, 10, 10, 125, 32, 10, 10, 0 };
 
 
-static struct {
-	int version;
-	char *data;
-	PCS_SIZE_T data_len;
-	char *path;
-	PCS_SIZE_T path_len;
-} code1[5] = {
+static PCS_DESCRIPTOR code1[5] = {
   { 0, code1_string0, 163, "ext/ptest/Dummy1.php", 20 },
   { 0, code1_string1, 169, "ext/ptest/Dummy2.php", 20 },
   { 0, code1_string2, 138, "ext/ptest/dir/Dummy4.php", 24 },
