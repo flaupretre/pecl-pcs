@@ -68,10 +68,5 @@ static int PCS_Loader_registerKey(zend_string *key, PCS_Node *node);
 static int PCS_Loader_moduleInit();
 static int PCS_Loader_Init(TSRMLS_D);
 
-static int MINIT_PCS_Loader(TSRMLS_D);
-static int MSHUTDOWN_PCS_Loader(TSRMLS_D);
-static int RINIT_PCS_Loader(TSRMLS_D);
-static int RSHUTDOWN_PCS_Loader(TSRMLS_D);
-
 /*============================================================================*/
 #endif

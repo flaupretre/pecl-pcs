@@ -22,13 +22,7 @@ static char code3_string2[]= { /* ext/ptest/unregistered.txt */
   10, 0 };
 
 
-static struct {
-	int version;
-	char *data;
-	PCS_SIZE_T data_len;
-	char *path;
-	PCS_SIZE_T path_len;
-} code3[4] = {
+static PCS_DESCRIPTOR code3[4] = {
   { 0, code3_string0, 0, "ext/ptest/empty.txt", 19 },
   { 0, code3_string1, 11, "ext/ptest/test.txt", 18 },
   { 0, code3_string2, 177, "ext/ptest/unregistered.txt", 26 },

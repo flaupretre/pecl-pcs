@@ -52,7 +52,7 @@ static zend_function_entry PCS_methods[] = {
 
 /*===============================================================*/
 
-static int MINIT_PCS_Class(TSRMLS_D)
+static zend_always_inline int MINIT_PCS_Class(TSRMLS_D)
 {
 	zend_class_entry ce, *entry;
 	
@@ -64,20 +64,20 @@ static int MINIT_PCS_Class(TSRMLS_D)
 
 /*---------------------------------------------------------------*/
 
-static int MSHUTDOWN_PCS_Class(TSRMLS_D)
+static zend_always_inline int MSHUTDOWN_PCS_Class(TSRMLS_D)
 {
 	return SUCCESS;
 }
 
 /*---------------------------------------------------------------*/
 
-static int RINIT_PCS_Class(TSRMLS_D)
+static zend_always_inline int RINIT_PCS_Class(TSRMLS_D)
 {
 	return SUCCESS;
 }
 /*---------------------------------------------------------------*/
 
-static int RSHUTDOWN_PCS_Class(TSRMLS_D)
+static zend_always_inline int RSHUTDOWN_PCS_Class(TSRMLS_D)
 {
 	return SUCCESS;
 }

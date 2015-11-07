@@ -27,10 +27,5 @@ static int in_startup = 1;
 
 static int PCS_Utils_assertModuleIsStarted(void);
 
-static int MINIT_PCS_Utils(TSRMLS_D);
-static int MSHUTDOWN_PCS_Utils(TSRMLS_D);
-static int RINIT_PCS_Utils(TSRMLS_D);
-static int RSHUTDOWN_PCS_Utils(TSRMLS_D);
-
 /*============================================================================*/
 #endif

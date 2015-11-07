@@ -437,7 +437,7 @@ static php_stream *PCS_Stream_opendir(php_stream_wrapper * wrapper
 /*---------------------------------------------------------------*/
 /* Module initialization										 */
 
-static int MINIT_PCS_Stream(TSRMLS_D)
+static zend_always_inline int MINIT_PCS_Stream(TSRMLS_D)
 {
 	php_register_url_stream_wrapper("pcs", &php_stream_pcs_wrapper TSRMLS_CC);
 
@@ -447,7 +447,7 @@ static int MINIT_PCS_Stream(TSRMLS_D)
 /*---------------------------------------------------------------*/
 /* Module shutdown												 */
 
-static int MSHUTDOWN_PCS_Stream(TSRMLS_D)
+static zend_always_inline int MSHUTDOWN_PCS_Stream(TSRMLS_D)
 {
 	php_unregister_url_stream_wrapper("pcs" TSRMLS_CC);
 
@@ -456,14 +456,14 @@ static int MSHUTDOWN_PCS_Stream(TSRMLS_D)
 
 /*---------------------------------------------------------------*/
 
-static inline int RINIT_PCS_Stream(TSRMLS_D)
+static zend_always_inline inline int RINIT_PCS_Stream(TSRMLS_D)
 {
 	return SUCCESS;
 }
 
 /*---------------------------------------------------------------*/
 
-static inline int RSHUTDOWN_PCS_Stream(TSRMLS_D)
+static zend_always_inline inline int RSHUTDOWN_PCS_Stream(TSRMLS_D)
 {
 	return SUCCESS;
 }

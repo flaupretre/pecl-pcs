@@ -33,27 +33,27 @@ int PCS_Utils_assertModuleIsStarted()
 
 /*===============================================================*/
 
-static int MINIT_PCS_Utils(TSRMLS_D)
+static zend_always_inline int MINIT_PCS_Utils(TSRMLS_D)
 {
 	return SUCCESS;
 }
 
 /*---------------------------------------------------------------*/
 
-static int MSHUTDOWN_PCS_Utils(TSRMLS_D)
+static zend_always_inline int MSHUTDOWN_PCS_Utils(TSRMLS_D)
 {
 	return SUCCESS;
 }
 
 /*---------------------------------------------------------------*/
 
-static int RINIT_PCS_Utils(TSRMLS_D)
+static zend_always_inline int RINIT_PCS_Utils(TSRMLS_D)
 {
 	return SUCCESS;
 }
 /*---------------------------------------------------------------*/
 
-static int RSHUTDOWN_PCS_Utils(TSRMLS_D)
+static zend_always_inline int RSHUTDOWN_PCS_Utils(TSRMLS_D)
 {
 	return SUCCESS;
 }

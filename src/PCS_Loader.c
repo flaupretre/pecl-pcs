@@ -426,7 +426,7 @@ static int PCS_Loader_Init(TSRMLS_D)
 
 /*===============================================================*/
 
-static int MINIT_PCS_Loader(TSRMLS_D)
+static zend_always_inline int MINIT_PCS_Loader(TSRMLS_D)
 {
 	/*--- Check that SPL is present */
 
@@ -448,7 +448,7 @@ static int MINIT_PCS_Loader(TSRMLS_D)
 
 /*---------------------------------------------------------------*/
 
-static int MSHUTDOWN_PCS_Loader(TSRMLS_D)
+static zend_always_inline int MSHUTDOWN_PCS_Loader(TSRMLS_D)
 {
 	/* Destroy constant zvals */
 
@@ -467,7 +467,7 @@ static int MSHUTDOWN_PCS_Loader(TSRMLS_D)
 
 /*---------------------------------------------------------------*/
 
-static int RINIT_PCS_Loader(TSRMLS_D)
+static zend_always_inline int RINIT_PCS_Loader(TSRMLS_D)
 {
 	int status;
 
@@ -486,7 +486,7 @@ static int RINIT_PCS_Loader(TSRMLS_D)
 }
 /*---------------------------------------------------------------*/
 
-static int RSHUTDOWN_PCS_Loader(TSRMLS_D)
+static zend_always_inline int RSHUTDOWN_PCS_Loader(TSRMLS_D)
 {
 	return SUCCESS;
 }

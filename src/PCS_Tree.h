@@ -152,10 +152,5 @@ static PCS_Node *PCS_Tree_resolvePath(zend_string *path);
 static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, PCS_SIZE_T len);
 static PCS_Node *PCS_Tree_getNodeFromID(PCS_ID id);
 
-static int MINIT_PCS_Tree(TSRMLS_D);
-static int MSHUTDOWN_PCS_Tree(TSRMLS_D);
-static int RINIT_PCS_Tree(TSRMLS_D);
-static int RSHUTDOWN_PCS_Tree(TSRMLS_D);
-
 /*============================================================================*/
 #endif

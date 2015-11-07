@@ -35,6 +35,16 @@
 
 typedef PCS_LONG_T PCS_ID;
 
+/* The structure produced by pcs_process_code.php */
+
+typedef struct {
+	int version;		/* Descriptor version (current: 0) */
+	char *data;			/* File contents */
+	PCS_SIZE_T data_len;
+	char *path;			/* Virtual path (no leading/trailing '/') */
+	PCS_SIZE_T path_len;
+} PCS_DESCRIPTOR;
+
 /*============================================================================*/
 
 /*-- Flags --*/
@@ -53,7 +63,7 @@ typedef PCS_LONG_T PCS_ID;
    Can be called during MINIT only.
 */
 
-PHPAPI int PCS_registerDescriptors(void *list, PCS_LONG_T flags);
+PHPAPI int PCS_registerDescriptors(PCS_DESCRIPTOR *list, PCS_LONG_T flags);
 
 /*----------------------------------------------------------------------------*/
 /* Registers a file already present in memory

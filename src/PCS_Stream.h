@@ -64,10 +64,5 @@ static php_stream *PCS_Stream_opendir(php_stream_wrapper * wrapper
 	, const char *uri, const char *mode, int options, OPENED_PATH_PTR *opened_path
 	, php_stream_context *context STREAMS_DC TSRMLS_DC);
 
-static int MINIT_PCS_Stream(TSRMLS_D);
-static int MSHUTDOWN_PCS_Stream(TSRMLS_D);
-static inline int RINIT_PCS_Stream(TSRMLS_D);
-static inline int RSHUTDOWN_PCS_Stream(TSRMLS_D);
-
 /*============================================================================*/
 #endif

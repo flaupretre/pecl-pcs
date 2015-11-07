@@ -21,20 +21,5 @@
 
 /*============================================================================*/
 
-typedef struct {
-	int version;		/* Descriptor format */
-	char *data;			/* File contents */
-	PCS_SIZE_T data_len;
-	char *path;			/* Virtual path (no leading/trailing '/') */
-	PCS_SIZE_T path_len;
-} PCS_DESCRIPTOR;
-
-/*---------------*/
-
-static int MINIT_PCS_API(TSRMLS_D);
-static int MSHUTDOWN_PCS_API(TSRMLS_D);
-static int RINIT_PCS_API(TSRMLS_D);
-static int RSHUTDOWN_PCS_API(TSRMLS_D);
-
 /*============================================================================*/
 #endif

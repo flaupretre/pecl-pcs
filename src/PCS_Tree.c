@@ -326,7 +326,7 @@ static PCS_Node *PCS_Tree_getNodeFromID(PCS_ID id)
 
 /*===============================================================*/
 
-static int MINIT_PCS_Tree(TSRMLS_D)
+static zend_always_inline int MINIT_PCS_Tree(TSRMLS_D)
 {
 	/* Init path list */
 	/* No destructor because PCS_Node structs are destroyed with the tree */
@@ -349,7 +349,7 @@ static int MINIT_PCS_Tree(TSRMLS_D)
 
 /*---------------------------------------------------------------*/
 
-static int MSHUTDOWN_PCS_Tree(TSRMLS_D)
+static zend_always_inline int MSHUTDOWN_PCS_Tree(TSRMLS_D)
 {
 	zval zv;
 
@@ -375,13 +375,13 @@ static int MSHUTDOWN_PCS_Tree(TSRMLS_D)
 
 /*---------------------------------------------------------------*/
 
-static int RINIT_PCS_Tree(TSRMLS_D)
+static zend_always_inline int RINIT_PCS_Tree(TSRMLS_D)
 {
 	return SUCCESS;
 }
 /*---------------------------------------------------------------*/
 
-static int RSHUTDOWN_PCS_Tree(TSRMLS_D)
+static zend_always_inline int RSHUTDOWN_PCS_Tree(TSRMLS_D)
 {
 	return SUCCESS;
 }

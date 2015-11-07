@@ -23,10 +23,5 @@
 
 static PHP_METHOD(PCS, __construct);
 
-static int MINIT_PCS_Class(TSRMLS_D);
-static int MSHUTDOWN_PCS_Class(TSRMLS_D);
-static int RINIT_PCS_Class(TSRMLS_D);
-static int RSHUTDOWN_PCS_Class(TSRMLS_D);
-
 /*============================================================================*/
 #endif

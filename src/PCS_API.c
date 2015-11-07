@@ -50,9 +50,8 @@
 
 /*--------------------*/
 
-PHPAPI int PCS_registerDescriptors(void *vlist, PCS_LONG_T flags)
+PHPAPI int PCS_registerDescriptors(PCS_DESCRIPTOR *list, PCS_LONG_T flags)
 {
-	PCS_DESCRIPTOR *list = (PCS_DESCRIPTOR *)vlist;
 	PCS_Node *node;
 	int count;
 
@@ -289,27 +288,27 @@ PHPAPI PCS_ID PCS_getID(const char *path, PCS_SIZE_T pathlen)
 
 /*===============================================================*/
 
-static int MINIT_PCS_API(TSRMLS_D)
+static zend_always_inline int MINIT_PCS_API(TSRMLS_D)
 {
 	return SUCCESS;
 }
 
 /*---------------------------------------------------------------*/
 
-static int MSHUTDOWN_PCS_API(TSRMLS_D)
+static zend_always_inline int MSHUTDOWN_PCS_API(TSRMLS_D)
 {
 	return SUCCESS;
 }
 
 /*---------------------------------------------------------------*/
 
-static int RINIT_PCS_API(TSRMLS_D)
+static zend_always_inline int RINIT_PCS_API(TSRMLS_D)
 {
 	return SUCCESS;
 }
 /*---------------------------------------------------------------*/
 
-static int RSHUTDOWN_PCS_API(TSRMLS_D)
+static zend_always_inline int RSHUTDOWN_PCS_API(TSRMLS_D)
 {
 	return SUCCESS;
 }

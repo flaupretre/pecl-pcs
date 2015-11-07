@@ -135,8 +135,7 @@ function dump_files($prefix, $table)
 	if ($GLOBALS['static']) {
 		$ret .= 'static ';
 	}
-	$ret .= "struct {\n	int version;\n	char *data;\n	PCS_SIZE_T data_len;\n	char *path;\n	PCS_SIZE_T path_len;\n} "
-		.$prefix."[".(count($table) + 1)."] = {\n";
+	$ret .= "PCS_DESCRIPTOR ".$prefix."[".(count($table) + 1)."] = {\n";
 	foreach($table as $index => $file) {
 		$ret .= $file->dump_descriptor($prefix, $index);
 	}
