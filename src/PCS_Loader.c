@@ -115,15 +115,15 @@ static int PCS_Loader_symbolIsDefined(char type, char *symbol, PCS_SIZE_T slen T
 	status=0;
 	switch(type) {
 		case PCS_T_CONSTANT:
-			status = zend_hash_str_exists(EG(zend_constants), symbol, slen);
+			status = compat_zend_hash_str_exists(EG(zend_constants), symbol, slen);
 			break;
 
 		case PCS_T_FUNCTION:
-			status=zend_hash_str_exists(EG(function_table), lc_symbol, slen);
+			status = compat_zend_hash_str_exists(EG(function_table), lc_symbol, slen);
 			break;
 
 		case PCS_T_CLASS: /* Also works for interfaces and traits */
-			status=zend_hash_str_exists(EG(class_table), lc_symbol, slen);
+			status = compat_zend_hash_str_exists(EG(class_table), lc_symbol, slen);
 			break;
 
 		EMPTY_SWITCH_DEFAULT_CASE()
@@ -261,7 +261,8 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 	int do_parse, status;
 	char *suf;
 	zval zdata, func, ret, *zkey;
-	zend_string *data;
+	zend_string *data, *zp;
+	HashTable *ht;
 
 	ZEND_ASSERT(PCS_NODE_IS_FILE(node));
 	DBG_MSG1("-> PCS_Loader_registerNode(%s)",ZSTR_VAL(node->path));
@@ -310,7 +311,17 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 
 	/* Register every symbols returned by the parser */
 
-	ZEND_HASH_FOREACH_VAL(Z_ARRVAL(ret), zkey) {
+	ht = Z_ARRVAL(ret);
+	ZEND_HASH_FOREACH(ht, 0) {
+#ifdef PHP_7
+		zkey = zend_hash_get_current_data(ht);
+#else
+		{
+		zval **zkeyp;
+		zend_hash_get_current_data(ht, &zkeyp);
+		zkey = *zkeyp;
+		}
+#endif
 		if (Z_TYPE_P(zkey) != IS_STRING) {
 			zval_ptr_dtor(&ret);
 			php_error(E_CORE_ERROR, "%s: Elements returned by the parser should be strings"
@@ -318,7 +329,12 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 			return FAILURE;
 		}
 		/* Register a persistent copy of the returned symbol */
-		status = PCS_Loader_registerKey(zend_string_dup(Z_STR_P(zkey), 1), node);
+#ifdef PHP_7
+		zp = zend_string_dup(Z_STR_P(zkey), 1);
+#else
+		zp = zend_string_init(Z_STRVAL_P(zkey), Z_STRLEN_P(zkey), 1);
+#endif
+		status = PCS_Loader_registerKey(zp, node);
 		if (status == FAILURE) {
 			zval_ptr_dtor(&ret);
 			return FAILURE;

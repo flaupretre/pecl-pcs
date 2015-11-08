@@ -25,5 +25,6 @@
 
 #include "compat/misc.h"
 #include "compat/zend_string.h"
+#include "compat/zend_hash.h"
 
 #endif /* _COMPAT_H */

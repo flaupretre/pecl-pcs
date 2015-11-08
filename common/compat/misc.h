@@ -82,7 +82,11 @@ which is the case in this extension. */
 #endif
 
 #ifndef INIT_ZVAL
-#define INIT_ZVAL(z) memset(z, 0, sizeof(z))
+#define INIT_ZVAL(z) memset(&z, 0, sizeof(z))
+#endif
+
+#ifndef ZVAL_UNDEF
+#define ZVAL_UNDEF(z) INIT_ZVAL(*(z))
 #endif
 
 #ifndef MAKE_STD_ZVAL

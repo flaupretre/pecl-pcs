@@ -1,6 +1,6 @@
 /*
   +----------------------------------------------------------------------+
-  | zend_string compatibility layer for PHP 5                            |
+  | zend_string compatibility layer for PHP 5 & 7                        |
   +----------------------------------------------------------------------+
   | Copyright (c) 2005-2007 The PHP Group                                |
   +----------------------------------------------------------------------+
@@ -63,6 +63,7 @@ typedef struct _zend_string zend_string;
 static zend_always_inline zend_ulong zend_string_hash_val(zend_string *s)
 {
 	if (!ZSTR_H(s)) {
+		ZSTR_VAL(s)[ZSTR_LEN(s)] = '\0'; /* Ensure null-terminated */
 		ZSTR_H(s) = zend_get_hash_value(ZSTR_VAL(s), ZSTR_LEN(s)+1);
 	}
 	return ZSTR_H(s);

@@ -116,7 +116,7 @@ static PCS_Node *PCS_Tree_addSubNode(PCS_Node *parent, const char *name
 
 	switch (type) {
 		case PCS_TYPE_DIR:
-			zend_hash_init(PCS_DIR_HT(node), 8, 0, PCS_Tree_destroyNode, 1);
+			zend_hash_init(PCS_DIR_HT(node), 8, 0, (dtor_func_t)PCS_Tree_destroyNode, 1);
 			break;
 
 		case PCS_TYPE_FILE:
@@ -185,7 +185,13 @@ static PCS_Node *PCS_Tree_addFile(const char *path, PCS_SIZE_T pathlen
 
 static void PCS_Tree_destroyNode(zval *zp)
 {
-	PCS_Node *node = Z_PTR_P(zp);
+	PCS_Node **nodep, *node;
+#ifdef PHP_7
+	nodep = (PCS_Node **)(&(Z_PTR_P(zp)));
+#else
+	nodep = (PCS_Node **)zp;
+#endif
+	node = *nodep;
 
 #ifdef UT_DEBUG
 	node->flags |= PCS_FLAG_NOCHECK;
@@ -202,7 +208,7 @@ static void PCS_Tree_destroyNode(zval *zp)
 		}
 	}
 
-	PFREE(Z_PTR_P(zp)); /* Security: free node struct and set null ptr */
+	PFREE(*nodep); /* Security: free node struct and set null ptr */
 }
 
 /*--------------------*/
@@ -351,7 +357,6 @@ static zend_always_inline int MINIT_PCS_Tree(TSRMLS_D)
 
 static zend_always_inline int MSHUTDOWN_PCS_Tree(TSRMLS_D)
 {
-	zval zv;
 
 	/* Free path list */
 
@@ -366,10 +371,18 @@ static zend_always_inline int MSHUTDOWN_PCS_Tree(TSRMLS_D)
 
 	/* Destroy tree */
 
+#ifdef PHP_7
+	{
+	zval zv;
+	
 	ZVAL_PTR(&zv, root);
 	PCS_Tree_destroyNode(&zv);
 	root = NULL;
-
+	}
+#else
+	PCS_Tree_destroyNode((zval *)(&root));
+#endif
+	
 	return SUCCESS;
 }
 
