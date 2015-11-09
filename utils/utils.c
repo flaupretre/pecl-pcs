@@ -16,17 +16,9 @@
   +----------------------------------------------------------------------+
 */
 
-#ifndef __PECL_UTILS_H
-#define __PECL_UTILS_H 1
-
 /*============================================================================*/
 
-#include "utils/debug.h"
-#include "utils/exceptions.h"
-#include "utils/mem.h"
-#include "utils/mutex.h"
-#include "utils/misc.h"
-#include "utils/arginfo.h"
+#include "src/misc.c"
+#include "src/debug.c"
 
 /*============================================================================*/
-#endif	/* __PECL_UTILS_H */

@@ -43,26 +43,16 @@ static PCS_STREAM_DATA *new_dp(int show_errors, int persistent);
 static void free_dp(PCS_STREAM_DATA **dpp);
 static size_t PCS_Stream_read(php_stream *stream, char *buf, size_t count TSRMLS_DC);
 static int PCS_Stream_close(php_stream *stream, int close_handle TSRMLS_DC);
-static int PCS_Stream_seek(php_stream *stream, zend_off_t offset, int whence
-	, zend_off_t *newoffset TSRMLS_DC);
+static int PCS_Stream_seek(php_stream *stream, zend_off_t offset, int whence, zend_off_t *newoffset TSRMLS_DC);
 static PCS_Node *PCS_Stream_getNodeFromURI(const char *uri, PCS_SIZE_T len);
-static int do_stat(php_stream_wrapper *wrapper, const char *uri
-	, PCS_STREAM_DATA *dp, php_stream_statbuf *ssb TSRMLS_DC);
+static int do_stat(php_stream_wrapper *wrapper, const char *uri, PCS_STREAM_DATA *dp, php_stream_statbuf *ssb TSRMLS_DC);
 static int PCS_Stream_fstat(php_stream *stream, php_stream_statbuf *ssb TSRMLS_DC);
 static size_t PCS_Stream_readdir(php_stream *stream, char *buf, size_t count TSRMLS_DC);
-static int PCS_Stream_seekdir(php_stream *stream, zend_off_t offset
-	, int whence, zend_off_t *newoffset TSRMLS_DC);
-static php_stream *PCS_Stream_generic_open(int dir, php_stream_wrapper *wrapper
-	, const char *uri, const char *mode, int options, OPENED_PATH_PTR *opened_path
-	, php_stream_context *context STREAMS_DC TSRMLS_DC);
-static php_stream *PCS_Stream_openfile(php_stream_wrapper * wrapper
-	, const char *uri, const char *mode, int options, OPENED_PATH_PTR *opened_path
-	, php_stream_context *context STREAMS_DC TSRMLS_DC);
-static int PCS_Stream_url_stat(php_stream_wrapper *wrapper, const char *uri
-	, int flags, php_stream_statbuf *ssb, php_stream_context *context TSRMLS_DC);
-static php_stream *PCS_Stream_opendir(php_stream_wrapper * wrapper
-	, const char *uri, const char *mode, int options, OPENED_PATH_PTR *opened_path
-	, php_stream_context *context STREAMS_DC TSRMLS_DC);
+static int PCS_Stream_seekdir(php_stream *stream, zend_off_t offset, int whence, zend_off_t *newoffset TSRMLS_DC);
+static php_stream *PCS_Stream_generic_open(int dir, php_stream_wrapper *wrapper, const char *uri, const char *mode, int options, OPENED_PATH_PTR *opened_path, php_stream_context *context STREAMS_DC TSRMLS_DC);
+static php_stream *PCS_Stream_openfile(php_stream_wrapper * wrapper, PHP7_CONST char *uri, PHP7_CONST char *mode, int options, OPENED_PATH_PTR *opened_path, php_stream_context *context STREAMS_DC TSRMLS_DC);
+static int PCS_Stream_url_stat(php_stream_wrapper *wrapper, PHP7_CONST char *uri, int flags, php_stream_statbuf *ssb, php_stream_context *context TSRMLS_DC);
+static php_stream *PCS_Stream_opendir(php_stream_wrapper * wrapper, PHP7_CONST char *uri, PHP7_CONST char *mode, int options, OPENED_PATH_PTR *opened_path, php_stream_context *context STREAMS_DC TSRMLS_DC);
 
 /*============================================================================*/
 #endif

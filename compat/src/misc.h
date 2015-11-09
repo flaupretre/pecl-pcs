@@ -22,6 +22,22 @@
 #include <stdio.h>
 #include <assert.h>
 
+#ifdef PHP_7
+/*============================================================================*/
+
+typedef zend_string * OPENED_PATH_PTR;
+
+#define PHP7_CONST	const
+
+#else
+/*============================================================================*/
+
+typedef char * OPENED_PATH_PTR;
+typedef off_t zend_off_t;
+
+#define PHP7_CONST
+
+#endif
 /*============================================================================*/
 
 #ifndef MIN
@@ -131,13 +147,6 @@ which is the case in this extension. */
 #endif
 #endif
 
-#ifdef PHP_7
-	typedef zend_string * OPENED_PATH_PTR;
-#else
-	typedef char * OPENED_PATH_PTR;
-	typedef off_t zend_off_t;
-#endif
-
 /*--------------*/
 
 #define PHP_5_0_X_API_NO                220040412
@@ -153,6 +162,38 @@ which is the case in this extension. */
 #else
 	typedef int PHP_ESCAPE_HTML_ENTITIES_SIZE;
 #endif
+
+/*============================================================================*/
+
+/*---------------------------------------------------------------*/
+
+static zend_always_inline void *_compat_dup(const void *ptr, size_t size, int persistent)
+{
+	char *p;
+
+	if (!ptr) return NULL;
+	if (size==0) return pemalloc(1,persistent);
+
+	p = pemalloc(size, persistent);
+	memmove(p, ptr, size);
+	return p;
+}
+
+/*---------------------------------------------------------------*/
+/* Duplicate a string and set terminating null.
+   Input string does not have to be null-terminated */
+
+static zend_always_inline void *_compat_dup_str(const void *ptr, size_t size, int persistent)
+{
+	char *p;
+
+	if (!ptr) return NULL;
+
+	p = pemalloc(size + 1, persistent);
+	if (size) memmove(p, ptr, size);
+	p[size] = '\0';
+	return p;
+}
 
 /*============================================================================*/
 #endif	/* __PECL_COMPAT_MISC_H */

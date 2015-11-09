@@ -28,6 +28,7 @@
 
 static void PCS_Loader_registerHook(TSRMLS_D)
 {
+#ifdef PHP_7
 	zval func, ret, args[3];
 
 	ZVAL_STR(&func, spl_ar_func_name);
@@ -38,6 +39,8 @@ static void PCS_Loader_registerHook(TSRMLS_D)
 	call_user_function(NULL, NULL, &func, &ret, 3, args TSRMLS_CC);
 
 	zval_ptr_dtor(&ret);
+#else
+#endif
 }
 
 /*---------------------------------------------------------------*/
@@ -185,7 +188,11 @@ static int PCS_Loader_loadNode(PCS_Node *node, int throw TSRMLS_DC)
     EG(no_extensions)=1;
 	zend_try {
 		ZVAL_UNDEF(&zret);
+#ifdef PHP_7
 		zend_execute(op_array, &zret);
+#else
+		zend_execute(op_array TSRMLS_CC);
+#endif
 	} zend_catch {
 		destroy_op_array(op_array TSRMLS_CC);
 		EFREE(op_array);
@@ -292,6 +299,8 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 	/* Execute parser on script */
 
 	DBG_MSG1("Parsing script %s", ZSTR_VAL(node->path));
+
+#ifdef PHP_7
 	data = zend_string_init(PCS_FILE_DATA(node), PCS_FILE_LEN(node), 0);
 	ZVAL_STR(&zdata, data);
 	ZVAL_STR(&func, parser_func_name);
@@ -301,6 +310,8 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 		zval_ptr_dtor(&ret);
 		return FAILURE;
 	}
+#else
+#endif
 
 	if (Z_TYPE(ret) != IS_ARRAY) {
 		zval_ptr_dtor(&ret);
@@ -313,15 +324,7 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 
 	ht = Z_ARRVAL(ret);
 	ZEND_HASH_FOREACH(ht, 0) {
-#ifdef PHP_7
-		zkey = zend_hash_get_current_data(ht);
-#else
-		{
-		zval **zkeyp;
-		zend_hash_get_current_data(ht, &zkeyp);
-		zkey = *zkeyp;
-		}
-#endif
+		zkey = (zval *)compat_zend_hash_get_current_data(ht);
 		if (Z_TYPE_P(zkey) != IS_STRING) {
 			zval_ptr_dtor(&ret);
 			php_error(E_CORE_ERROR, "%s: Elements returned by the parser should be strings"

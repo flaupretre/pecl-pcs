@@ -1,6 +1,6 @@
 /*
   +----------------------------------------------------------------------+
-  | Compatibility macros for different PHP versions                      |
+  | Common utility function for PHP extensions                           |
   +----------------------------------------------------------------------+
   | Copyright (c) 2015 The PHP Group                                     |
   +----------------------------------------------------------------------+
@@ -16,15 +16,17 @@
   +----------------------------------------------------------------------+
 */
 
-#ifndef _COMPAT_H
-#define _COMPAT_H
+#ifndef __PECL_UTILS_H
+#define __PECL_UTILS_H 1
 
-#if PHP_MAJOR_VERSION >= 7
-#define PHP_7
-#endif
+/*============================================================================*/
 
-#include "compat/misc.h"
-#include "compat/zend_string.h"
-#include "compat/zend_hash.h"
+#include "src/debug.h"
+#include "src/exceptions.h"
+#include "src/mem.h"
+#include "src/mutex.h"
+#include "src/misc.h"
+#include "src/arginfo.h"
 
-#endif /* _COMPAT_H */
+/*============================================================================*/
+#endif	/* __PECL_UTILS_H */

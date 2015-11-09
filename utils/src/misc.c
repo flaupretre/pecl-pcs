@@ -59,13 +59,25 @@ static int ut_extension_loaded(char *name, int len TSRMLS_DC)
 static zend_module_entry *ut_getModuleData()
 {
 	if (! ut_current_module) {
+#ifdef PHP_7
 		zend_string *name;
 		
 		name = zend_string_init(IMM_STRL(MODULE_NAME), 0);
 		ut_current_module = zend_hash_find_ptr(&module_registry, name);
 		zend_string_release(name);
+#else
+		int status;
+
+		status = zend_hash_find(&module_registry, MODULE_NAME, sizeof(MODULE_NAME)
+			, (void **)(&ut_current_module));
+		if (status != SUCCESS) ut_current_module = NULL;
+#endif
 	}
-	
+
+	if (! ut_current_module) {
+		php_error(E_CORE_ERROR, "%s: Cannot retrieve module data", MODULE_NAME);
+	}
+
 	return ut_current_module;
 }
 	

@@ -23,6 +23,9 @@ int PCS_Utils_assertModuleIsStarted()
 	zend_module_entry *module;
 	
 	module = ut_getModuleData();
+	if (! module) {
+		return FAILURE;
+	}
 	if (! module->module_started) {
 		php_error(E_CORE_ERROR,"Cannot call PCS before it is started. Please use a module dependency");
 		return FAILURE;

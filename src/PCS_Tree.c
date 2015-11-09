@@ -186,15 +186,12 @@ static PCS_Node *PCS_Tree_addFile(const char *path, PCS_SIZE_T pathlen
 static void PCS_Tree_destroyNode(zval *zp)
 {
 	PCS_Node **nodep, *node;
-#ifdef PHP_7
-	nodep = (PCS_Node **)(&(Z_PTR_P(zp)));
-#else
-	nodep = (PCS_Node **)zp;
-#endif
+
+	nodep = (PCS_Node **)COMPAT_HASH_PTR(zp);
 	node = *nodep;
 
 #ifdef UT_DEBUG
-	node->flags |= PCS_FLAG_NOCHECK;
+	node->flags |= PCS_FLAG_NOCHECK; /* Checks will fail during tree destruction */
 #endif
 
 	zend_string_release(node->path);
@@ -208,7 +205,7 @@ static void PCS_Tree_destroyNode(zval *zp)
 		}
 	}
 
-	PFREE(*nodep); /* Security: free node struct and set null ptr */
+	PFREE(*nodep); /* Security: free and set null ptr */
 }
 
 /*--------------------*/

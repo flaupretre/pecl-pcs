@@ -62,8 +62,8 @@
 #include "zend_extensions.h"
 #include "ext/standard/info.h"
 
-#include "common/compat.h"
-#include "common/utils.h"
+#include "compat/compat.h"
+#include "utils/utils.h"
 
 #ifdef PHP_7
 #include "Zend/zend_portability.h"
@@ -130,7 +130,7 @@ PHP_INI_END()
 /*------------------------*/
 /* Including C code allows to export a minimal set of symbols */
 
-#include "common/utils.c"
+#include "utils/utils.c"
 
 #include "src/PCS_Utils.c"
 #include "src/PCS_Tree.c"

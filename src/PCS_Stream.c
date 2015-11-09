@@ -244,19 +244,21 @@ static size_t PCS_Stream_readdir(php_stream *stream, char *buf, size_t count TSR
 	php_stream_dirent *ent = (php_stream_dirent *) buf;
 	PCS_STREAM_DATA *dp = stream->abstract;
 	HashTable *ht;
-	zend_string *zsp;
+	char *name;
+	size_t nlen;
 
 	ZEND_ASSERT(PCS_NODE_IS_DIR(dp->node));
 
 	ht = PCS_DIR_HT(dp->node);
 
-	if (zend_hash_get_current_key_ex(ht, &zsp, NULL, &(dp->pos)) == HASH_KEY_NON_EXISTENT) {
+	if (compat_zend_hash_str_get_current_key_ex(ht, &name, &nlen, NULL, 0
+		, &(dp->pos)) == HASH_KEY_NON_EXISTENT) {
 		stream->eof = 1;
 		return 0;
 	}
 
-	count =	MIN((PCS_SIZE_T)sizeof(ent->d_name) - 1, ZSTR_LEN(zsp));
-	memmove(ent->d_name, ZSTR_VAL(zsp), count);
+	count =	MIN((PCS_SIZE_T)sizeof(ent->d_name) - 1, nlen);
+	memmove(ent->d_name, name, count);
 	ent->d_name[count] = '\0';
 
 	zend_hash_move_forward_ex(ht, &(dp->pos));
@@ -402,8 +404,8 @@ static php_stream *PCS_Stream_generic_open(int dir, php_stream_wrapper *wrapper
 /*--------------------*/
 
 static php_stream *PCS_Stream_openfile(php_stream_wrapper *wrapper
-	, const char *uri, const char *mode, int options, OPENED_PATH_PTR *opened_path
-	, php_stream_context *context STREAMS_DC TSRMLS_DC)
+	, PHP7_CONST char *uri, PHP7_CONST char *mode, int options
+	, OPENED_PATH_PTR *opened_path, php_stream_context *context STREAMS_DC TSRMLS_DC)
 {
 	return PCS_Stream_generic_open(0, wrapper, uri, mode, options
 		, opened_path, context STREAMS_CC TSRMLS_CC);
@@ -411,7 +413,7 @@ static php_stream *PCS_Stream_openfile(php_stream_wrapper *wrapper
 
 /*---------------------------------------------------------------*/
 
-static int PCS_Stream_url_stat(php_stream_wrapper *wrapper, const char *uri
+static int PCS_Stream_url_stat(php_stream_wrapper *wrapper, PHP7_CONST char *uri
 	, int flags, php_stream_statbuf *ssb, php_stream_context *context TSRMLS_DC)
 {
 	PCS_STREAM_DATA *dp;
@@ -427,8 +429,8 @@ static int PCS_Stream_url_stat(php_stream_wrapper *wrapper, const char *uri
 /*--------------------*/
 
 static php_stream *PCS_Stream_opendir(php_stream_wrapper * wrapper
-	, const char *uri, const char *mode, int options, OPENED_PATH_PTR *opened_path
-	, php_stream_context *context STREAMS_DC TSRMLS_DC)
+	, PHP7_CONST char *uri, PHP7_CONST char *mode, int options
+	, OPENED_PATH_PTR *opened_path, php_stream_context *context STREAMS_DC TSRMLS_DC)
 {
 	return PCS_Stream_generic_open(1, wrapper, uri, mode, options
 		, opened_path, context STREAMS_CC TSRMLS_CC);
