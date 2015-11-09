@@ -98,7 +98,9 @@ static zend_always_inline void *compat_zend_hash_get_current_data_ex(HashTable *
 #else
 /*= PHP 5 ====================================================================*/
 
-#define  HASH_KEY_NON_EXISTENT HASH_KEY_NON_EXISTANT
+#ifndef HASH_KEY_NON_EXISTENT
+#define HASH_KEY_NON_EXISTENT HASH_KEY_NON_EXISTANT
+#endif
 
 #define COMPAT_HASH_PTR(_zp) (_zp)
 

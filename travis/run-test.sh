@@ -12,6 +12,8 @@ ret=0
 
 phpenv config-rm xdebug.ini || :
 
+valgrind --version
+
 #-- First, run in base dir (no tests)
 
 # -m : test using valgrind
