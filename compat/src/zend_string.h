@@ -25,6 +25,9 @@
 #include <inttypes.h>
 #endif
 
+#include "zend.h"
+#include "php.h"
+
 #ifdef PHP_7
 /*============================================================================*/
 #include "zend_string.h"
@@ -55,16 +58,22 @@ typedef struct _zend_string zend_string;
 #define ZSTR_H(zstr)    (zstr)->h
 #define ZSTR_HASH(zstr) zend_string_hash_val(zstr)
 
-#define _ZSTR_HEADER_SIZE ((int)(&(((zend_string*)0)->val)))
+#define _ZSTR_HEADER_SIZE XtOffsetOf(zend_string, val)
 #define _ZSTR_STRUCT_SIZE(len) (_ZSTR_HEADER_SIZE + len + 1)
 
 /*---------*/
 
 static zend_always_inline zend_ulong zend_string_hash_val(zend_string *s)
 {
+	char c, *p;
+
 	if (!ZSTR_H(s)) {
-		ZSTR_VAL(s)[ZSTR_LEN(s)] = '\0'; /* Ensure null-terminated */
+		/* Compute with terminating null but preserve string */
+		p = &(ZSTR_VAL(s)[ZSTR_LEN(s)]);
+		c = (*p);
+		(*p) = '\0';
 		ZSTR_H(s) = zend_get_hash_value(ZSTR_VAL(s), ZSTR_LEN(s)+1);
+		(*p) = c;
 	}
 	return ZSTR_H(s);
 }
