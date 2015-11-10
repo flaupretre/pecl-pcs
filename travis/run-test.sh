@@ -14,6 +14,11 @@ echo
 
 phpize && ./configure --quiet && make -k clean all CFLAGS='-g -Wall'
 
+# Remove this when Bob Weinand has fixed the valgrind options in run-tests.php
+sed 's/--vex-iropt-register-updates=allregs-at-mem-access/--vex-iropt-precise-memory-exns=yes/g' <run-tests.php >r
+rm -f run-tests.php
+cp r run-tests.php
+
 # -m : test using valgrind
 # -q : No interaction
 
