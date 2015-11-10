@@ -19,6 +19,10 @@
 #ifndef _COMPAT_H
 #define _COMPAT_H
 
+#include "php.h"
+#include "zend.h"
+#include "zend_extensions.h"
+
 #if PHP_MAJOR_VERSION >= 7
 #define PHP_7
 #endif

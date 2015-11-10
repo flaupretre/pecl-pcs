@@ -27,15 +27,15 @@
 
 typedef zend_string * OPENED_PATH_PTR;
 
-#define PHP7_CONST	const
+#define compat_zval_ptr_dtor(zp)	zval_ptr_dtor(zp)
 
 #else
-/*============================================================================*/
+/*== PHP 5 ===================================================================*/
 
 typedef char * OPENED_PATH_PTR;
 typedef off_t zend_off_t;
 
-#define PHP7_CONST
+#define compat_zval_ptr_dtor(zp)	zval_dtor(zp)
 
 #endif
 /*============================================================================*/
@@ -161,6 +161,14 @@ which is the case in this extension. */
 	typedef size_t PHP_ESCAPE_HTML_ENTITIES_SIZE;
 #else
 	typedef int PHP_ESCAPE_HTML_ENTITIES_SIZE;
+#endif
+
+/* Used in stream wrapper declaration for openfile/opendir/url_stat */
+
+#if ZEND_EXTENSION_API_NO >= PHP_5_6_X_API_NO
+#	define COMPAT_STREAM_CONST_DECL const
+#else
+#	define COMPAT_STREAM_CONST_DECL
 #endif
 
 /*============================================================================*/

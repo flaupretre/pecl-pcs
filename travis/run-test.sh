@@ -2,11 +2,17 @@
 # Run PCS base and example clients tests
 #=============================================================================
 
+#set -x
+
 run_tests()
 {
 _ret=0
 
-phpize && ./configure && make -k clean all CFLAGS='-g -Wall'
+echo
+echo "=============== Running tests in $PWD"
+echo
+
+phpize && ./configure --quiet && make -k clean all CFLAGS='-g -Wall'
 
 # -m : test using valgrind
 # -q : No interaction
@@ -31,6 +37,8 @@ return $_ret
 
 ret=0
 
+export NO_INTERACTION=1
+
 # Xdebug versions < 2.3.3 causes PHP to crash when enabled with PCS ext (see
 # http://bugs.xdebug.org/view.php?id=1151).
 # **TODO: To be confirmed on PCS
@@ -43,7 +51,7 @@ valgrind --version
 #-- First, run base dir tests
 
 run_tests
-[ $? != 0 ] && ret=$?
+[ $? = 0 ] || ret=$?
 
 #-- Then, test the client extensions
 
@@ -52,12 +60,12 @@ make install
 cd examples/pcs_test
 
 run_tests
-[ $? != 0 ] && ret=$?
+[ $? = 0 ] || ret=$?
 
 cd ../example1
 
 run_tests
-[ $? != 0 ] && ret=$?
+[ $? = 0 ] || ret=$?
 
 #----
 

@@ -1,18 +1,18 @@
 /*
   +----------------------------------------------------------------------+
-  | PCS extension <http://PCS.tekwire.net>                       |
+  | PCS extension <http://PCS.tekwire.net>						 |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2015 The PHP Group                                     |
+  | Copyright (c) 2015 The PHP Group									 |
   +----------------------------------------------------------------------+
-  | This source file is subject to version 3.01 of the PHP license,      |
-  | that is bundled with this package in the file LICENSE, and is        |
-  | available through the world-wide-web at the following url:           |
-  | http://www.php.net/license/3_01.txt.                                 |
-  | If you did not receive a copy of the PHP license and are unable to   |
-  | obtain it through the world-wide-web, please send a note to          |
-  | license@php.net so we can mail you a copy immediately.               |
+  | This source file is subject to version 3.01 of the PHP license,		 |
+  | that is bundled with this package in the file LICENSE, and is		 |
+  | available through the world-wide-web at the following url:			 |
+  | http://www.php.net/license/3_01.txt.								 |
+  | If you did not receive a copy of the PHP license and are unable to	 |
+  | obtain it through the world-wide-web, please send a note to			 |
+  | license@php.net so we can mail you a copy immediately.				 |
   +----------------------------------------------------------------------+
-  | Author: Francois Laupretre <francois@tekwire.net>                    |
+  | Author: Francois Laupretre <francois@tekwire.net>					 |
   +----------------------------------------------------------------------+
 */
 
@@ -28,8 +28,10 @@
 
 static void PCS_Loader_registerHook(TSRMLS_D)
 {
+	zval ret;
+
 #ifdef PHP_7
-	zval func, ret, args[3];
+	zval func, args[3];
 
 	ZVAL_STR(&func, spl_ar_func_name);
 	ZVAL_STR(&(args[0]), hook_func_name);
@@ -37,10 +39,29 @@ static void PCS_Loader_registerHook(TSRMLS_D)
 	ZVAL_TRUE(&(args[2]));	/* prepend */
 
 	call_user_function(NULL, NULL, &func, &ret, 3, args TSRMLS_CC);
-
-	zval_ptr_dtor(&ret);
 #else
+	zval *func_zp, *args[3];
+
+	MAKE_STD_ZVAL(func_zp);
+	ZVAL_STRINGL(func_zp, ZSTR_VAL(spl_ar_func_name), ZSTR_LEN(spl_ar_func_name), 1);
+
+	MAKE_STD_ZVAL(args[0]);
+	ZVAL_STRINGL(args[0], ZSTR_VAL(hook_func_name), ZSTR_LEN(hook_func_name), 1);
+	MAKE_STD_ZVAL(args[1]);
+	ZVAL_TRUE(args[1]);
+	MAKE_STD_ZVAL(args[2]);
+	ZVAL_TRUE(args[2]);
+
+	call_user_function(NULL, NULL, func_zp, &ret, 3,	args TSRMLS_CC);
+
+	zval_ptr_dtor(&func_zp);
+	zval_ptr_dtor(&(args[0]));
+	zval_ptr_dtor(&(args[1]));
+	zval_ptr_dtor(&(args[2]));
 #endif
+
+	compat_zval_ptr_dtor(&ret);
+
 }
 
 /*---------------------------------------------------------------*/
@@ -83,6 +104,7 @@ static int PCS_Loader_loadSymbol(char type, char *symbol, PCS_SIZE_T slen, zend_
 	key = zend_string_alloc(slen + 1, 0);
 	ZSTR_VAL(key)[0] = type;
 	memcpy(ZSTR_VAL(key) + 1, symbol, slen);
+	ZSTR_VAL(key)[slen + 1] = '\0';
 
 	node = zend_hash_find_ptr(symbols, key);
 	zend_string_release(key);
@@ -150,13 +172,11 @@ static int PCS_Loader_symbolIsDefined(char type, char *symbol, PCS_SIZE_T slen T
 
 static int PCS_Loader_loadNode(PCS_Node *node, int throw TSRMLS_DC)
 {
-	zend_op_array *op_array;
-	zval zret;
 	zend_file_handle file_handle;
 
 	ZEND_ASSERT(node);
 	DBG_MSG1("-> PCS_Loader_loadNode(%s)",ZSTR_VAL(node->path));
-	
+
 	if (!PCS_NODE_IS_FILE(node)) {
 		if (throw) {
 			THROW_EXCEPTION_1("%s: node is not a regular file - load aborted"
@@ -164,13 +184,17 @@ static int PCS_Loader_loadNode(PCS_Node *node, int throw TSRMLS_DC)
 		}
 		return FAILURE;
 	}
-
 	file_handle.type = ZEND_HANDLE_FILENAME;
 	file_handle.handle.fd = 0;
 	file_handle.handle.fp = NULL;
 	file_handle.filename = ZSTR_VAL(node->uri);
 	file_handle.opened_path = NULL;
 	file_handle.free_filename = 0;
+
+	{
+#ifdef PHP_7
+	zend_op_array *op_array;
+	zval zret;
 
 	op_array = zend_compile_file(&file_handle, ZEND_REQUIRE TSRMLS_CC);
 	zend_destroy_file_handle(&file_handle TSRMLS_CC);
@@ -182,17 +206,10 @@ static int PCS_Loader_loadNode(PCS_Node *node, int throw TSRMLS_DC)
 		return FAILURE;
 	}
 
-	/* FIXME: Should we list this in included_files() ? */
-	/* zend_hash_add_empty_element(&EG(included_files), node->uri); */
-
-    EG(no_extensions)=1;
+	EG(no_extensions)=1;
 	zend_try {
 		ZVAL_UNDEF(&zret);
-#ifdef PHP_7
 		zend_execute(op_array, &zret);
-#else
-		zend_execute(op_array TSRMLS_CC);
-#endif
 	} zend_catch {
 		destroy_op_array(op_array TSRMLS_CC);
 		EFREE(op_array);
@@ -203,6 +220,29 @@ static int PCS_Loader_loadNode(PCS_Node *node, int throw TSRMLS_DC)
 	zval_ptr_dtor(&zret);
 	destroy_op_array(op_array TSRMLS_CC);
 	EFREE(op_array);
+#else
+	zend_op_array *orig_op_array = EG(active_op_array);
+	zval **orig_retval_ptr_ptr = EG(return_value_ptr_ptr);
+
+	EG(active_op_array) = zend_compile_file(&file_handle, ZEND_REQUIRE TSRMLS_CC);
+	zend_destroy_file_handle(&file_handle TSRMLS_CC);
+	if (! EG(active_op_array)) {
+		if (throw) {
+			THROW_EXCEPTION_1("%s: Error compiling script - load aborted"
+				, ZSTR_VAL(node->uri));
+		}
+		return FAILURE;
+	}
+
+	EG(return_value_ptr_ptr) = NULL;
+	zend_execute(EG(active_op_array) TSRMLS_CC);
+	destroy_op_array(EG(active_op_array) TSRMLS_CC);
+	efree(EG(active_op_array));
+
+	EG(active_op_array) = orig_op_array;
+	EG(return_value_ptr_ptr) = orig_retval_ptr_ptr;
+#endif
+	}
 
 	return SUCCESS;
 }
@@ -267,8 +307,8 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 {
 	int do_parse, status;
 	char *suf;
-	zval zdata, func, ret, *zkey;
-	zend_string *data, *zp;
+	zval ret, *zkey;
+	zend_string *zp;
 	HashTable *ht;
 
 	ZEND_ASSERT(PCS_NODE_IS_FILE(node));
@@ -288,7 +328,7 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 		default:
 			suf = &(ZSTR_VAL(node->path)[ZSTR_LEN(node->path) - 4]);
 			do_parse = ((ZSTR_LEN(node->path) > 4)
-				&&  (suf[0] == '.')
+				&&	(suf[0] == '.')
 				&& ((suf[1] == 'p') || (suf[1] == 'P'))
 				&& ((suf[2] == 'h') || (suf[2] == 'H'))
 				&& ((suf[3] == 'p') || (suf[3] == 'P')));
@@ -300,21 +340,40 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 
 	DBG_MSG1("Parsing script %s", ZSTR_VAL(node->path));
 
+	{
 #ifdef PHP_7
+	zend_string *data;
+	zval zdata, func;
+
 	data = zend_string_init(PCS_FILE_DATA(node), PCS_FILE_LEN(node), 0);
 	ZVAL_STR(&zdata, data);
 	ZVAL_STR(&func, parser_func_name);
 	status = call_user_function(NULL, NULL, &func, &ret, 1, &zdata TSRMLS_CC);
+
 	zend_string_release(data);
+#else
+	zval *func_zp, *arg;
+
+	MAKE_STD_ZVAL(func_zp);
+	ZVAL_STRINGL(func_zp, ZSTR_VAL(parser_func_name), ZSTR_LEN(parser_func_name), 1);
+
+	MAKE_STD_ZVAL(arg);
+	ZVAL_STRINGL(arg, PCS_FILE_DATA(node), PCS_FILE_LEN(node), 1);
+
+	status=call_user_function(NULL, NULL, func_zp, &ret, 1,	&arg TSRMLS_CC);
+
+	zval_ptr_dtor(&func_zp);
+	zval_ptr_dtor(&arg);
+#endif
+	}
+
 	if (status == FAILURE) {
-		zval_ptr_dtor(&ret);
+		compat_zval_ptr_dtor(&ret);
 		return FAILURE;
 	}
-#else
-#endif
 
 	if (Z_TYPE(ret) != IS_ARRAY) {
-		zval_ptr_dtor(&ret);
+		compat_zval_ptr_dtor(&ret);
 		php_error(E_CORE_ERROR, "%s: Parser result should be an array"
 			, ZSTR_VAL(node->uri));
 		return FAILURE;
@@ -323,10 +382,11 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 	/* Register every symbols returned by the parser */
 
 	ht = Z_ARRVAL(ret);
-	ZEND_HASH_FOREACH(ht, 0) {
-		zkey = (zval *)compat_zend_hash_get_current_data(ht);
+	for (zend_hash_internal_pointer_reset(ht);;zend_hash_move_forward(ht)) {
+		if (zend_hash_has_more_elements(ht) != SUCCESS) break;
+		zkey = compat_zend_hash_get_current_zval(ht);
 		if (Z_TYPE_P(zkey) != IS_STRING) {
-			zval_ptr_dtor(&ret);
+			compat_zval_ptr_dtor(&ret);
 			php_error(E_CORE_ERROR, "%s: Elements returned by the parser should be strings"
 				, ZSTR_VAL(node->uri));
 			return FAILURE;
@@ -339,12 +399,12 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 #endif
 		status = PCS_Loader_registerKey(zp, node);
 		if (status == FAILURE) {
-			zval_ptr_dtor(&ret);
+			compat_zval_ptr_dtor(&ret);
 			return FAILURE;
 		}
-	} ZEND_HASH_FOREACH_END();
+	}
 
-	zval_ptr_dtor(&ret);
+	compat_zval_ptr_dtor(&ret);
 	return SUCCESS;
 }
 
@@ -429,12 +489,12 @@ static int PCS_Loader_Init(TSRMLS_D)
 	PCS_Node *node;
 
 	/* Load parser */
-	
+
 	PCS_Loader_loadNode(ParserInterface_node, 1 TSRMLS_CC);
 	ON_EXCEPTION_RETURN(FAILURE);
 	PCS_Loader_loadNode(StringParser_node, 1 TSRMLS_CC);
 	ON_EXCEPTION_RETURN(FAILURE);
-	
+
 	ZEND_HASH_FOREACH_PTR(fileList, node) {
 		PCS_Loader_registerNode(node TSRMLS_CC);
 	} ZEND_HASH_FOREACH_END();

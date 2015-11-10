@@ -183,7 +183,7 @@ PHP_FUNCTION(ex1_add)
 {
 	PCS_LONG_T a, b;
 	
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ll", &a, &b) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &a, &b) == FAILURE) {
                 return;
         }
 	

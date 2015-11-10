@@ -2,18 +2,12 @@
 language: php
 
 php:
+  - 5.3
   - 5.4
   - 5.5
   - 5.6
   - 7.0
   - nightly
-
-matrix:
-  allow_failures:
-    - php: 5.4
-    - php: 5.5
-    - php: 5.6
-
 
 env:
     global:
@@ -26,7 +20,5 @@ env:
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y valgrind
-
-install: phpize && ./configure --enable-pcs && make -k install
 
 script: sh travis/run-test.sh

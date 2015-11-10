@@ -216,6 +216,14 @@ static PHP_RSHUTDOWN_FUNCTION(pcs)
 
 static PHP_MINIT_FUNCTION(pcs)
 {
+#ifndef PHP_7
+	/* In some PHP versions, valgrind reports a conditional jump on
+	uninitialized data when calling php_error() during MINIT because
+	EG(exception is not initialized yet. */
+
+	EG(exception) = NULL;
+#endif
+
 	DBG_INIT();
 	DBG_MSG("-> PCS MINIT");
 

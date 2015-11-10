@@ -54,10 +54,10 @@ static zend_function_entry PCS_methods[] = {
 
 static zend_always_inline int MINIT_PCS_Class(TSRMLS_D)
 {
-	zend_class_entry ce, *entry;
+	zend_class_entry ce;
 	
 	INIT_CLASS_ENTRY(ce, "PCS\\Mgr", PCS_methods);
-	entry = zend_register_internal_class(&ce TSRMLS_CC);
+	zend_register_internal_class(&ce TSRMLS_CC);
 
 	return SUCCESS;
 }

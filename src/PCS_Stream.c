@@ -404,7 +404,7 @@ static php_stream *PCS_Stream_generic_open(int dir, php_stream_wrapper *wrapper
 /*--------------------*/
 
 static php_stream *PCS_Stream_openfile(php_stream_wrapper *wrapper
-	, PHP7_CONST char *uri, PHP7_CONST char *mode, int options
+	, COMPAT_STREAM_CONST_DECL char *uri, COMPAT_STREAM_CONST_DECL char *mode, int options
 	, OPENED_PATH_PTR *opened_path, php_stream_context *context STREAMS_DC TSRMLS_DC)
 {
 	return PCS_Stream_generic_open(0, wrapper, uri, mode, options
@@ -413,7 +413,7 @@ static php_stream *PCS_Stream_openfile(php_stream_wrapper *wrapper
 
 /*---------------------------------------------------------------*/
 
-static int PCS_Stream_url_stat(php_stream_wrapper *wrapper, PHP7_CONST char *uri
+static int PCS_Stream_url_stat(php_stream_wrapper *wrapper, COMPAT_STREAM_CONST_DECL char *uri
 	, int flags, php_stream_statbuf *ssb, php_stream_context *context TSRMLS_DC)
 {
 	PCS_STREAM_DATA *dp;
@@ -429,7 +429,7 @@ static int PCS_Stream_url_stat(php_stream_wrapper *wrapper, PHP7_CONST char *uri
 /*--------------------*/
 
 static php_stream *PCS_Stream_opendir(php_stream_wrapper * wrapper
-	, PHP7_CONST char *uri, PHP7_CONST char *mode, int options
+	, COMPAT_STREAM_CONST_DECL char *uri, COMPAT_STREAM_CONST_DECL char *mode, int options
 	, OPENED_PATH_PTR *opened_path, php_stream_context *context STREAMS_DC TSRMLS_DC)
 {
 	return PCS_Stream_generic_open(1, wrapper, uri, mode, options

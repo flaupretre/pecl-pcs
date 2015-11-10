@@ -21,6 +21,9 @@
 
 #include <fcntl.h>
 
+#include "main/SAPI.h"
+#include "zend_modules.h"
+
 /*============================================================================*/
 
 #define CLEAR_DATA(_v)	memset(&(_v),'\0',sizeof(_v)); \
@@ -40,9 +43,62 @@
 
 /*---------------------------------------------------------------*/
 
-static int ut_is_web();
-static int ut_extension_loaded(char *name, int len TSRMLS_DC);
-static zend_module_entry *ut_getModuleData();
+static zend_always_inline int ut_is_web()
+{
+	return strcmp(sapi_module.name, "cli");
+}
+
+/*------------------*/
+
+static zend_always_inline int ut_extension_loaded(char *name, int len TSRMLS_DC)
+{
+	int status;
+
+	status = compat_zend_hash_str_exists(&module_registry, name, len);
+
+	DBG_MSG2("Checking if extension %s is loaded: %s",name,(status ? "yes" : "no"));
+	return status;
+}
+
+/*-----------------------------------------------------*/
+
+static zend_always_inline zend_module_entry *ut_getModuleData(char *name, size_t len)
+{
+	zend_module_entry *module;
+
+#ifdef PHP_7
+		zend_string *zs;
+		
+		zs = zend_string_init(name, len, 0);
+		module = zend_hash_find_ptr(&module_registry, zs);
+		zend_string_release(zs);
+#else
+		int status;
+
+		status = zend_hash_find(&module_registry, name, len + 1, (void **)(&module));
+		if (status != SUCCESS) module = NULL;
+#endif
+
+	if (! module) {
+		php_error(E_CORE_ERROR, "%s: Cannot retrieve module data", name);
+	}
+
+	return module;
+}
+	
+/*-----------------------------------------------------*/
+
+static zend_always_inline int ut_moduleIsStarted(char *name, size_t len)
+{
+	zend_module_entry *module;
+
+	module = ut_getModuleData(name, len);
+	if ((! module) || (! module->module_started)) {
+		return 0;
+	}
+
+	return 1;
+}
 
 /*============================================================================*/
 #endif	/* __PECL_UTILS_MISC_H */

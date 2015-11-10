@@ -18,5 +18,5 @@ var_dump(ptest_c_to_php_test("Dummy message"));
 Loaded code1 set
 bool(false)
 Hello from Dummy5 - Dummy message
-int(-11016323)
+string(32) "57d156c6dbe54efde3f4ee44dca87ad0"
 ===DONE===

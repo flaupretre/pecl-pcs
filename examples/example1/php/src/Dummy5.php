@@ -27,7 +27,7 @@ public static function hello($msg)
 {
 	echo "Hello from Dummy5 - $msg\n";
 
-	return crc32($msg);
+	return md5($msg);
 }
 	
 //---
