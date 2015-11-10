@@ -95,6 +95,12 @@ static zend_always_inline void *compat_zend_hash_get_current_data_ex(HashTable *
 #define compat_zend_hash_get_current_data(ht) \
 	compat_zend_hash_get_current_data_ex(ht, &(ht)->nInternalPointer)
 
+#define compat_zend_hash_get_current_zval_ex(ht, pos) \
+		(zval *)compat_zend_hash_get_current_data_ex(ht, pos)
+
+#define compat_zend_hash_get_current_zval(ht) \
+	compat_zend_hash_get_current_zval_ex(ht, &(ht)->nInternalPointer)
+
 #else
 /*= PHP 5 ====================================================================*/
 
@@ -263,7 +269,7 @@ static zend_always_inline zend_bool compat_zend_hash_str_exists(const HashTable 
 	zend_bool status;
 	char *strn = _compat_dup_str(str, len, 0);
 
-	status = zend_hash_exists(ht, str, (uint)len);
+	status = zend_hash_exists(ht, strn, (uint)(len + 1));
 	efree(strn);
 	return status;
 }
@@ -341,6 +347,12 @@ static zend_always_inline void *compat_zend_hash_get_current_data_ex(HashTable *
 
 #define compat_zend_hash_get_current_data(ht) \
 	compat_zend_hash_get_current_data_ex(ht, NULL)
+
+#define compat_zend_hash_get_current_zval_ex(ht, pos) \
+		*((zval **)compat_zend_hash_get_current_data_ex(ht, pos))
+
+#define compat_zend_hash_get_current_zval(ht) \
+	compat_zend_hash_get_current_zval_ex(ht, NULL)
 
 /*------------------------------------------------------------*/
 

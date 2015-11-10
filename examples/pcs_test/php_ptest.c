@@ -56,6 +56,7 @@ zend_bool load_code1;
 zend_bool load_code2;
 zend_bool load_code3;
 zend_bool load_empty;
+zend_bool load_messages;
 
 ZEND_END_MODULE_GLOBALS(ptest)
 
@@ -191,12 +192,14 @@ STD_PHP_INI_BOOLEAN("ptest.load_code3", "0", PHP_INI_ALL, OnUpdateBool, load_cod
 	zend_ptest_globals, ptest_globals)
 STD_PHP_INI_BOOLEAN("ptest.load_empty", "0", PHP_INI_ALL, OnUpdateBool, load_empty,
 	zend_ptest_globals, ptest_globals)
+STD_PHP_INI_BOOLEAN("ptest.load_messages", "1", PHP_INI_ALL, OnUpdateBool, load_messages,
+	zend_ptest_globals, ptest_globals)
 
 PHP_INI_END()
 
 /*---------------------------------------------------------------*/
 
-static PCS_ID register_data1(char *path, PCS_LONG_T flags)
+static PCS_ID register_data1(char *path, PCS_LONG_T flags TSRMLS_DC)
 {
 	PCS_ID id;
 	char *rpath;
@@ -212,7 +215,7 @@ static PCS_ID register_data1(char *path, PCS_LONG_T flags)
 		php_error(E_CORE_ERROR, "Error registering data1 as %s: Cannot retrieve path", path);
 		return FAILURE;
 	}
-	php_printf("Registered data1 as %s => %s\n", path, rpath);
+	if (PTEST_G(load_messages)) php_printf("Registered data1 as %s => %s\n", path, rpath);
 	
 	return id;
 }
@@ -236,7 +239,6 @@ static PHP_RSHUTDOWN_FUNCTION(ptest)
 static PHP_MINIT_FUNCTION(ptest)
 {
 	PCS_LONG_T count;
-	PCS_ID id;
 
 	ZEND_INIT_MODULE_GLOBALS(ptest, ptest_globals_ctor, NULL);
 	REGISTER_INI_ENTRIES();
@@ -245,97 +247,97 @@ static PHP_MINIT_FUNCTION(ptest)
 
 	if (PTEST_G(load_code1)) {
 		if ((count = PCS_registerDescriptors(code1, 0)) == FAILURE) return FAILURE;
-		php_printf("Loaded code1 set\n");
+		if (PTEST_G(load_messages)) php_printf("Loaded code1 set\n");
 		pcs_file_count += count;
 	}
 
 	if (PTEST_G(load_code2)) {
 		if ((count = PCS_registerDescriptors(code2, 0)) == FAILURE) return FAILURE;
-		php_printf("Loaded code2 set\n");
+		if (PTEST_G(load_messages)) php_printf("Loaded code2 set\n");
 		pcs_file_count += count;
 	}
 
 	if (PTEST_G(load_code3)) {
 		if ((count = PCS_registerDescriptors(code3, 0)) == FAILURE) return FAILURE;
-		php_printf("Loaded code3 set\n");
+		if (PTEST_G(load_messages)) php_printf("Loaded code3 set\n");
 		pcs_file_count += count;
 	}
 
 	if (PTEST_G(load_empty)) {
 		if ((count = PCS_registerDescriptors(empty, 0)) == FAILURE) return FAILURE;
-		php_printf("Loaded empty set\n");
+		if (PTEST_G(load_messages)) php_printf("Loaded empty set\n");
 		pcs_file_count += count;
 	}
 
 		switch(PTEST_G(test_case)) {
 			/* Register data */
 			case 1:
-				id = register_data1("ext/ptest/data1.php", 0);
+				register_data1("ext/ptest/data1.php", 0 TSRMLS_CC);
 				break;
 			case 2:
-				id = register_data1("ext/ptest/data1.txt", 0);
+				register_data1("ext/ptest/data1.txt", 0 TSRMLS_CC);
 				break;
 			case 3:
-				id = register_data1("ext/ptest/data1.php", PCS_AUTOLOAD_DISABLE);
+				register_data1("ext/ptest/data1.php", PCS_AUTOLOAD_DISABLE TSRMLS_CC);
 				break;
 			case 4:
-				id = register_data1("ext/ptest/data1.txt", PCS_AUTOLOAD_FORCE);
+				register_data1("ext/ptest/data1.txt", PCS_AUTOLOAD_FORCE TSRMLS_CC);
 				break;
 			case 5:
-				id = register_data1("ext/ptest/../data1.php", 0);
+				register_data1("ext/ptest/../data1.php", 0 TSRMLS_CC);
 				break;
 			case 6:
-				id = register_data1("ext/ptest/./data1.php", 0);
+				register_data1("ext/ptest/./data1.php", 0 TSRMLS_CC);
 				break;
 			case 7:
-				id = register_data1("/ext/ptest/data1.php", 0);
+				register_data1("/ext/ptest/data1.php", 0 TSRMLS_CC);
 				break;
 			case 8:
-				id = register_data1("ext/ptest/data1.php/", 0);
+				register_data1("ext/ptest/data1.php/", 0 TSRMLS_CC);
 				break;
 			case 9:
-				id = register_data1("/ext/ptest///data1.php/", 0);
+				register_data1("/ext/ptest///data1.php/", 0 TSRMLS_CC);
 				break;
 			/* Register external path*/
 			case 20:
 				count = PCS_registerPath(IMM_STRL("./php/src/code1")
 					, IMM_STRL("ext/ptest/external/code1"), 0);
 				if (count == FAILURE) return FAILURE;
-				php_printf("Loaded code1 set from external file tree (%ld files)\n", count);
+				if (PTEST_G(load_messages)) php_printf("Loaded code1 set from external file tree (%ld files)\n", count);
 				pcs_file_count += count;
 				break;
 			case 21: /* Register a single file */
 				count = PCS_registerPath(IMM_STRL("./php/src/code1/dir/Dummy4.php")
 					, IMM_STRL("ext/ptest/d.php"), 0);
 				if (count == FAILURE) return FAILURE;
-				php_printf("Loaded %ld file\n", count);
+				if (PTEST_G(load_messages)) php_printf("Loaded %ld file\n", count);
 				pcs_file_count += count;
 				break;
 			case 22: /* Error on non-existing source */
 				count = PCS_registerPath(IMM_STRL("./unexisting/src/code1")
 					, IMM_STRL("ext/ptest/external/code1"), 0);
 				if (count == FAILURE) return FAILURE;
-				php_printf("Loaded unknown set from external file tree (%ld files)\n", count);
+				if (PTEST_G(load_messages)) php_printf("Loaded unknown set from external file tree (%ld files)\n", count);
 				pcs_file_count += count;
 				break;
 			case 23: /* Register a single file (disabling autoload) */
 				count = PCS_registerPath(IMM_STRL("./php/src/code1/dir/Dummy4.php")
 					, IMM_STRL("ext/ptest/d.php"), PCS_AUTOLOAD_DISABLE);
 				if (count == FAILURE) return FAILURE;
-				php_printf("Loaded %ld file\n", count);
+				if (PTEST_G(load_messages)) php_printf("Loaded %ld file\n", count);
 				pcs_file_count += count;
 				break;
 			case 24: /* Register a single file (forcing autoload) */
 				count = PCS_registerPath(IMM_STRL("./php/src/code1/dir/Dummy4.php")
 					, IMM_STRL("ext/ptest/d"), PCS_AUTOLOAD_FORCE);
 				if (count == FAILURE) return FAILURE;
-				php_printf("Loaded %ld file\n", count);
+				if (PTEST_G(load_messages)) php_printf("Loaded %ld file\n", count);
 				pcs_file_count += count;
 				break;
 			/* Register descriptor set forcing autoload */
 			case 30:
 				if ((count = PCS_registerDescriptors(code3, PCS_AUTOLOAD_FORCE)) == FAILURE) return FAILURE;
-				php_printf("Loaded code3 set (autoload force)\n");
+				if (PTEST_G(load_messages)) php_printf("Loaded code3 set (autoload force)\n");
 				pcs_file_count += count;
 		}
 
