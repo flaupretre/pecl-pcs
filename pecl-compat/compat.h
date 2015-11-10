@@ -23,6 +23,8 @@
 #include "zend.h"
 #include "zend_extensions.h"
 
+#define PECL_COMPAT_VERSION 1.0
+
 #if PHP_MAJOR_VERSION >= 7
 #define PHP_7
 #endif

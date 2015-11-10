@@ -62,7 +62,7 @@
 #include "zend_extensions.h"
 #include "ext/standard/info.h"
 
-#include "compat/compat.h"
+#include "pecl-compat/compat.h"
 #include "utils/utils.h"
 
 #ifdef PHP_7
