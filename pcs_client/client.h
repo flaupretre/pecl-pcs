@@ -25,24 +25,16 @@
 #include "zend.h"
 #include "zend_types.h"
 
-#if PHP_MAJOR_VERSION >= 7
-	typedef size_t PCS_SIZE_T;
-	typedef zend_long PCS_LONG_T;
-#else
-	typedef int PCS_SIZE_T;
-	typedef long PCS_LONG_T;
-#endif
-
-typedef PCS_LONG_T PCS_ID;
+typedef zend_ulong PCS_ID;
 
 /* The structure produced by pcs_process_code.php */
 
 typedef struct {
 	int version;		/* Descriptor version (current: 0) */
 	char *data;			/* File contents */
-	PCS_SIZE_T data_len;
+	size_t data_len;
 	char *path;			/* Virtual path (no leading/trailing '/') */
-	PCS_SIZE_T path_len;
+	size_t path_len;
 } PCS_DESCRIPTOR;
 
 /*============================================================================*/
@@ -63,7 +55,7 @@ typedef struct {
    Can be called during MINIT only.
 */
 
-PHPAPI int PCS_registerDescriptors(PCS_DESCRIPTOR *list, PCS_LONG_T flags);
+PHPAPI long PCS_registerDescriptors(PCS_DESCRIPTOR *list, zend_ulong flags);
 
 /*----------------------------------------------------------------------------*/
 /* Registers a file already present in memory
@@ -73,8 +65,8 @@ PHPAPI int PCS_registerDescriptors(PCS_DESCRIPTOR *list, PCS_LONG_T flags);
    Can be called during MINIT only.
 */
 
-PHPAPI PCS_ID PCS_registerData(char *data, PCS_SIZE_T data_len
-	, const char *path, PCS_SIZE_T pathlen, PCS_LONG_T flags);
+PHPAPI PCS_ID PCS_registerData(char *data, size_t data_len
+	, const char *path, size_t pathlen, zend_ulong flags);
 
 /*----------------------------------------------------------------------------*/
 /* Registers an external file/tree. filename is a path to an existing
@@ -87,8 +79,8 @@ PHPAPI PCS_ID PCS_registerData(char *data, PCS_SIZE_T data_len
    Can be called during MINIT only.
 */
 
-PHPAPI int PCS_registerPath(const char *filename, PCS_SIZE_T filename_len
-	, const char *virtual_path, PCS_SIZE_T virtual_path_len, PCS_LONG_T flags);
+PHPAPI long PCS_registerPath(const char *filename, size_t filename_len
+	, const char *virtual_path, size_t virtual_path_len, zend_ulong flags);
 
 /*----------------------------------------------------------------------------*/
 /*	Execute a registered PHP script.
@@ -117,7 +109,7 @@ PHPAPI char *PCS_getPath(PCS_ID id);
 	Can be called at any time, even during MINIT.
 */
 
-PHPAPI PCS_ID PCS_getID(const char *path, PCS_SIZE_T pathlen);
+PHPAPI PCS_ID PCS_getID(const char *path, size_t pathlen);
 
 /*============================================================================*/
 #endif /* __PCS_CLIENT_H */

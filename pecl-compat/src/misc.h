@@ -19,21 +19,23 @@
 #ifndef __PECL_COMPAT_MISC_H
 #define __PECL_COMPAT_MISC_H 1
 
-#include <stdio.h>
-#include <assert.h>
-
 #ifdef PHP_7
 /*============================================================================*/
 
-typedef zend_string * OPENED_PATH_PTR;
+typedef zend_string * OPENED_PATH_PTR; /* Type of stream opened_path argument */
+typedef size_t        COMPAT_ARG_SIZE_T; /* Size of string arguments */
+typedef zend_long     COMPAT_ARG_LONG_T; /* Type of long (integer) arguments */
 
 #define compat_zval_ptr_dtor(zp)	zval_ptr_dtor(zp)
 
 #else
 /*== PHP 5 ===================================================================*/
 
-typedef char * OPENED_PATH_PTR;
-typedef off_t zend_off_t;
+typedef char *    OPENED_PATH_PTR;
+typedef off_t     zend_off_t;
+typedef int       COMPAT_ARG_SIZE_T;
+typedef long      COMPAT_ARG_LONG_T;
+typedef long      zend_long;
 
 #define compat_zval_ptr_dtor(zp)	zval_dtor(zp)
 
@@ -58,10 +60,12 @@ assumes that all calls to memmove are moving strings upwards in store,
 which is the case in this extension. */
 
 #if ! HAVE_MEMMOVE
-#	undef  memmove					/* some systems may have a macro */
+#	ifdef memmove
+#		undef  memmove					/* some systems may have a macro */
+#	endif
 #	if HAVE_BCOPY
 #		define memmove(a, b, c) bcopy(b, a, c)
-#	else							/* HAVE_BCOPY */
+#	else
 		static void *my_memmove(unsigned char *dest, const unsigned char *src,
 								size_t n)
 		{
@@ -106,7 +110,7 @@ which is the case in this extension. */
 #endif
 
 #ifndef MAKE_STD_ZVAL
-#define MAKE_STD_ZVAL(zp) { zp=ut_eallocate(NULL,sizeof(zval)); INIT_ZVAL(*zp); }
+#define MAKE_STD_ZVAL(zp) { zp = emalloc(sizeof(zval)); INIT_ZVAL(*zp); }
 #endif
 
 #ifndef ALLOC_INIT_ZVAL
@@ -147,23 +151,14 @@ which is the case in this extension. */
 #endif
 #endif
 
-/*--------------*/
-
-#define PHP_5_0_X_API_NO                220040412
-#define PHP_5_1_X_API_NO                220051025
-#define PHP_5_2_X_API_NO                220060519
-#define PHP_5_3_X_API_NO                220090626
-#define PHP_5_4_X_API_NO                220100525
-#define PHP_5_5_X_API_NO                220121212
-#define PHP_5_6_X_API_NO                220131226
-
 #if PHP_API_VERSION >= 20100412
 	typedef size_t PHP_ESCAPE_HTML_ENTITIES_SIZE;
 #else
 	typedef int PHP_ESCAPE_HTML_ENTITIES_SIZE;
 #endif
 
-/* Used in stream wrapper declaration for openfile/opendir/url_stat */
+/* Avoid a warning when compiling stream wrapper declarations for
+   openfile/opendir/url_stat */
 
 #if ZEND_EXTENSION_API_NO >= PHP_5_6_X_API_NO
 #	define COMPAT_STREAM_CONST_DECL const
@@ -172,18 +167,22 @@ which is the case in this extension. */
 #endif
 
 /*============================================================================*/
-
-/*---------------------------------------------------------------*/
+/* Duplicate a memory buffer */
+/* Supports zero size (allocates 1 byte) */
 
 static zend_always_inline void *_compat_dup(const void *ptr, size_t size, int persistent)
 {
 	char *p;
 
 	if (!ptr) return NULL;
-	if (size==0) return pemalloc(1,persistent);
+	if (size) {
+		p = pemalloc(size, persistent);
+		memmove(p, ptr, size);
+	} else {
+		p = pemalloc(1,persistent);
+		(*p) = '\0'; /* Ensures deterministic behavior */
+	}
 
-	p = pemalloc(size, persistent);
-	memmove(p, ptr, size);
 	return p;
 }
 
@@ -201,6 +200,15 @@ static zend_always_inline void *_compat_dup_str(const void *ptr, size_t size, in
 	if (size) memmove(p, ptr, size);
 	p[size] = '\0';
 	return p;
+}
+
+/*-----------------------------------------------------*/
+/* Fatal error - display message and abort process */
+
+static zend_always_inline void compat_unsupported(char *msg)
+{
+	php_error(E_CORE_ERROR, "This feature is not supported in this environment : %s", msg);
+	exit(1);
 }
 
 /*============================================================================*/

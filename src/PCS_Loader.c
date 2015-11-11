@@ -70,7 +70,7 @@ static void PCS_Loader_registerHook(TSRMLS_D)
 static PHP_METHOD(PCS, autoloadHook)
 {
 	char *symbol,*type, ctype;
-	PCS_SIZE_T slen,tlen;
+	COMPAT_ARG_SIZE_T slen,tlen;
 
 	type=NULL;
 
@@ -80,7 +80,7 @@ static PHP_METHOD(PCS, autoloadHook)
 	ctype = (type ? (*type) : PCS_T_CLASS);
 	DBG_MSG2("-> PCS autoloader(%s %s)", PCS_Loader_keyTypeString(ctype), symbol);
 
-	PCS_Loader_loadSymbol(ctype , symbol, slen, 1, 0 TSRMLS_CC);
+	PCS_Loader_loadSymbol(ctype , symbol, (size_t)slen, 1, 0 TSRMLS_CC);
 
 	DBG_MSG("<- PCS autoloader");
 }
@@ -88,7 +88,7 @@ static PHP_METHOD(PCS, autoloadHook)
 /*---------------------------------------------------------------*/
 /* Returns SUCCESS/FAILURE */
 
-static int PCS_Loader_loadSymbol(char type, char *symbol, PCS_SIZE_T slen, zend_bool autoload
+static int PCS_Loader_loadSymbol(char type, char *symbol, size_t slen, zend_bool autoload
 	, zend_bool exception TSRMLS_DC)
 {
 	zend_string *key = NULL;
@@ -126,7 +126,7 @@ static int PCS_Loader_loadSymbol(char type, char *symbol, PCS_SIZE_T slen, zend_
 /*---------------------------------------------------------------*/
 /* Return 0|1 */
 
-static int PCS_Loader_symbolIsDefined(char type, char *symbol, PCS_SIZE_T slen TSRMLS_DC)
+static int PCS_Loader_symbolIsDefined(char type, char *symbol, size_t slen TSRMLS_DC)
 {
 	char *lc_symbol = NULL;
 	int status;
@@ -278,7 +278,7 @@ static char *PCS_Loader_keyTypeString(char c)
 	static PHP_METHOD(PCS, _gtype ## _name) \
 	{ \
 		char *symbol; \
-		PCS_SIZE_T slen; \
+		COMPAT_ARG_SIZE_T slen; \
 		zend_bool autoload = 0; \
  \
 		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|b", &symbol \
@@ -286,7 +286,7 @@ static char *PCS_Loader_keyTypeString(char c)
 			EXCEPTION_ABORT("Cannot parse parameters"); \
 		} \
  \
-		RETURN_BOOL(PCS_Loader_loadSymbol(_type, symbol, slen \
+		RETURN_BOOL(PCS_Loader_loadSymbol(_type, symbol, (size_t)slen \
 			, autoload, _exception TSRMLS_CC) == SUCCESS); \
 	}
 
@@ -415,7 +415,7 @@ static int PCS_Loader_registerKey(zend_string *key, PCS_Node *node)
 	PCS_Node *oldnode;
 
 	ZEND_ASSERT(key);
-	ZEND_ASSERT(zend_string_is_persistent(key)); /* Input key must be persistent */
+	ZEND_ASSERT(ZSTR_IS_PERSISTENT(key)); /* Input key must be persistent */
 	ZEND_ASSERT(node);
 
 	oldnode = zend_hash_find_ptr(symbols, key);

@@ -19,22 +19,13 @@
 
 /*============================================================================*/
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "../../pecl-compat/compat.h"
 
-#include "php.h"
 #include "ext/standard/info.h"
-
-/*============================================================================*/
 
 #include "../../pcs_client/client.h"
 
 #include "php_ptest.h"
-
-#if PHP_MAJOR_VERSION >= 7
-#	define PHP_7
-#endif
 
 #ifdef COMPILE_DL_PTEST
 #	ifdef PHP_7
@@ -51,7 +42,7 @@
 
 ZEND_BEGIN_MODULE_GLOBALS(ptest)
 
-PCS_LONG_T test_case;
+zend_long test_case;
 zend_bool load_code1;
 zend_bool load_code2;
 zend_bool load_code3;
@@ -72,7 +63,7 @@ ZEND_DECLARE_MODULE_GLOBALS(ptest)
 #	define PTEST_G(v) (ptest_globals.v)
 #endif
 
-PCS_LONG_T pcs_file_count;
+long pcs_file_count;
 
 char data1[] = "<?php\n\
 namespace PCS_Test {\n\
@@ -102,7 +93,7 @@ public function hello()\n\
 
 PHP_FUNCTION(ptest_add)
 {
-	PCS_LONG_T a, b;
+	COMPAT_ARG_LONG_T a, b;
 	
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &a, &b) == FAILURE) {
 		return;
@@ -148,7 +139,7 @@ static PHP_MINFO_FUNCTION(ptest)
 
 	/* Let's display the number of PHP scripts we registered in PCS */
 
-	sprintf(buf,"%d", (int)pcs_file_count);
+	sprintf(buf,"%ld", pcs_file_count);
 	php_info_print_table_row(2, "Scripts registered in PCS", buf);
 
 	php_info_print_table_end();
@@ -199,7 +190,7 @@ PHP_INI_END()
 
 /*---------------------------------------------------------------*/
 
-static PCS_ID register_data1(char *path, PCS_LONG_T flags TSRMLS_DC)
+static PCS_ID register_data1(char *path, zend_ulong flags TSRMLS_DC)
 {
 	PCS_ID id;
 	char *rpath;
@@ -238,7 +229,7 @@ static PHP_RSHUTDOWN_FUNCTION(ptest)
 
 static PHP_MINIT_FUNCTION(ptest)
 {
-	PCS_LONG_T count;
+	long count;
 
 	ZEND_INIT_MODULE_GLOBALS(ptest, ptest_globals_ctor, NULL);
 	REGISTER_INI_ENTRIES();

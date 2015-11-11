@@ -50,10 +50,10 @@
 
 /*--------------------*/
 
-PHPAPI int PCS_registerDescriptors(PCS_DESCRIPTOR *list, PCS_LONG_T flags)
+PHPAPI long PCS_registerDescriptors(PCS_DESCRIPTOR *list, zend_ulong flags)
 {
 	PCS_Node *node;
-	int count;
+	long count;
 
 	if (! in_startup) {
 		php_error(E_CORE_ERROR, "PCS_registerDescriptors() can be called during MINIT only");
@@ -83,8 +83,8 @@ PHPAPI int PCS_registerDescriptors(PCS_DESCRIPTOR *list, PCS_LONG_T flags)
 
 /*--------------------*/
 
-PHPAPI PCS_ID PCS_registerData(char *data, PCS_SIZE_T data_len
-	, const char *path, PCS_SIZE_T path_len, PCS_LONG_T flags)
+PHPAPI PCS_ID PCS_registerData(char *data, size_t data_len
+	, const char *path, size_t path_len, zend_ulong flags)
 {
 	PCS_Node *node;
 
@@ -116,12 +116,12 @@ PHPAPI PCS_ID PCS_registerData(char *data, PCS_SIZE_T data_len
 	return FAILURE; \
 	}
 
-PHPAPI int PCS_registerPath(const char *filename, PCS_SIZE_T filename_len
-	, const char *virtual_path, PCS_SIZE_T virtual_path_len, PCS_LONG_T flags)
+PHPAPI long PCS_registerPath(const char *filename, size_t filename_len
+	, const char *virtual_path, size_t virtual_path_len, zend_ulong flags)
 {
 	char *data = NULL, *sub_fname, *sub_vpath, *dname;
-	PCS_SIZE_T datalen, sub_fname_len, sub_vpath_len;
-	int status, fcount = 0;
+	size_t datalen, sub_fname_len, sub_vpath_len;
+	long status, fcount = 0;
 	DIR *dir = NULL;
 	struct dirent *entry;
 	FILE *fp = NULL;
@@ -200,7 +200,7 @@ PHPAPI int PCS_registerPath(const char *filename, PCS_SIZE_T filename_len
 			ABORT_PCS_registerPath();
 		}
 		fstat(fileno(fp),&st);
-		datalen = (PCS_SIZE_T)(st.st_size);
+		datalen = (size_t)(st.st_size);
 		PALLOCATE(data, datalen + 1);
 		if (datalen) {
 			while (!fread(data, datalen, 1, fp)) {}
@@ -270,7 +270,7 @@ PHPAPI char *PCS_getPath(PCS_ID id)
 
 /*--------------------*/
 
-PHPAPI PCS_ID PCS_getID(const char *path, PCS_SIZE_T pathlen)
+PHPAPI PCS_ID PCS_getID(const char *path, size_t pathlen)
 {
 	PCS_Node *node;
 

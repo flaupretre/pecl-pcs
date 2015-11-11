@@ -24,11 +24,8 @@
 */
 /*============================================================================*/
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "../../pecl-compat/compat.h"
 
-#include "php.h"
 #include "ext/standard/info.h"
 
 /*============================================================================*/
@@ -48,10 +45,6 @@
 /*============================================================================*/
 
 #include "php_ex1.h"
-
-#if PHP_MAJOR_VERSION >= 7
-#	define PHP_7
-#endif
 
 /*------------------------*/
 
@@ -82,7 +75,7 @@ ZEND_DECLARE_MODULE_GLOBALS(ex1)
 #	define EX1_G(v) (ex1_globals.v)
 #endif
 
-int pcs_file_count;
+long pcs_file_count;
 
 /*============================================================================*/
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
@@ -109,7 +102,7 @@ static PHP_MINFO_FUNCTION(ex1)
 
 	/* Let's display the number of PHP scripts we registered in PCS */
 
-	sprintf(buf,"%d", pcs_file_count);
+	sprintf(buf,"%ld", pcs_file_count);
 	php_info_print_table_row(2, "Scripts registered in PCS", buf);
 
 	php_info_print_table_end();
@@ -181,7 +174,7 @@ static PHP_MINIT_FUNCTION(ex1)
 
 PHP_FUNCTION(ex1_add)
 {
-	PCS_LONG_T a, b;
+	COMPAT_ARG_LONG_T a, b;
 	
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &a, &b) == FAILURE) {
                 return;

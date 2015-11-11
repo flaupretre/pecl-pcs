@@ -96,7 +96,7 @@ static void free_dp(PCS_STREAM_DATA **dpp)
 
 static size_t PCS_Stream_read(php_stream *stream, char *buf, size_t count TSRMLS_DC)
 {
-	PCS_SIZE_T max;
+	size_t max;
 	PCS_STREAM_DATA *dp = stream->abstract;
 
 	ZEND_ASSERT(PCS_NODE_IS_FILE(dp->node));
@@ -167,7 +167,7 @@ static int PCS_Stream_seek(php_stream *stream, zend_off_t offset, int whence
 
 /*--------------------*/
 
-static PCS_Node *PCS_Stream_getNodeFromURI(const char *uri, PCS_SIZE_T len)
+static PCS_Node *PCS_Stream_getNodeFromURI(const char *uri, size_t len)
 {
 	PCS_Node *node;
 
@@ -196,7 +196,7 @@ static int do_stat(php_stream_wrapper *wrapper, const char *uri
 	/*-- Get node */
 
 	if (!(dp->node)) {
-		dp->node = PCS_Stream_getNodeFromURI(uri, (PCS_SIZE_T)strlen(uri));
+		dp->node = PCS_Stream_getNodeFromURI(uri, (size_t)strlen(uri));
 		if (!(dp->node)) {
 			php_stream_wrapper_log_error(wrapper, dp->show_errors TSRMLS_CC
 										 , "%s: File not found", uri);
@@ -257,7 +257,7 @@ static size_t PCS_Stream_readdir(php_stream *stream, char *buf, size_t count TSR
 		return 0;
 	}
 
-	count =	MIN((PCS_SIZE_T)sizeof(ent->d_name) - 1, nlen);
+	count =	MIN((size_t)sizeof(ent->d_name) - 1, nlen);
 	memmove(ent->d_name, name, count);
 	ent->d_name[count] = '\0';
 
@@ -306,7 +306,7 @@ static php_stream *PCS_Stream_generic_open(int dir, php_stream_wrapper *wrapper
 	, php_stream_context *context STREAMS_DC TSRMLS_DC)
 {
 	PCS_STREAM_DATA *dp = NULL;
-	PCS_SIZE_T uri_len;
+	size_t uri_len;
 	char open_flags;
 	php_stream *ret;
 	int persistent = options & STREAM_OPEN_PERSISTENT;
@@ -314,7 +314,7 @@ static php_stream *PCS_Stream_generic_open(int dir, php_stream_wrapper *wrapper
 
 	DBG_MSG2("-> generic_open(%s %s)", (dir ? "dir" : "file"), uri);
 
-	uri_len = (PCS_SIZE_T)strlen(uri);
+	uri_len = (size_t)strlen(uri);
 
 	/*-- For files, support read mode only ('r' or 'rb') */
 

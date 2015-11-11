@@ -33,7 +33,7 @@ Note:
 */
 
 static PCS_Node *PCS_Tree_addSubNode(PCS_Node *parent, const char *name
-	, PCS_SIZE_T len, int type, PCS_LONG_T flags)
+	, size_t len, int type, zend_ulong flags)
 {
 	PCS_Node *node;
 	char *p;
@@ -131,11 +131,11 @@ static PCS_Node *PCS_Tree_addSubNode(PCS_Node *parent, const char *name
 /*--------------------*/
 /* On error, returns NULL */
 
-static PCS_Node *PCS_Tree_addNode(const char *path, PCS_SIZE_T pathlen
-	, int type, PCS_LONG_T flags)
+static PCS_Node *PCS_Tree_addNode(const char *path, size_t pathlen
+	, int type, zend_ulong flags)
 {
 	PCS_Node *node;
-	PCS_SIZE_T remaining, len;
+	size_t remaining, len;
 	const char *start, *found;
 	zend_string *cpath;
 
@@ -143,9 +143,9 @@ static PCS_Node *PCS_Tree_addNode(const char *path, PCS_SIZE_T pathlen
 	start = ZSTR_VAL(cpath);
 	node = root;
 	while (1) {
-		remaining = ZSTR_LEN(cpath) - (PCS_SIZE_T)(start - ZSTR_VAL(cpath));
+		remaining = ZSTR_LEN(cpath) - (size_t)(start - ZSTR_VAL(cpath));
 		found = memchr(start, '/', remaining);
-		len = (found ? (PCS_SIZE_T)(found - start) : remaining);
+		len = (found ? (size_t)(found - start) : remaining);
 		node = PCS_Tree_addSubNode(node, start, len, (found ?  PCS_TYPE_DIR : type)
 			, flags);
 		if (! node) return NULL;
@@ -159,15 +159,15 @@ static PCS_Node *PCS_Tree_addNode(const char *path, PCS_SIZE_T pathlen
 
 /*--------------------*/
 
-static PCS_Node *PCS_Tree_addDir(const char *path, PCS_SIZE_T pathlen, PCS_LONG_T flags)
+static PCS_Node *PCS_Tree_addDir(const char *path, size_t pathlen, zend_ulong flags)
 {
 	return PCS_Tree_addNode(path, pathlen, PCS_TYPE_DIR, flags);
 }
 
 /*--------------------*/
 
-static PCS_Node *PCS_Tree_addFile(const char *path, PCS_SIZE_T pathlen
-	, char *data, PCS_SIZE_T datalen, int alloc, PCS_LONG_T flags)
+static PCS_Node *PCS_Tree_addFile(const char *path, size_t pathlen
+	, char *data, size_t datalen, int alloc, zend_ulong flags)
 {
 	PCS_Node *node;
 
@@ -215,9 +215,9 @@ static void PCS_Tree_destroyNode(zval *zp)
    Note : 'name' input arg does not have to be null-terminated.
 */
 
-static zend_string *PCS_Tree_cleanPath(const char *path, PCS_SIZE_T len)
+static zend_string *PCS_Tree_cleanPath(const char *path, size_t len)
 {
-	PCS_SIZE_T dlen, remain;
+	size_t dlen, remain;
 	int ignore_slash;
 	zend_string *ret;
 	char *target, c;
@@ -238,7 +238,7 @@ static zend_string *PCS_Tree_cleanPath(const char *path, PCS_SIZE_T len)
 		}
 		*(target++) = c;
 	}
-	dlen = (PCS_SIZE_T)(target - ZSTR_VAL(ret));
+	dlen = (size_t)(target - ZSTR_VAL(ret));
 	target--;
 	while (dlen && ((*target) == '/')) {
 		dlen--;
@@ -260,7 +260,7 @@ static zend_string *PCS_Tree_cleanPath(const char *path, PCS_SIZE_T len)
 static PCS_Node *PCS_Tree_resolvePath(zend_string *path)
 {
 	PCS_Node *node;
-	PCS_SIZE_T remaining, len;
+	size_t remaining, len;
 	char *start, *end;
 
 	DBG_MSG1("-> PCS_Tree_resolvePath(%s)", ZSTR_VAL(path));
@@ -268,9 +268,9 @@ static PCS_Node *PCS_Tree_resolvePath(zend_string *path)
 	node = root;
 	start = ZSTR_VAL(path);
 	while (1) {
-		remaining = ZSTR_LEN(path) - (PCS_SIZE_T)(start - ZSTR_VAL(path));
+		remaining = ZSTR_LEN(path) - (size_t)(start - ZSTR_VAL(path));
 		end = memchr(start, '/', remaining);
-		len = (end ? (PCS_SIZE_T)(end - start) : remaining);
+		len = (end ? (size_t)(end - start) : remaining);
 		if ((len == 2) && (start[0] == '.') && (start[1] == '.')) {
 			if (node->parent) {
 				node = node->parent;
@@ -291,7 +291,7 @@ static PCS_Node *PCS_Tree_resolvePath(zend_string *path)
 /*--------------------*/
 /* If path is valid but not in pathList, add it using the mutex */
 
-static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, PCS_SIZE_T len)
+static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, size_t len)
 {
 	zend_string *cpath, *pcpath;
 	PCS_Node *node;

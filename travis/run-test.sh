@@ -12,9 +12,11 @@ echo
 echo "=============== Running tests in $PWD"
 echo
 
-phpize && ./configure --quiet && make -k clean all CFLAGS='-g -Wall'
+phpize || return 1
+./configure --quiet || return 1
+make -k clean all CFLAGS='-g -Wall' || return 1
 
-# Remove this when Bob Weinand has fixed the valgrind options in run-tests.php
+# Remove this when the valgrind options in run-tests.php are fixed
 sed 's/--vex-iropt-register-updates=allregs-at-mem-access/--vex-iropt-precise-memory-exns=yes/g' <run-tests.php >r
 rm -f run-tests.php
 cp r run-tests.php

@@ -44,7 +44,7 @@ static void free_dp(PCS_STREAM_DATA **dpp);
 static size_t PCS_Stream_read(php_stream *stream, char *buf, size_t count TSRMLS_DC);
 static int PCS_Stream_close(php_stream *stream, int close_handle TSRMLS_DC);
 static int PCS_Stream_seek(php_stream *stream, zend_off_t offset, int whence, zend_off_t *newoffset TSRMLS_DC);
-static PCS_Node *PCS_Stream_getNodeFromURI(const char *uri, PCS_SIZE_T len);
+static PCS_Node *PCS_Stream_getNodeFromURI(const char *uri, size_t len);
 static int do_stat(php_stream_wrapper *wrapper, const char *uri, PCS_STREAM_DATA *dp, php_stream_statbuf *ssb TSRMLS_DC);
 static int PCS_Stream_fstat(php_stream *stream, php_stream_statbuf *ssb TSRMLS_DC);
 static size_t PCS_Stream_readdir(php_stream *stream, char *buf, size_t count TSRMLS_DC);
