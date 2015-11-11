@@ -19,15 +19,69 @@
 #ifndef _COMPAT_H
 #define _COMPAT_H
 
+#define PECL_COMPAT_VERSION 1.1
+
+#include <stdio.h>
+#include <assert.h>
+
 #include "php.h"
 #include "zend.h"
 #include "zend_extensions.h"
 
-#define PECL_COMPAT_VERSION 1.0
+#define PHP_5_0_X_API_NO                220040412
+#define PHP_5_1_X_API_NO                220051025
+#define PHP_5_2_X_API_NO                220060519
+#define PHP_5_3_X_API_NO                220090626
+#define PHP_5_4_X_API_NO                220100525
+#define PHP_5_5_X_API_NO                220121212
+#define PHP_5_6_X_API_NO                220131226
 
 #if PHP_MAJOR_VERSION >= 7
-#define PHP_7
+#	define PHP_7
 #endif
+
+#ifdef HAVE_CONFIG_H
+#	include "config.h"
+#endif
+
+#ifdef HAVE_SYS_TYPES_H
+#	include <sys/types.h>
+#endif
+
+#ifdef PHP_WIN32
+#	include "win32/time.h"
+#elif defined(NETWARE)
+#	include <sys/timeval.h>
+#	include <sys/time.h>
+#else
+#	include <sys/time.h>
+#endif
+
+#ifdef HAVE_SYS_RESOURCE_H
+#	include <sys/resource.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
+#	include <unistd.h>
+#endif
+
+#ifdef HAVE_SYS_STAT_H
+#	include <sys/stat.h>
+#endif
+
+#ifdef PHP_WIN32
+#include <win32/php_stdint.h>
+#else
+#include <inttypes.h>
+#endif
+
+#if ZEND_EXTENSION_API_NO >= PHP_5_6_X_API_NO
+#include "zend_virtual_cwd.h"
+#else
+#include "TSRM/tsrm_virtual_cwd.h"
+#endif
+
+/*-- Include submodules */
 
 #include "src/misc.h"
 #include "src/zend_string.h"
