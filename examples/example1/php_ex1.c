@@ -156,14 +156,14 @@ static PHP_MINIT_FUNCTION(ex1)
    That's the only interaction we'll have with PCS as, once it is done, PCS
    will autoload these scripts everytime it is needed.
    
-   Note that PCS_registerDescriptors() returns the number of scripts registered.
+   Note that PCS_registerEmbedded() returns the number of scripts registered.
    You may store this value or discard it, but you must at least test whether
    the return value is equal to FAILURE. If it is the case, you *must* abort
    function execution and return FAILURE too. This will abort PHP execution.
 */
 
-	pcs_file_count = PCS_registerDescriptors(code, 0);
-	if (pcs_file_count < 0) return FAILURE;
+	pcs_file_count = PCS_registerEmbedded(code, "ext/ex1", sizeof("ext/ex1") -1, 0);
+	if (pcs_file_count == FAILURE) return FAILURE;
 /*============================================================================*/
 	
 	return SUCCESS;
@@ -242,7 +242,7 @@ static zend_function_entry ex1_functions[] = {
 /* Here, we define a dependency from our extension to PCS
 
    This dependency ensures that PCS will be started (MINIT) *before* our
-   extension. This is important because the call to PCS_registerDescriptors()
+   extension. This is important because the call to PCS_registerEmbedded()
    above will fail if the PCS extension was not started yet.
 
    As we cannot know in advance which extension will be compiled statically

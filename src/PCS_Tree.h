@@ -141,10 +141,10 @@ static zend_always_inline HashTable *PCS_DIR_HT(PCS_Node *node)
 
 static PCS_Node *PCS_Tree_addSubNode(PCS_Node *parent, const char *name
 	, size_t len, int type, zend_ulong flags);
-static PCS_Node *PCS_Tree_addNode(const char *path, size_t pathlen
+static PCS_Node *PCS_Tree_addNode(const char *path, size_t path_len
 	, int type, zend_ulong flags);
-static PCS_Node *PCS_Tree_addDir(const char *path, size_t pathlen, zend_ulong flags);
-static PCS_Node *PCS_Tree_addFile(const char *path, size_t pathlen
+static PCS_Node *PCS_Tree_addDir(const char *path, size_t path_len, zend_ulong flags);
+static PCS_Node *PCS_Tree_addFile(const char *path, size_t path_len
 	, char *data, size_t datalen, int alloc, zend_ulong flags);
 static void PCS_Tree_destroyNode(zval *zp);
 static zend_string *PCS_Tree_cleanPath(const char *path, size_t len);

@@ -55,7 +55,8 @@ typedef struct {
    Can be called during MINIT only.
 */
 
-PHPAPI long PCS_registerDescriptors(PCS_DESCRIPTOR *list, zend_ulong flags);
+PHPAPI long PCS_registerEmbedded(PCS_DESCRIPTOR *list
+	, const char *virtual_path, size_t virtual_path_len, zend_ulong flags);
 
 /*----------------------------------------------------------------------------*/
 /* Registers a file already present in memory
@@ -66,7 +67,7 @@ PHPAPI long PCS_registerDescriptors(PCS_DESCRIPTOR *list, zend_ulong flags);
 */
 
 PHPAPI PCS_ID PCS_registerData(char *data, size_t data_len
-	, const char *virtual_path, size_t virtual_pathlen, zend_ulong flags);
+	, const char *virtual_path, size_t virtual_path_len, zend_ulong flags);
 
 /*----------------------------------------------------------------------------*/
 /* Registers an external file/tree. filename is a path to an existing
@@ -109,7 +110,7 @@ PHPAPI char *PCS_getPath(PCS_ID id);
 	Can be called at any time, even during MINIT.
 */
 
-PHPAPI PCS_ID PCS_getID(const char *virtual_path, size_t virtual_pathlen);
+PHPAPI PCS_ID PCS_getID(const char *virtual_path, size_t virtual_path_len);
 
 /*============================================================================*/
 #endif /* __PCS_CLIENT_H */

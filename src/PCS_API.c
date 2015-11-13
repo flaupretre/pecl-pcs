@@ -50,13 +50,16 @@
 
 /*--------------------*/
 
-PHPAPI long PCS_registerDescriptors(PCS_DESCRIPTOR *list, zend_ulong flags)
+PHPAPI long PCS_registerEmbedded(PCS_DESCRIPTOR *list
+	, const char *virtual_path, size_t virtual_path_len, zend_ulong flags)
 {
 	PCS_Node *node;
 	long count;
+	char *path;
+	size_t path_len;
 
 	if (! in_startup) {
-		php_error(E_CORE_ERROR, "PCS_registerDescriptors() can be called during MINIT only");
+		php_error(E_CORE_ERROR, "PCS_registerEmbedded() can be called during MINIT only");
 		return FAILURE;
 	}
 
@@ -71,8 +74,18 @@ PHPAPI long PCS_registerDescriptors(PCS_DESCRIPTOR *list, zend_ulong flags)
 			php_error(E_CORE_ERROR,"Cannot handle descriptor version (%d)", list->version);
 			return FAILURE;
 		}
-		node = PCS_Tree_addFile(list->path, list->path_len, list->data
+
+		if (virtual_path_len) {
+			spprintf(&path, 0, "%s/%s", virtual_path, list->path);
+			path_len = virtual_path_len + list->path_len + 1;
+		} else {
+			spprintf(&path, 0, "%s", list->path);
+			path_len = list->path_len;
+		}
+
+		node = PCS_Tree_addFile(path, path_len, list->data
 			, list->data_len, 0, flags);
+		EFREE(path);
 		if (! node) return FAILURE;
 		list++;
 		count++;
@@ -270,7 +283,7 @@ PHPAPI char *PCS_getPath(PCS_ID id)
 
 /*--------------------*/
 
-PHPAPI PCS_ID PCS_getID(const char *path, size_t pathlen)
+PHPAPI PCS_ID PCS_getID(const char *path, size_t path_len)
 {
 	PCS_Node *node;
 
@@ -278,7 +291,7 @@ PHPAPI PCS_ID PCS_getID(const char *path, size_t pathlen)
 		return FAILURE;
 	}
 
-	node = PCS_Tree_getNodeFromPath(path, pathlen);
+	node = PCS_Tree_getNodeFromPath(path, path_len);
 	if (! node) {
 		return FAILURE;
 	}

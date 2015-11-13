@@ -131,7 +131,7 @@ static PCS_Node *PCS_Tree_addSubNode(PCS_Node *parent, const char *name
 /*--------------------*/
 /* On error, returns NULL */
 
-static PCS_Node *PCS_Tree_addNode(const char *path, size_t pathlen
+static PCS_Node *PCS_Tree_addNode(const char *path, size_t path_len
 	, int type, zend_ulong flags)
 {
 	PCS_Node *node;
@@ -139,7 +139,7 @@ static PCS_Node *PCS_Tree_addNode(const char *path, size_t pathlen
 	const char *start, *found;
 	zend_string *cpath;
 
-	cpath = PCS_Tree_cleanPath(path, pathlen);
+	cpath = PCS_Tree_cleanPath(path, path_len);
 	start = ZSTR_VAL(cpath);
 	node = root;
 	while (1) {
@@ -159,19 +159,19 @@ static PCS_Node *PCS_Tree_addNode(const char *path, size_t pathlen
 
 /*--------------------*/
 
-static PCS_Node *PCS_Tree_addDir(const char *path, size_t pathlen, zend_ulong flags)
+static PCS_Node *PCS_Tree_addDir(const char *path, size_t path_len, zend_ulong flags)
 {
-	return PCS_Tree_addNode(path, pathlen, PCS_TYPE_DIR, flags);
+	return PCS_Tree_addNode(path, path_len, PCS_TYPE_DIR, flags);
 }
 
 /*--------------------*/
 
-static PCS_Node *PCS_Tree_addFile(const char *path, size_t pathlen
+static PCS_Node *PCS_Tree_addFile(const char *path, size_t path_len
 	, char *data, size_t datalen, int alloc, zend_ulong flags)
 {
 	PCS_Node *node;
 
-	node = PCS_Tree_addNode(path, pathlen, PCS_TYPE_FILE, flags);
+	node = PCS_Tree_addNode(path, path_len, PCS_TYPE_FILE, flags);
 	if (! node) return NULL;
 
 	node->u.f.data = data;

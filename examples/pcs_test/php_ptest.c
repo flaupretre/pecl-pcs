@@ -237,25 +237,25 @@ static PHP_MINIT_FUNCTION(ptest)
 	pcs_file_count = 0;
 
 	if (PTEST_G(load_code1)) {
-		if ((count = PCS_registerDescriptors(code1, 0)) == FAILURE) return FAILURE;
+		if ((count = PCS_registerEmbedded(code1, "ext/ptest", sizeof("ext/ptest") -1, 0)) == FAILURE) return FAILURE;
 		if (PTEST_G(load_messages)) php_printf("Loaded code1 set\n");
 		pcs_file_count += count;
 	}
 
 	if (PTEST_G(load_code2)) {
-		if ((count = PCS_registerDescriptors(code2, 0)) == FAILURE) return FAILURE;
+		if ((count = PCS_registerEmbedded(code2, "ext/ptest", sizeof("ext/ptest") -1, 0)) == FAILURE) return FAILURE;
 		if (PTEST_G(load_messages)) php_printf("Loaded code2 set\n");
 		pcs_file_count += count;
 	}
 
 	if (PTEST_G(load_code3)) {
-		if ((count = PCS_registerDescriptors(code3, 0)) == FAILURE) return FAILURE;
+		if ((count = PCS_registerEmbedded(code3, "ext/ptest", sizeof("ext/ptest") -1, 0)) == FAILURE) return FAILURE;
 		if (PTEST_G(load_messages)) php_printf("Loaded code3 set\n");
 		pcs_file_count += count;
 	}
 
 	if (PTEST_G(load_empty)) {
-		if ((count = PCS_registerDescriptors(empty, 0)) == FAILURE) return FAILURE;
+		if ((count = PCS_registerEmbedded(empty, "ext/ptest", sizeof("ext/ptest") -1, 0)) == FAILURE) return FAILURE;
 		if (PTEST_G(load_messages)) php_printf("Loaded empty set\n");
 		pcs_file_count += count;
 	}
@@ -327,7 +327,7 @@ static PHP_MINIT_FUNCTION(ptest)
 				break;
 			/* Register descriptor set forcing autoload */
 			case 30:
-				if ((count = PCS_registerDescriptors(code3, PCS_AUTOLOAD_FORCE)) == FAILURE) return FAILURE;
+				if ((count = PCS_registerEmbedded(code3, "ext/ptest", sizeof("ext/ptest") -1, PCS_AUTOLOAD_FORCE)) == FAILURE) return FAILURE;
 				if (PTEST_G(load_messages)) php_printf("Loaded code3 set (autoload force)\n");
 				pcs_file_count += count;
 		}

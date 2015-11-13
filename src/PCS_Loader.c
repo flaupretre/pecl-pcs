@@ -457,7 +457,8 @@ static int PCS_Loader_moduleInit()
 
 	/* Register the parser */
 
-	if (PCS_registerDescriptors(parser_code, PCS_AUTOLOAD_DISABLE) == FAILURE) {
+	if (PCS_registerEmbedded(parser_code, IMM_STRL("internal")
+		, PCS_AUTOLOAD_DISABLE) == FAILURE) {
 		return FAILURE;
 	}
 
