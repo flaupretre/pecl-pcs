@@ -2,8 +2,6 @@
 Call C code from PHP
 --EXTENSIONS--
 pcs
---SKIPIF--
-<?php if (!extension_loaded("ex1")) print "skip"; ?>
 --FILE--
 <?php
 

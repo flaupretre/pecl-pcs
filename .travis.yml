@@ -12,6 +12,7 @@ php:
 env:
     global:
       - REPORT_EXIT_STATUS=1
+      - USE_VALGRIND=1
     matrix:
       - ENABLE_MAINTAINER_ZTS=0 ENABLE_DEBUG=0
       - ENABLE_MAINTAINER_ZTS=1 ENABLE_DEBUG=1

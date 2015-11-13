@@ -2,8 +2,6 @@
 Autoload and call PHP code from C
 --EXTENSIONS--
 pcs
---SKIPIF--
-<?php if (!extension_loaded("ex1")) print "skip"; ?>
 --FILE--
 <?php
 

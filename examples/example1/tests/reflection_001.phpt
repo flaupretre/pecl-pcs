@@ -2,8 +2,6 @@
 Get URI through ExtensionClass:getFileName()
 --EXTENSIONS--
 pcs
---SKIPIF--
-<?php if (!extension_loaded("ex1")) print "skip"; ?>
 --FILE--
 <?php
 $cname = "Example1\\Dummy2";
