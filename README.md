@@ -21,8 +21,10 @@ PCS makes it much easier because interactions with 'client' extensions (the exte
 to the bare minimum : each client extension just registers its PHP code into PCS once at MINIT time (just once C call). During this registration, PCS scans the PHP code and registers the symbols defined by the registered scripts in its integrated autoloader. Then, the classes contained in the registered
 PHP code are automatically autoloaded everytime they are accessed.
 
-For examples of 'client' extensions, please look into the 'examples' subdirectory.
+For examples of 'client' extensions, please look into the [examples](https://github.com/flaupretre/pecl-pcs/tree/master/examples) subdirectory.
 
-<u>PHP version compatibility</u> : This extension should work with every PHP version above or equal to 5.3.0, including PHP 7.
+<u>PHP version compatibility</u> : PHP 5.3 and above, including PHP 7.
 
-Releases should be downloaded from the [PECL website](https://pecl.php.net/package/pcs).
+Please, download stable releases from the [PECL website](https://pecl.php.net/package/pcs).
+
+Please note that this extension uses and includes the [PECL Compatibility Library](https://github.com/flaupretre/pecl-compat).
