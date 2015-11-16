@@ -10,7 +10,9 @@
  <channel>pecl.php.net</channel>
  <summary>PHP Code Service</summary>
  <description>
-A service to help PHP extensions mix C and PHP code
+PCS provides a fast and easy way to mix C and PHP code in your PHP extension.
+
+PHP code can be embedded in the compiled module or distributed as a separate file tree.
  </description>
  <lead>
   <name>Francois Laupretre</name>

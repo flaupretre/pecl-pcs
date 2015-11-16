@@ -1,10 +1,3 @@
-# ------ Warning: Beta version ------ #
-
-### This project is not ready for production yet
-
-----------
-
-
 [![Build Status](https://travis-ci.org/flaupretre/pecl-pcs.svg?branch=master)](https://travis-ci.org/flaupretre/pecl-pcs)
 [![GitHub release](https://img.shields.io/github/release/flaupretre/pecl-pcs.svg)](https://pecl.php.net/package/pcs)
 [![License](https://img.shields.io/badge/License-PHP-blue.svg)](http://php.net/license/3_01.txt)

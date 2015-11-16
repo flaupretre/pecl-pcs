@@ -21,7 +21,7 @@
 
 /*============================================================================*/
 
-#define PHP_EX1_VERSION "0.0.1" /* The extension version */
+#define PHP_EX1_VERSION "1.0.0" /* The extension version */
 
 #define PHP_EX1_EXTNAME "ex1"
 

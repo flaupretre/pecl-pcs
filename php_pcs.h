@@ -23,7 +23,7 @@
 
 /*============================================================================*/
 
-#define PHP_PCS_VERSION "0.0.1" /* The extension version */
+#define PHP_PCS_VERSION "1.0.0" /* The extension version */
 
 #define PHP_PCS_EXTNAME "pcs"
 
