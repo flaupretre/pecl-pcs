@@ -19,6 +19,8 @@
 #ifndef __PECL_UTILS_H
 #define __PECL_UTILS_H 1
 
+#define PECL_UTILS_VERSION 1.0
+
 /*============================================================================*/
 
 #include "src/debug.h"

@@ -12,3 +12,4 @@ cleanup: clean
 
 fulltest:
 	sh travis/run-test.sh
+
