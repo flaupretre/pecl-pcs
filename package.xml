@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package version="2.0" xmlns="http://pear.php.net/dtd/package-2.0"
+		xmlns:tasks="http://pear.php.net/dtd/tasks-1.0"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
+			http://pear.php.net/dtd/tasks-1.0.xsd
+			http://pear.php.net/dtd/package-2.0
+			http://pear.php.net/dtd/package-2.0.xsd">
+ <name>pcs</name>
+ <channel>pecl.php.net</channel>
+ <summary>PHP Code Service</summary>
+ <description>
+A service to help PHP extensions mix C and PHP code
+ </description>
+ <lead>
+  <name>Francois Laupretre</name>
+  <user>francois</user>
+  <email>francois@php.net</email>
+  <active>yes</active>
+ </lead>
+ <date>2015-11-16</date>
+ <time>00:00:00</time>
+ <version>
+  <release>1.0.0</release>
+  <api>1.0.0</api>
+ </version>
+ <stability>
+  <release>beta</release>
+  <api>beta</api>
+ </stability>
+ <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
+ <notes>
+Compatibility : PHP 5.3+, including PHP 7
+ </notes>
+ <contents>
+  <dir baseinstalldir="/" name="/">
+   <file name="config.m4" role="src" />
+   <file name="config.w32" role="src" />
+   <file name="CREDITS" role="doc"/>
+   <file name="LICENSE" role="doc"/>
+   <file name="Makefile.frag" role="src" />
+   <file name="php_pcs.c" role="src" />
+   <file name="php_pcs.h" role="src" />
+   <file name="README.md" role="doc"/>
+   <dir name="examples">
+    <!-- To be completed later -->
+   </dir>
+   <dir name="pcs_client">
+    <file name="client.h" role="src" />
+    <file name="pcs_process_code.php" role="src" />
+   </dir>
+   <dir name="pecl-compat">
+    <file name="compat.h" role="src" />
+    <file name="README.md" role="doc" />
+    <dir name="src">
+     <file name="misc.h" role="src" />
+     <file name="zend_hash.h" role="src" />
+     <file name="zend_string.h" role="src" />
+    </dir>
+   </dir>
+   <dir name="pecl-utils">
+    <file name="utils.h" role="src" />
+    <file name="utils.c" role="src" />
+    <file name="README.md" role="doc" />
+    <dir name="src">
+     <file name="arginfo.h" role="src" />
+     <file name="debug.c" role="src" />
+     <file name="debug.h" role="src" />
+     <file name="exceptions.h" role="src" />
+     <file name="mem.h" role="src" />
+     <file name="misc.h" role="src" />
+     <file name="mutex.h" role="src" />
+    </dir>
+   </dir>
+   <dir name="php">
+    <file name="Makefile" role="src" />
+    <dir name="phpc">
+     <file name="parser_code.phpc" role="src" />
+    </dir>
+    <dir name="src">
+     <dir name="noparse">
+      <dir name="Parser">
+       <file name="ParserInterface.php" role="src" />
+       <file name="StringParser.php" role="src" />
+      </dir>
+     </dir>
+    </dir>
+   </dir>
+   <dir name="src">
+    <file name="PCS_API.c" role="src" />
+    <file name="PCS_API.h" role="src" />
+    <file name="PCS_Class.c" role="src" />
+    <file name="PCS_Class.h" role="src" />
+    <file name="PCS_Loader.c" role="src" />
+    <file name="PCS_Loader.h" role="src" />
+    <file name="PCS_Stream.c" role="src" />
+    <file name="PCS_Stream.h" role="src" />
+    <file name="PCS_Tree.c" role="src" />
+    <file name="PCS_Tree.h" role="src" />
+    <file name="PCS_Utils.c" role="src" />
+    <file name="PCS_Utils.h" role="src" />
+   </dir>
+   <dir name="tests">
+    <file name="basic_001.phpt" role="test" />
+    <file name="basic_002.phpt" role="test" />
+    <file name="stream_001.phpt" role="test" />
+   </dir>
+   <dir name="travis">
+    <file name="run-test.sh" role="src" />
+   </dir>
+  </dir>
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5.3.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.0b1</min>
+   </pearinstaller>
+  </required>
+ </dependencies>
+ <providesextension>pcs</providesextension>
+ <extsrcrelease/>
+ <changelog>
+  <release>
+   <version>
+    <release>1.0.0</release>
+    <api>1.0.0</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2015-11-16</date>
+   <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
+   <notes>
+First public release
+   </notes>
+  </release>
+ </changelog>
+</package>
