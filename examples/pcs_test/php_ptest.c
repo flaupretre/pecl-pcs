@@ -79,13 +79,13 @@ public function hello()\n\
 
 /*============================================================================*/
 
-#include "php/php.c/code1.php.c"
+#include "php/phpc/code1.phpc"
 
-#include "php/php.c/code2.php.c"
+#include "php/phpc/code2.phpc"
 
-#include "php/php.c/code3.php.c"
+#include "php/phpc/code3.phpc"
 
-#include "php/php.c/empty.php.c"
+#include "php/phpc/empty.phpc"
 
 /*============================================================================*/
 /*---------------------------------------------------------------*/

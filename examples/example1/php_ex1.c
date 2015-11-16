@@ -84,7 +84,7 @@ long pcs_file_count;
    php/Makefile.
 */
 
-#include "php/php.c/code.php.c"
+#include "php/phpc/code.phpc"
 
 /*============================================================================*/
 

@@ -34,7 +34,7 @@ static int loader_init_done = 0;
 static HashTable *symbols;	/* (type + case-sensitive name) => (PCS_Node *) */
 StaticMutexDeclare(symbols)
 
-#include "php/php.c/parser_code.php.c"
+#include "php/phpc/parser_code.phpc"
 
 static PCS_Node *StringParser_node;
 static PCS_Node *ParserInterface_node;

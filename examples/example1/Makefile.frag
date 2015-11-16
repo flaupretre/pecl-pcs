@@ -1,7 +1,7 @@
 
 # Pre-process PHP code for inclusion in C code
 
-php.c:
+phpc:
 	$(MAKE) -C $(srcdir)/php
 
 cleanup: clean
