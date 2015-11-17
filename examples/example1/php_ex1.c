@@ -32,15 +32,9 @@
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 /* Include the pcs client header file. This file contains the definition of the
    PCS API available to client extensions.
-   
-   In a real PCS client extension, the 'pcs_client' directory would be
-   duplicated from the PCS extension source tree to the client source tree (so,
-   there would be no '../..' prefix in the path below).
-   Here, we use a single pcs_client directory, without duplicating it in every
-   example, to avoid redundancies and synchronization mistakes.
 */
 
-#include "../../pcs_client/client.h"
+#include "ext/pcs/client.h"
 
 /*============================================================================*/
 

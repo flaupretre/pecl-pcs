@@ -84,6 +84,8 @@
 
 #include "php_pcs.h"
 
+#include "./client.h"
+
 #include "src/PCS_Utils.h"
 #include "src/PCS_Tree.h"
 #include "src/PCS_Class.h"

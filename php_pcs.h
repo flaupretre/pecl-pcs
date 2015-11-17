@@ -19,8 +19,6 @@
 #ifndef __PHP_PCS_H
 #define __PHP_PCS_H
 
-#include "pcs_client/client.h"
-
 /*============================================================================*/
 
 #define PHP_PCS_VERSION "1.0.1" /* The extension version */
@@ -30,8 +28,6 @@
 extern zend_module_entry pcs_module_entry;
 
 #define phpext_pcs_ptr &pcs_module_entry
-
-/*============================================================================*/
 
 /*============================================================================*/
 #endif /* __PHP_PCS_H */

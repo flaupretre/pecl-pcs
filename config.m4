@@ -9,3 +9,5 @@ fi
 
 PHP_ADD_MAKEFILE_FRAGMENT
 
+PHP_INSTALL_HEADERS(ext/pcs, client.h)
+

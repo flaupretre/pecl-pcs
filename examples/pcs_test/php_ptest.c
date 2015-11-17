@@ -23,7 +23,7 @@
 
 #include "ext/standard/info.h"
 
-#include "../../pcs_client/client.h"
+#include "ext/pcs/client.h"
 
 #include "php_ptest.h"
 
