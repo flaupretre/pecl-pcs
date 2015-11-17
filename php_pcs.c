@@ -106,6 +106,8 @@
 
 ZEND_BEGIN_MODULE_GLOBALS(pcs)
 
+int dummy; /* Struct cannot be empty (error on WIndows) */
+
 ZEND_END_MODULE_GLOBALS(pcs)
 
 ZEND_DECLARE_MODULE_GLOBALS(pcs)

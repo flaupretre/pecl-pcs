@@ -55,7 +55,7 @@ typedef struct {
    Can be called during MINIT only.
 */
 
-PHPAPI long PCS_registerEmbedded(PCS_DESCRIPTOR *list
+ZEND_DLEXPORT long PCS_registerEmbedded(PCS_DESCRIPTOR *list
 	, const char *virtual_path, size_t virtual_path_len, zend_ulong flags);
 
 /*----------------------------------------------------------------------------*/
@@ -66,7 +66,7 @@ PHPAPI long PCS_registerEmbedded(PCS_DESCRIPTOR *list
    Can be called during MINIT only.
 */
 
-PHPAPI PCS_ID PCS_registerData(char *data, size_t data_len
+ZEND_DLEXPORT PCS_ID PCS_registerData(char *data, size_t data_len
 	, const char *virtual_path, size_t virtual_path_len, zend_ulong flags);
 
 /*----------------------------------------------------------------------------*/
@@ -80,7 +80,7 @@ PHPAPI PCS_ID PCS_registerData(char *data, size_t data_len
    Can be called during MINIT only.
 */
 
-PHPAPI long PCS_registerPath(const char *filename, size_t filename_len
+ZEND_DLEXPORT long PCS_registerPath(const char *filename, size_t filename_len
 	, const char *virtual_path, size_t virtual_path_len, zend_ulong flags);
 
 /*----------------------------------------------------------------------------*/
@@ -92,7 +92,7 @@ PHPAPI long PCS_registerPath(const char *filename, size_t filename_len
 	If throw arg is set, generates exception on failure
 */
 
-PHPAPI int PCS_loadScript(PCS_ID id, int throw TSRMLS_DC);
+ZEND_DLEXPORT int PCS_loadScript(PCS_ID id, int throw TSRMLS_DC);
 
 /*----------------------------------------------------------------------------*/
 /*	Returns the path corresponding to a given ID as a null-terminated string.
@@ -102,7 +102,7 @@ PHPAPI int PCS_loadScript(PCS_ID id, int throw TSRMLS_DC);
 	Can be called at any time, even during MINIT.
 */
 
-PHPAPI char *PCS_getPath(PCS_ID id);
+ZEND_DLEXPORT char *PCS_getPath(PCS_ID id);
 
 /*----------------------------------------------------------------------------*/
 /*	Returns the ID of a registered script, knowing its virtual path
@@ -110,7 +110,7 @@ PHPAPI char *PCS_getPath(PCS_ID id);
 	Can be called at any time, even during MINIT.
 */
 
-PHPAPI PCS_ID PCS_getID(const char *virtual_path, size_t virtual_path_len);
+ZEND_DLEXPORT PCS_ID PCS_getID(const char *virtual_path, size_t virtual_path_len);
 
 /*============================================================================*/
 #endif /* __PCS_CLIENT_H */

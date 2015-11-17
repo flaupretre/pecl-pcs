@@ -458,14 +458,14 @@ static zend_always_inline int MSHUTDOWN_PCS_Stream(TSRMLS_D)
 
 /*---------------------------------------------------------------*/
 
-static zend_always_inline inline int RINIT_PCS_Stream(TSRMLS_D)
+static zend_always_inline int RINIT_PCS_Stream(TSRMLS_D)
 {
 	return SUCCESS;
 }
 
 /*---------------------------------------------------------------*/
 
-static zend_always_inline inline int RSHUTDOWN_PCS_Stream(TSRMLS_D)
+static zend_always_inline int RSHUTDOWN_PCS_Stream(TSRMLS_D)
 {
 	return SUCCESS;
 }
