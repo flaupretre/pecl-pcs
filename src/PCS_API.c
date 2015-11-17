@@ -50,7 +50,7 @@
 
 /*--------------------*/
 
-PHPAPI long PCS_registerEmbedded(PCS_DESCRIPTOR *list
+ZEND_DLEXPORT long PCS_registerEmbedded(PCS_DESCRIPTOR *list
 	, const char *virtual_path, size_t virtual_path_len, zend_ulong flags)
 {
 	PCS_Node *node;
@@ -96,7 +96,7 @@ PHPAPI long PCS_registerEmbedded(PCS_DESCRIPTOR *list
 
 /*--------------------*/
 
-PHPAPI PCS_ID PCS_registerData(char *data, size_t data_len
+ZEND_DLEXPORT PCS_ID PCS_registerData(char *data, size_t data_len
 	, const char *path, size_t path_len, zend_ulong flags)
 {
 	PCS_Node *node;
@@ -129,7 +129,7 @@ PHPAPI PCS_ID PCS_registerData(char *data, size_t data_len
 	return FAILURE; \
 	}
 
-PHPAPI long PCS_registerPath(const char *filename, size_t filename_len
+ZEND_DLEXPORT long PCS_registerPath(const char *filename, size_t filename_len
 	, const char *virtual_path, size_t virtual_path_len, zend_ulong flags)
 {
 	char *data = NULL, *sub_fname, *sub_vpath, *dname;
@@ -167,7 +167,7 @@ PHPAPI long PCS_registerPath(const char *filename, size_t filename_len
 		dir = opendir(filename);
 #ifdef PHP_WIN32
 		if (!dir) {
-			php_win32_docref2_from_error(GetLastError(), path, path);
+			php_win32_docref2_from_error(GetLastError(), filename, filename);
 			ABORT_PCS_registerPath();
 			}
 
@@ -234,7 +234,7 @@ PHPAPI long PCS_registerPath(const char *filename, size_t filename_len
 
 /*--------------------*/
 
-PHPAPI int PCS_loadScript(PCS_ID id, int throw TSRMLS_DC)
+ZEND_DLEXPORT int PCS_loadScript(PCS_ID id, int throw TSRMLS_DC)
 {
 	PCS_Node *node;
 
@@ -265,7 +265,7 @@ PHPAPI int PCS_loadScript(PCS_ID id, int throw TSRMLS_DC)
 
 /*--------------------*/
 
-PHPAPI char *PCS_getPath(PCS_ID id)
+ZEND_DLEXPORT char *PCS_getPath(PCS_ID id)
 {
 	PCS_Node *node;
 
@@ -283,7 +283,7 @@ PHPAPI char *PCS_getPath(PCS_ID id)
 
 /*--------------------*/
 
-PHPAPI PCS_ID PCS_getID(const char *path, size_t path_len)
+ZEND_DLEXPORT PCS_ID PCS_getID(const char *path, size_t path_len)
 {
 	PCS_Node *node;
 
