@@ -1,8 +1,18 @@
 
-# Pre-process PHP code for inclusion in C code
 
-phpc:
-	$(MAKE) -C $(srcdir)/php
+PHPC_EMBED = $(srcdir)/php/src/internal/tools/embed.php
+
+.PHONY: phpc parser_code tools_code
+
+phpc: parser_code tools_code
+
+parser_code:
+	$(PHP_EXECUTABLE) $(PHPC_EMBED) -s $(srcdir)/php/src/internal/parser \
+		parser_code $(srcdir)/php/phpc/$@.phpc
+
+tools_code:
+	$(PHP_EXECUTABLE) $(PHPC_EMBED) -s $(srcdir)/php/src/internal/tools \
+		tools_code $(srcdir)/php/phpc/$@.phpc
 
 cleanup: clean
 	phpize --clean

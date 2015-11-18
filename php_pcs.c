@@ -95,6 +95,10 @@
 
 /*------------------------*/
 
+#include "php/phpc/tools_code.phpc"
+
+/*------------------------*/
+
 #ifdef COMPILE_DL_PCS
 #	ifdef PHP_7
 #		ifdef ZTS
@@ -235,12 +239,20 @@ static PHP_MINIT_FUNCTION(pcs)
 
 	ZEND_INIT_MODULE_GLOBALS(pcs, pcs_globals_ctor, NULL);
 
+	
 	if (MINIT_PCS_Utils(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MINIT_PCS_Tree(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MINIT_PCS_Class(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MINIT_PCS_Stream(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MINIT_PCS_Loader(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MINIT_PCS_API(TSRMLS_C) == FAILURE) return FAILURE;
+
+	/* Register the PHP tools */
+
+	if (PCS_registerEmbedded(tools_code, IMM_STRL("internal/tools")
+		, PCS_AUTOLOAD_DISABLE) == FAILURE) {
+		return FAILURE;
+	}
 
 	return SUCCESS;
 }

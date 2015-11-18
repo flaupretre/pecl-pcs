@@ -3,27 +3,27 @@ Check the PCS stream wrapper
 --FILE--
 <?php
 
-var_dump(filetype("pcs://internal/Parser"));
+var_dump(filetype("pcs://internal/parser"));
 
-var_dump(filetype("pcs://internal/Parser/ParserInterface.php"));
+var_dump(filetype("pcs://internal/parser/ParserInterface.php"));
 
-var_dump(file_exists("pcs://internal/Parser/ParserInterface.php"));
-var_dump(file_exists("pcs://internal/../internal/Parser/ParserInterface.php"));
-var_dump(file_exists("pcs://internal/Parser/ParserInterface.php/."));
-var_dump(file_exists("pcs://./internal/Parser/../Parser"));
-var_dump(file_exists("pcs://./internal/Parser/../Parser/."));
-var_dump(file_exists("pcs://*/Parser/ParserInterface.php"));
+var_dump(file_exists("pcs://internal/parser/ParserInterface.php"));
+var_dump(file_exists("pcs://internal/../internal/parser/ParserInterface.php"));
+var_dump(file_exists("pcs://internal/parser/ParserInterface.php/."));
+var_dump(file_exists("pcs://./internal/parser/../parser"));
+var_dump(file_exists("pcs://./internal/parser/../parser/."));
+var_dump(file_exists("pcs://*/parser/ParserInterface.php"));
 
 var_dump(file_exists("pcs://internal/none/none"));
 
-var_dump(file_exists("pcs://internal/Parser/ParserInterface.php/unknown"));
+var_dump(file_exists("pcs://internal/parser/ParserInterface.php/unknown"));
 
-var_dump(scandir("pcs://internal/Parser"));
+var_dump(scandir("pcs://internal/parser"));
 
 //-----
 echo "--- fopen/fread/fseek\n";
 
-$path = "pcs://internal/Parser/StringParser.php";
+$path = "pcs://internal/parser/StringParser.php";
 $contents = file_get_contents($path);
 var_dump(strlen($contents) === filesize($path));
 
