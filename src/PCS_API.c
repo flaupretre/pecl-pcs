@@ -26,7 +26,6 @@
 
 #ifdef PHP_WIN32
 # include "config.w32.h"
-# include "win32/readdir.h"
 #else
 # include <php_config.h>
 #endif
@@ -119,7 +118,6 @@ ZEND_DLEXPORT PCS_ID PCS_registerData(char *data, size_t data_len
 /* So, we need to revert to stdio functions. */
 
 #define CLEANUP_PCS_registerPath() { \
-	if (dir) closedir(dir); \
 	if (fp) fclose(fp); \
 	PFREE(data); \
 	}
@@ -135,8 +133,6 @@ ZEND_DLEXPORT long PCS_registerPath(const char *filename, size_t filename_len
 	char *data = NULL, *sub_fname, *sub_vpath, *dname;
 	size_t datalen, sub_fname_len, sub_vpath_len;
 	long status, fcount = 0;
-	DIR *dir = NULL;
-	struct dirent *entry;
 	FILE *fp = NULL;
 	struct stat st;
 
@@ -164,22 +160,54 @@ ZEND_DLEXPORT long PCS_registerPath(const char *filename, size_t filename_len
 		
 		/* Recurse on dir entries */
 
-		dir = opendir(filename);
+		{
+
 #ifdef PHP_WIN32
-		if (!dir) {
+		HANDLE hFind;
+		WIN32_FIND_DATA ffd;
+		DWORD dwError=0;
+
+		hFind = FindFirstFile(filename, &ffd);
+		if ((hFind == INVALID_HANDLE_VALUE) ||
+			(!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))) {
 			php_win32_docref2_from_error(GetLastError(), filename, filename);
 			ABORT_PCS_registerPath();
-			}
+		}
 
-		if (dir->finished) {
-			ABORT_PCS_registerPath();
+		while (FindNextFile(hFind, &ffd) != 0) {
+			dname = ffd.cFileName;
+			if ((dname[0] == '.') && ((dname[1] == '\0') || ((dname[1] == '.') || (dname[2] == '\0')))) {
+				continue;
 			}
-#endif
+			spprintf(&sub_fname, 0, "%s%c%s", filename, PHP_DIR_SEPARATOR, dname);
+			sub_fname_len = strlen(sub_fname);
+			spprintf(&sub_vpath, 0, "%s/%s", virtual_path, dname);
+			sub_vpath_len = strlen(sub_vpath);
+			status = PCS_registerPath(sub_fname, sub_fname_len, sub_vpath, sub_vpath_len, flags);
+			EFREE(sub_fname);
+			EFREE(sub_vpath);
+			if (status == FAILURE) {
+				FindClose(hFind);
+				ABORT_PCS_registerPath();
+			}
+			fcount += status;
+		}
+		
+		dwError = GetLastError();
+		FindClose(hFind);
+		if (dwError != ERROR_NO_MORE_FILES) {
+			php_win32_docref2_from_error(dwError, filename, filename);
+			ABORT_PCS_registerPath();
+		}
+#else
+		DIR *dir = NULL;
+		struct dirent *entry;
+
+		dir = opendir(filename);
 		if (! dir) {
 			php_error(E_CORE_ERROR, "%s: %s (errno=%d)", filename, strerror(errno), errno);
 			ABORT_PCS_registerPath();
 		}
-
 		/* No need to use readdir_r() as this is run during MINIT only */
 		while (1) {
 			entry = readdir(dir);
@@ -198,11 +226,16 @@ ZEND_DLEXPORT long PCS_registerPath(const char *filename, size_t filename_len
 			EFREE(sub_fname);
 			EFREE(sub_vpath);
 			if (status == FAILURE) {
+				closedir(dir);
 				ABORT_PCS_registerPath();
 			}
 			fcount += status;
 		}
-	
+
+		closedir(dir);
+#endif
+		}
+
 	/* If path is a regular file */
 
 	} else if (S_ISREG(st.st_mode)) {

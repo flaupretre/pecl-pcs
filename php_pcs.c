@@ -84,12 +84,18 @@
 
 #include "php_pcs.h"
 
+#include "./client.h"
+
 #include "src/PCS_Utils.h"
 #include "src/PCS_Tree.h"
 #include "src/PCS_Class.h"
 #include "src/PCS_Stream.h"
 #include "src/PCS_Loader.h"
 #include "src/PCS_API.h"
+
+/*------------------------*/
+
+#include "php/phpc/tools_code.phpc"
 
 /*------------------------*/
 
@@ -233,12 +239,20 @@ static PHP_MINIT_FUNCTION(pcs)
 
 	ZEND_INIT_MODULE_GLOBALS(pcs, pcs_globals_ctor, NULL);
 
+	
 	if (MINIT_PCS_Utils(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MINIT_PCS_Tree(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MINIT_PCS_Class(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MINIT_PCS_Stream(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MINIT_PCS_Loader(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MINIT_PCS_API(TSRMLS_C) == FAILURE) return FAILURE;
+
+	/* Register the PHP tools */
+
+	if (PCS_registerEmbedded(tools_code, IMM_STRL("internal/tools")
+		, PCS_AUTOLOAD_DISABLE) == FAILURE) {
+		return FAILURE;
+	}
 
 	return SUCCESS;
 }

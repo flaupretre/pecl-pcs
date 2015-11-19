@@ -22,10 +22,10 @@ Compatibility : PHP 5 (5.3+) and 7
   <email>francois@php.net</email>
   <active>yes</active>
  </lead>
- <date>2015-11-17</date>
+ <date>2015-11-19</date>
  <time>00:00:00</time>
  <version>
-  <release>1.0.1</release>
+  <release>1.1.0</release>
   <api>1.0.0</api>
  </version>
  <stability>
@@ -38,6 +38,7 @@ PHP 5 and 7
  </notes>
  <contents>
   <dir baseinstalldir="/" name="/">
+   <file name="client.h" role="src" />
    <file name="config.m4" role="src" />
    <file name="config.w32" role="src" />
    <file name="CREDITS" role="doc"/>
@@ -55,7 +56,6 @@ PHP 5 and 7
      <file name="php_ex1.h" role="src" />
      <file name="README.md" role="doc"/>
      <dir name="php">
-      <file name="Makefile" role="src" />
       <dir name="phpc">
        <file name="code.phpc" role="src" />
       </dir>
@@ -83,7 +83,6 @@ PHP 5 and 7
      <file name="php_ptest.h" role="src" />
      <file name="README.md" role="doc"/>
      <dir name="php">
-      <file name="Makefile" role="src" />
       <dir name="phpc">
        <file name="code1.phpc" role="src" />
        <file name="code2.phpc" role="src" />
@@ -144,10 +143,6 @@ PHP 5 and 7
      </dir>
     </dir>
    </dir>
-   <dir name="pcs_client">
-    <file name="client.h" role="src" />
-    <file name="pcs_process_code.php" role="src" />
-   </dir>
    <dir name="pecl-compat">
     <file name="compat.h" role="src" />
     <file name="README.md" role="doc" />
@@ -172,15 +167,18 @@ PHP 5 and 7
     </dir>
    </dir>
    <dir name="php">
-    <file name="Makefile" role="src" />
     <dir name="phpc">
      <file name="parser_code.phpc" role="src" />
+     <file name="tools_code.phpc" role="src" />
     </dir>
     <dir name="src">
-     <dir name="noparse">
-      <dir name="Parser">
+     <dir name="internal">
+      <dir name="parser">
        <file name="ParserInterface.php" role="src" />
        <file name="StringParser.php" role="src" />
+      </dir>
+      <dir name="tools">
+       <file name="embed.php" role="src" />
       </dir>
      </dir>
     </dir>
@@ -224,6 +222,22 @@ PHP 5 and 7
  <changelog>
   <release>
    <version>
+    <release>1.1.0</release>
+    <api>1.0.0</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2015-11-19</date>
+   <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
+   <notes>
+Improve the client API
+Fix Windows build
+   </notes>
+  </release>
+  <release>
+   <version>
     <release>1.0.1</release>
     <api>1.0.0</api>
    </version>
@@ -234,7 +248,7 @@ PHP 5 and 7
    <date>2015-11-17</date>
    <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
    <notes>
-Fix Windows build
+Improve Windows build (not functional yet)
    </notes>
   </release>
   <release>
