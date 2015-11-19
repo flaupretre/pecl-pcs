@@ -166,11 +166,12 @@ ZEND_DLEXPORT long PCS_registerPath(const char *filename, size_t filename_len
 		HANDLE hFind;
 		WIN32_FIND_DATA ffd;
 		DWORD dwError=0;
+		TSRMLS_FETCH();
 
 		hFind = FindFirstFile(filename, &ffd);
 		if ((hFind == INVALID_HANDLE_VALUE) ||
 			(!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))) {
-			php_win32_docref2_from_error(GetLastError(), filename, filename);
+			php_win32_docref2_from_error(GetLastError(), filename, filename TSRMLS_CC);
 			ABORT_PCS_registerPath();
 		}
 
@@ -196,7 +197,7 @@ ZEND_DLEXPORT long PCS_registerPath(const char *filename, size_t filename_len
 		dwError = GetLastError();
 		FindClose(hFind);
 		if (dwError != ERROR_NO_MORE_FILES) {
-			php_win32_docref2_from_error(dwError, filename, filename);
+			php_win32_docref2_from_error(dwError, filename, filename TSRMLS_CC);
 			ABORT_PCS_registerPath();
 		}
 #else
