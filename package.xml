@@ -22,7 +22,7 @@ Compatibility : PHP 5 (5.3+) and 7
   <email>francois@php.net</email>
   <active>yes</active>
  </lead>
- <date>2015-11-18</date>
+ <date>2015-11-19</date>
  <time>00:00:00</time>
  <version>
   <release>1.1.0</release>
@@ -229,10 +229,11 @@ PHP 5 and 7
     <release>beta</release>
     <api>beta</api>
    </stability>
-   <date>2015-11-18</date>
+   <date>2015-11-19</date>
    <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
    <notes>
-Improve client configuration
+Improve the client API
+Fix Windows build
    </notes>
   </release>
   <release>
@@ -247,7 +248,7 @@ Improve client configuration
    <date>2015-11-17</date>
    <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
    <notes>
-Fix Windows build
+Improve Windows build (not functional yet)
    </notes>
   </release>
   <release>
