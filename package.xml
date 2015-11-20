@@ -124,7 +124,6 @@ PHP 5 and 7
       <file name="register_code3_002.phpt" role="test" />
       <file name="register_conflict_001.phpt" role="test" />
       <file name="register_data_tc001.phpt" role="test" />
-      <file name="register_data_tc002.phpt" role="test" />
       <file name="register_data_tc003.phpt" role="test" />
       <file name="register_data_tc004.phpt" role="test" />
       <file name="register_data_tc005.phpt" role="test" />
