@@ -75,7 +75,7 @@ static HashTable *fileList; /* list of file nodes (index = file id) */
 
 /*---------------------------------------------------------------*/
 
-#ifdef UT_DEBUG
+#if ZEND_DEBUG
 static void PCS_CHECK_NODE(PCS_Node *node)
 {
 	ZEND_ASSERT(node);

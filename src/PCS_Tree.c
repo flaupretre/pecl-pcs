@@ -190,7 +190,7 @@ static void PCS_Tree_destroyNode(zval *zp)
 	nodep = (PCS_Node **)COMPAT_HASH_PTR(zp);
 	node = *nodep;
 
-#ifdef UT_DEBUG
+#if ZEND_DEBUG
 	node->flags |= PCS_FLAG_NOCHECK; /* Checks will fail during tree destruction */
 #endif
 
