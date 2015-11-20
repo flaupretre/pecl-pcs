@@ -1,5 +1,7 @@
+
 <?php
-// This script mustn't be registered as its file suffix is not recognized
+// This script mustn't be registered as it does not start with '<?php'. Note
+// that 'definition-only' PHP scripts should always start with '<?php'.
 
 class Unregistered
 {
