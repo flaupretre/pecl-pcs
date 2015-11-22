@@ -13,5 +13,6 @@ var_dump(class_exists('Unregistered'));
 ===DONE===
 --EXPECT--
 Loaded code3 set (autoload force)
+
 bool(true)
 ===DONE===
