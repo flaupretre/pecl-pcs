@@ -20,10 +20,6 @@
 #include <errno.h>
 #include <sys/stat.h>
 
-#ifdef HAVE_SYS_DIR_H
-# include <sys/dir.h>
-#endif
-
 #ifdef PHP_WIN32
 # include "config.w32.h"
 #else
@@ -34,12 +30,13 @@
 # include <unistd.h>
 #endif
 
-#ifdef HAVE_DIRENT_H
+#if HAVE_SCANDIR && HAVE_ALPHASORT && HAVE_DIRENT_H
 # include <dirent.h>
 #endif
 
 #include "ext/standard/file.h"
 #include "ext/standard/php_filestat.h"
+#include "main/php_scandir.h"
 #include "main/spprintf.h"
 #include "main/php.h"
 #include "zend_list.h"
@@ -135,6 +132,8 @@ ZEND_DLEXPORT long PCS_registerPath(const char *filename, size_t filename_len
 	long status, fcount = 0;
 	FILE *fp = NULL;
 	struct stat st;
+	struct dirent **namelist;
+	int nb, i;
 
 	if (! in_startup) {
 		php_error(E_CORE_ERROR, "PCS_registerPath() can be called during MINIT only");
@@ -160,80 +159,32 @@ ZEND_DLEXPORT long PCS_registerPath(const char *filename, size_t filename_len
 		
 		/* Recurse on dir entries */
 
-		{
-
-#ifdef PHP_WIN32
-		HANDLE hFind;
-		WIN32_FIND_DATA ffd;
-		DWORD dwError=0;
-
-		hFind = FindFirstFile(filename, &ffd);
-		if ((hFind == INVALID_HANDLE_VALUE) ||
-			(!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))) {
-			php_win32_docref2_from_error(GetLastError(), filename, filename);
-			ABORT_PCS_registerPath();
+		nb = php_scandir(filename, &namelist, 0, NULL);
+		if (nb < 0) {
+			php_error(E_CORE_ERROR,"%s: Cannot scan directory");
+			return FAILURE;
 		}
-
-		while (FindNextFile(hFind, &ffd) != 0) {
-			dname = ffd.cFileName;
-			if ((dname[0] == '.') && ((dname[1] == '\0') || ((dname[1] == '.') || (dname[2] == '\0')))) {
-				continue;
+		if (nb > 0) {
+			for (i = 0; i < nb ; i++) {
+				dname = namelist[i]->d_name;
+				if ((dname[0] == '.') && ((dname[1] == '\0') || ((dname[1] == '.') || (dname[2] == '\0')))) {
+					continue;
+				}
+				spprintf(&sub_fname, 0, "%s%c%s", filename, PHP_DIR_SEPARATOR, dname);
+				sub_fname_len = strlen(sub_fname);
+				spprintf(&sub_vpath, 0, "%s/%s", virtual_path, dname);
+				sub_vpath_len = strlen(sub_vpath);
+				status = PCS_registerPath(sub_fname, sub_fname_len, sub_vpath, sub_vpath_len, flags);
+				EFREE(sub_fname);
+				EFREE(sub_vpath);
+				if (status == FAILURE) {
+					/* Fatal error: don't care about namelist mem leak */
+					ABORT_PCS_registerPath();
+				}
+				fcount += status;
+				free(namelist[i]);
 			}
-			spprintf(&sub_fname, 0, "%s%c%s", filename, PHP_DIR_SEPARATOR, dname);
-			sub_fname_len = strlen(sub_fname);
-			spprintf(&sub_vpath, 0, "%s/%s", virtual_path, dname);
-			sub_vpath_len = strlen(sub_vpath);
-			status = PCS_registerPath(sub_fname, sub_fname_len, sub_vpath, sub_vpath_len, flags);
-			EFREE(sub_fname);
-			EFREE(sub_vpath);
-			if (status == FAILURE) {
-				FindClose(hFind);
-				ABORT_PCS_registerPath();
-			}
-			fcount += status;
-		}
-		
-		dwError = GetLastError();
-		FindClose(hFind);
-		if (dwError != ERROR_NO_MORE_FILES) {
-			php_win32_docref2_from_error(dwError, filename, filename);
-			ABORT_PCS_registerPath();
-		}
-#else
-		DIR *dir = NULL;
-		struct dirent *entry;
-
-		dir = opendir(filename);
-		if (! dir) {
-			php_error(E_CORE_ERROR, "%s: %s (errno=%d)", filename, strerror(errno), errno);
-			ABORT_PCS_registerPath();
-		}
-		/* No need to use readdir_r() as this is run during MINIT only */
-		while (1) {
-			entry = readdir(dir);
-			if (! entry) {
-				break;
-			}
-			dname = entry->d_name;
-			if ((dname[0] == '.') && ((dname[1] == '\0') || ((dname[1] == '.') || (dname[2] == '\0')))) {
-				continue;
-			}
-			spprintf(&sub_fname, 0, "%s%c%s", filename, PHP_DIR_SEPARATOR, dname);
-			sub_fname_len = strlen(sub_fname);
-			spprintf(&sub_vpath, 0, "%s/%s", virtual_path, dname);
-			sub_vpath_len = strlen(sub_vpath);
-			status = PCS_registerPath(sub_fname, sub_fname_len, sub_vpath, sub_vpath_len, flags);
-			EFREE(sub_fname);
-			EFREE(sub_vpath);
-			if (status == FAILURE) {
-				closedir(dir);
-				ABORT_PCS_registerPath();
-			}
-			fcount += status;
-		}
-
-		closedir(dir);
-#endif
+		free(namelist);
 		}
 
 	/* If path is a regular file */

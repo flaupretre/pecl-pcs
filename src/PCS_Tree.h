@@ -29,9 +29,9 @@
 #define PCS_NODE_IS_DIR(np)		((np)->type == PCS_TYPE_DIR)
 #define PCS_NODE_IS_FILE(np)	((np)->type == PCS_TYPE_FILE)
 
-/* For more flags definitions, see client include file */
+/* For flag definitions, see client include file */
 
-#define PCS_AUTOLOAD_MASK	0x03
+/* Unpublished - used internally to avoid valgrind errors in debug mode */
 
 #define PCS_FLAG_NOCHECK	0x04	/* Avoids valgrind errors in debug mode */
 
@@ -75,7 +75,7 @@ static HashTable *fileList; /* list of file nodes (index = file id) */
 
 /*---------------------------------------------------------------*/
 
-#ifdef UT_DEBUG
+#if ZEND_DEBUG
 static void PCS_CHECK_NODE(PCS_Node *node)
 {
 	ZEND_ASSERT(node);

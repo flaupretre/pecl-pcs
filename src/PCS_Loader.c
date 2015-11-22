@@ -306,7 +306,7 @@ PCS_REQUIRE_FUNCTION(Class,PCS_T_CLASS)
 static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 {
 	int do_parse, status;
-	char *suf;
+	char *data;
 	zval ret, *zkey;
 	zend_string *zp;
 	HashTable *ht;
@@ -325,13 +325,14 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 			do_parse = 0;
 			break;
 
-		default:
-			suf = &(ZSTR_VAL(node->path)[ZSTR_LEN(node->path) - 4]);
-			do_parse = ((ZSTR_LEN(node->path) > 4)
-				&&	(suf[0] == '.')
-				&& ((suf[1] == 'p') || (suf[1] == 'P'))
-				&& ((suf[2] == 'h') || (suf[2] == 'H'))
-				&& ((suf[3] == 'p') || (suf[3] == 'P')));
+		default: /* In order to be scanned, a script must start with '<?php' */
+			data = PCS_FILE_DATA(node);
+			do_parse = ((PCS_FILE_LEN(node) >= 5)
+				&& (data[0] == '<')
+				&& (data[1] == '?')
+				&& (data[2] == 'p')
+				&& (data[3] == 'h')
+				&& (data[4] == 'p'));
 	}
 
 	if (! do_parse) return SUCCESS;

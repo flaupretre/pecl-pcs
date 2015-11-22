@@ -4,7 +4,7 @@
 WIN_CLEANUP = config.nice.bat Release_TS configure.bat configure.js
 
 PHPC_EMBED = pcs://internal/tools/embed.php
-PHPC_CMD = $(PHP_EXECUTABLE) -r "require '$(PHPC_EMBED)';" --
+PHPC_CMD = $(PHP_EXECUTABLE) -d "extension=pcs.$(SHLIB_DL_SUFFIX_NAME)" -r "require '$(PHPC_EMBED)';" --
 
 .PHONY: phpc code
 

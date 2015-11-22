@@ -261,12 +261,12 @@ static PHP_MINIT_FUNCTION(ptest)
 	}
 
 		switch(PTEST_G(test_case)) {
+			case 0:
+				/* Default */
+				break;
 			/* Register data */
 			case 1:
 				register_data1("ext/ptest/data1.php", 0 TSRMLS_CC);
-				break;
-			case 2:
-				register_data1("ext/ptest/data1.txt", 0 TSRMLS_CC);
 				break;
 			case 3:
 				register_data1("ext/ptest/data1.php", PCS_AUTOLOAD_DISABLE TSRMLS_CC);
@@ -330,6 +330,10 @@ static PHP_MINIT_FUNCTION(ptest)
 				if ((count = PCS_registerEmbedded(code3, "ext/ptest", sizeof("ext/ptest") -1, PCS_AUTOLOAD_FORCE)) == FAILURE) return FAILURE;
 				if (PTEST_G(load_messages)) php_printf("Loaded code3 set (autoload force)\n");
 				pcs_file_count += count;
+				break;
+
+			default:
+				php_error(E_CORE_ERROR, "Invalid test case (%ld)", PTEST_G(test_case));
 		}
 
 	return SUCCESS;

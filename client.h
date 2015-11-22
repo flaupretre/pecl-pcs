@@ -41,8 +41,10 @@ typedef struct {
 
 /*-- Flags --*/
 
+#define PCS_AUTOLOAD_MASK	0x03
+
 /* Whether to parse and autoload the file */
-/* Default (0): Only compile filenames with php|PHP suffix */
+/* Default (0) = auto : Only compile filenames recognized as PHP scripts */
 
 #define PCS_AUTOLOAD_FORCE		0x01
 #define PCS_AUTOLOAD_DISABLE	0x02
