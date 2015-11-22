@@ -22,10 +22,10 @@ Compatibility : PHP 5 (5.3+) and 7
   <email>francois@php.net</email>
   <active>yes</active>
  </lead>
- <date>2015-11-19</date>
+ <date>2015-11-22</date>
  <time>00:00:00</time>
  <version>
-  <release>1.1.0</release>
+  <release>1.1.1</release>
   <api>1.0.0</api>
  </version>
  <stability>
@@ -221,6 +221,21 @@ PHP 5 and 7
  <changelog>
   <release>
    <version>
+    <release>1.1.1</release>
+    <api>1.0.0</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2015-11-22</date>
+   <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
+   <notes>
+Fixes
+   </notes>
+  </release>
+  <release>
+   <version>
     <release>1.1.0</release>
     <api>1.0.0</api>
    </version>
@@ -231,8 +246,8 @@ PHP 5 and 7
    <date>2015-11-19</date>
    <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
    <notes>
-Improve the client API
-Fix Windows build
+- Improve the client API
+- Fix Windows build
    </notes>
   </release>
   <release>
@@ -247,7 +262,7 @@ Fix Windows build
    <date>2015-11-17</date>
    <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
    <notes>
-Improve Windows build (not functional yet)
+Improves Windows build (not functional yet)
    </notes>
   </release>
   <release>
