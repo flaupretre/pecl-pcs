@@ -268,11 +268,14 @@ static PHP_MINIT_FUNCTION(ptest)
 			case 1:
 				register_data1("ext/ptest/data1.php", 0 TSRMLS_CC);
 				break;
+			case 2:
+				register_data1("ext/ptest/data1.php", PCS_LOAD_RINIT TSRMLS_CC);
+				break;
 			case 3:
-				register_data1("ext/ptest/data1.php", PCS_AUTOLOAD_DISABLE TSRMLS_CC);
+				register_data1("ext/ptest/data1.php", PCS_LOAD_NONE TSRMLS_CC);
 				break;
 			case 4:
-				register_data1("ext/ptest/data1.txt", PCS_AUTOLOAD_FORCE TSRMLS_CC);
+				register_data1("ext/ptest/data1.txt", PCS_LOAD_AUTOLOAD TSRMLS_CC);
 				break;
 			case 5:
 				register_data1("ext/ptest/../data1.php", 0 TSRMLS_CC);
@@ -313,21 +316,21 @@ static PHP_MINIT_FUNCTION(ptest)
 				break;
 			case 23: /* Register a single file (disabling autoload) */
 				count = PCS_registerPath(IMM_STRL("./php/src/code1/dir/Dummy4.php")
-					, IMM_STRL("ext/ptest/d.php"), PCS_AUTOLOAD_DISABLE);
+					, IMM_STRL("ext/ptest/d.php"), PCS_LOAD_NONE);
 				if (count == FAILURE) return FAILURE;
 				if (PTEST_G(load_messages)) php_printf("Loaded %ld file\n", count);
 				pcs_file_count += count;
 				break;
 			case 24: /* Register a single file (forcing autoload) */
 				count = PCS_registerPath(IMM_STRL("./php/src/code1/dir/Dummy4.php")
-					, IMM_STRL("ext/ptest/d"), PCS_AUTOLOAD_FORCE);
+					, IMM_STRL("ext/ptest/d"), PCS_LOAD_AUTOLOAD);
 				if (count == FAILURE) return FAILURE;
 				if (PTEST_G(load_messages)) php_printf("Loaded %ld file\n", count);
 				pcs_file_count += count;
 				break;
 			/* Register descriptor set forcing autoload */
 			case 30:
-				if ((count = PCS_registerEmbedded(code3, "ext/ptest", sizeof("ext/ptest") -1, PCS_AUTOLOAD_FORCE)) == FAILURE) return FAILURE;
+				if ((count = PCS_registerEmbedded(code3, "ext/ptest", sizeof("ext/ptest") -1, PCS_LOAD_AUTOLOAD)) == FAILURE) return FAILURE;
 				if (PTEST_G(load_messages)) php_printf("Loaded code3 set (autoload force)\n");
 				pcs_file_count += count;
 				break;

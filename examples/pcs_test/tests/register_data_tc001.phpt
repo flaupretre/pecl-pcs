@@ -1,5 +1,5 @@
 --TEST--
-Register a data script (suffix=php, autoload=auto)
+Register a data script (suffix=php, load=auto)
 --EXTENSIONS--
 pcs
 --INI--

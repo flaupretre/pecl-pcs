@@ -1,5 +1,5 @@
 --TEST--
-Register a non-empty descriptor set (load=auto) and check non-autoloaded script
+Register a script containing a function (load=auto)
 --EXTENSIONS--
 pcs
 --INI--
@@ -8,10 +8,10 @@ ptest.load_code3=1
 <?php if (!extension_loaded("pcs")) print "skip"; ?>
 --FILE--
 <?php
-var_dump(class_exists('Unregistered'));
+greet();
 ?>
 ===DONE===
 --EXPECT--
 Loaded code3 set
-bool(false)
+Hello World !
 ===DONE===

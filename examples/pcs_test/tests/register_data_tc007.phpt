@@ -1,5 +1,5 @@
 --TEST--
-Register a data script (suffix=php, autoload=auto), fix path
+Register a data script (suffix=php, load=auto), fix path
 --EXTENSIONS--
 pcs
 --INI--

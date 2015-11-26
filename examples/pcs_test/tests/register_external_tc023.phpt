@@ -1,5 +1,5 @@
 --TEST--
-Register a single external file (disabling autoload)
+Register a single external file (load=none)
 --EXTENSIONS--
 pcs
 --INI--
@@ -13,7 +13,7 @@ var_dump(class_exists("PCS_Test\\Dummy5"));
 
 require("pcs://ext/ptest/d.php");
 
-var_dump(class_exists("PCS_Test\\Dummy4"));
+var_dump(class_exists("PCS_Test\\Dummy4", false));
 ?>
 ===DONE===
 --EXPECT--
