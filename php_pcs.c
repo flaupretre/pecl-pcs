@@ -203,6 +203,7 @@ static PHP_RINIT_FUNCTION(pcs)
 	if (RINIT_PCS_Loader(TSRMLS_C) == FAILURE) return FAILURE;
 	if (RINIT_PCS_API(TSRMLS_C) == FAILURE) return FAILURE;
 
+	DBG_MSG("<- PCS RINIT");
 	return SUCCESS;
 }
 
@@ -250,15 +251,17 @@ static PHP_MINIT_FUNCTION(pcs)
 	/* Register the PHP tools */
 
 	if (PCS_registerEmbedded(tools_code, IMM_STRL("internal/tools")
-		, PCS_AUTOLOAD_DISABLE) == FAILURE) {
+		, PCS_LOAD_NONE) == FAILURE) {
 		return FAILURE;
 	}
 
+	DBG_MSG("<- PCS MINIT");
 	return SUCCESS;
 }
 
 /*---------------------------------------------------------------*/
 
+/* ARGSUSED*/
 static PHP_MSHUTDOWN_FUNCTION(pcs)
 {
 #ifndef ZTS

@@ -45,6 +45,7 @@ struct _PCS_Node {
 	struct _PCS_Node *parent;
 	int type;
 	zend_ulong flags;
+	zend_ulong load_mode;	/* Explicit or chosen mode (!= 0) */
 	zend_string *path;
 	zend_string *uri;
 	union {
