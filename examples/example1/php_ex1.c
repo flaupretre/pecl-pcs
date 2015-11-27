@@ -43,11 +43,7 @@
 /*------------------------*/
 
 #ifdef COMPILE_DL_EX1
-#	ifdef PHP_7
-#		ifdef ZTS
-			ZEND_TSRMLS_CACHE_DEFINE();
-#		endif
-#	endif
+	ZEND_TSRMLS_CACHE_DEFINE();
 	ZEND_GET_MODULE(ex1)
 #endif
 
@@ -59,23 +55,14 @@ ZEND_END_MODULE_GLOBALS(ex1)
 
 ZEND_DECLARE_MODULE_GLOBALS(ex1)
 
-#ifdef ZTS
-#	ifdef PHP_7
-#		define EX1_G(v) ZEND_TSRMG(ex1_globals_id, zend_ex1_globals *, v)
-#	else
-#		define EX1_G(v) TSRMG(ex1_globals_id, zend_ex1_globals *, v)
-#	endif
-#else
-#	define EX1_G(v) (ex1_globals.v)
-#endif
+#define EX1_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(ex1, v)
 
 long pcs_file_count;
 
 /*============================================================================*/
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-/* Here, we include the PHP code converted to a C-compatible format by
-   pcs_process_code.php. The path of the generated file is defined in
-   php/Makefile.
+/* Here, we include the PHP code converted to a C-compatible format.
+   The path of the generated file is defined in Makefile.frag.
 */
 
 #include "php/phpc/code.phpc"
@@ -107,7 +94,7 @@ static PHP_MINFO_FUNCTION(ex1)
 
 static void ex1_globals_ctor(zend_ex1_globals * globals TSRMLS_DC)
 {
-#if defined(PHP_7) && defined(COMPILE_DL_EX1) && defined(ZTS)
+#ifdef COMPILE_DL_EX1
 	ZEND_TSRMLS_CACHE_UPDATE();
 #endif
 
@@ -117,11 +104,9 @@ static void ex1_globals_ctor(zend_ex1_globals * globals TSRMLS_DC)
 /*------------------------*/
 /* Any resources allocated during initialization may be freed here */
 
-#ifndef ZTS
 static void ex1_globals_dtor(zend_ex1_globals * globals TSRMLS_DC)
 {
 }
-#endif
 
 /*---------------------------------------------------------------*/
 
@@ -141,7 +126,7 @@ static PHP_RSHUTDOWN_FUNCTION(ex1)
 
 static PHP_MINIT_FUNCTION(ex1)
 {
-	ZEND_INIT_MODULE_GLOBALS(ex1, ex1_globals_ctor, NULL);
+	ZEND_INIT_MODULE_GLOBALS(ex1, ex1_globals_ctor, ex1_globals_dtor);
 
 /*============================================================================*/
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
@@ -238,12 +223,6 @@ static zend_function_entry ex1_functions[] = {
    This dependency ensures that PCS will be started (MINIT) *before* our
    extension. This is important because the call to PCS_registerEmbedded()
    above will fail if the PCS extension was not started yet.
-
-   As we cannot know in advance which extension will be compiled statically
-   and dynamically, the only way to ensure they are started in the right order
-   is to create a dependency. In a future version, if PCS is included in the
-   core distribution and configured to be always compiled statically, this
-   constraint will disappear.
 */
 
 static const zend_module_dep ex1_deps[] = {

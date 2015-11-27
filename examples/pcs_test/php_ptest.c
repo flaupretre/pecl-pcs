@@ -27,12 +27,15 @@
 
 #include "php_ptest.h"
 
+/*---------------------------------------------------------------*/
+
+#define MODULE_NAME PHP_PTEST_EXTNAME
+#define MODULE_VERSION PHP_PTEST_VERSION
+
+/*---------------------------------------------------------------*/
+
 #ifdef COMPILE_DL_PTEST
-#	ifdef PHP_7
-#		ifdef ZTS
-			ZEND_TSRMLS_CACHE_DEFINE();
-#		endif
-#	endif
+	ZEND_TSRMLS_CACHE_DEFINE();
 	ZEND_GET_MODULE(ptest)
 #endif
 
@@ -53,15 +56,7 @@ ZEND_END_MODULE_GLOBALS(ptest)
 
 ZEND_DECLARE_MODULE_GLOBALS(ptest)
 
-#ifdef ZTS
-#	ifdef PHP_7
-#		define PTEST_G(v) ZEND_TSRMG(ptest_globals_id, zend_ptest_globals *, v)
-#	else
-#		define PTEST_G(v) TSRMG(ptest_globals_id, zend_ptest_globals *, v)
-#	endif
-#else
-#	define PTEST_G(v) (ptest_globals.v)
-#endif
+#define PTEST_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(ptest, v)
 
 long pcs_file_count;
 
@@ -152,7 +147,7 @@ static PHP_MINFO_FUNCTION(ptest)
 
 static void ptest_globals_ctor(zend_ptest_globals * globals TSRMLS_DC)
 {
-#if defined(PHP_7) && defined(COMPILE_DL_PTEST) && defined(ZTS)
+#ifdef COMPILE_DL_PTEST
 	ZEND_TSRMLS_CACHE_UPDATE();
 #endif
 
@@ -162,11 +157,9 @@ static void ptest_globals_ctor(zend_ptest_globals * globals TSRMLS_DC)
 /*------------------------*/
 /* Any resources allocated during initialization may be freed here */
 
-#ifndef ZTS
 static void ptest_globals_dtor(zend_ptest_globals * globals TSRMLS_DC)
 {
 }
-#endif
 
 /*---------------------------------------------------------------*/
 /* Ini settings */
@@ -231,7 +224,7 @@ static PHP_MINIT_FUNCTION(ptest)
 {
 	long count;
 
-	ZEND_INIT_MODULE_GLOBALS(ptest, ptest_globals_ctor, NULL);
+	ZEND_INIT_MODULE_GLOBALS(ptest, ptest_globals_ctor, ptest_globals_dtor);
 	REGISTER_INI_ENTRIES();
 
 	pcs_file_count = 0;
@@ -386,14 +379,14 @@ zend_module_entry ptest_module_entry = {
 	NULL,
 	ptest_deps,
 /*============================================================================*/
-	PHP_PTEST_EXTNAME,
+	MODULE_NAME,
 	ptest_functions,
 	PHP_MINIT(ptest),
 	PHP_MSHUTDOWN(ptest),
 	PHP_RINIT(ptest),
 	PHP_RSHUTDOWN(ptest),
 	PHP_MINFO(ptest),
-	PHP_PTEST_VERSION,
+	MODULE_VERSION,
 	STANDARD_MODULE_PROPERTIES
 };
 
