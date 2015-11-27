@@ -224,7 +224,7 @@ static PHP_MINIT_FUNCTION(ptest)
 {
 	long count;
 
-	ZEND_INIT_MODULE_GLOBALS(ptest, ptest_globals_ctor, ptest_globals_dtor);
+	ZEND_INIT_MODULE_GLOBALS(ptest, ptest_globals_ctor, NULL);
 	REGISTER_INI_ENTRIES();
 
 	pcs_file_count = 0;
@@ -341,9 +341,7 @@ static PHP_MSHUTDOWN_FUNCTION(ptest)
 {
 	UNREGISTER_INI_ENTRIES();
 
-#ifndef ZTS
-		ptest_globals_dtor(&ptest_globals TSRMLS_CC);
-#endif
+	ptest_globals_dtor(ZEND_MODULE_GLOBALS_BULK(ptest) TSRMLS_CC);
 
 	return SUCCESS;
 }
