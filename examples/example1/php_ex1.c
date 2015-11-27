@@ -126,7 +126,7 @@ static PHP_RSHUTDOWN_FUNCTION(ex1)
 
 static PHP_MINIT_FUNCTION(ex1)
 {
-	ZEND_INIT_MODULE_GLOBALS(ex1, ex1_globals_ctor, ex1_globals_dtor);
+	ZEND_INIT_MODULE_GLOBALS(ex1, ex1_globals_ctor, NULL);
 
 /*============================================================================*/
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
@@ -188,9 +188,7 @@ PHP_FUNCTION(ex1_c_to_php_test)
 
 static PHP_MSHUTDOWN_FUNCTION(ex1)
 {
-#ifndef ZTS
-		ex1_globals_dtor(&ex1_globals TSRMLS_CC);
-#endif
+	ex1_globals_dtor(ZEND_MODULE_GLOBALS_BULK(ex1) TSRMLS_CC);
 
 	return SUCCESS;
 }

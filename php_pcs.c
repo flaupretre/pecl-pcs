@@ -97,6 +97,8 @@ ZEND_DECLARE_MODULE_GLOBALS(pcs)
 static PHP_MINFO_FUNCTION(pcs)
 {
 	char buf[10];
+	zend_ulong modes[3];
+	PCS_Node *node;
 
 	php_info_print_table_start();
 
@@ -104,11 +106,28 @@ static PHP_MINFO_FUNCTION(pcs)
 	php_info_print_table_row(2, "Version", PHP_PCS_VERSION);
 
 	sprintf(buf, "%d", (int)zend_hash_num_elements(fileList));
-	php_info_print_table_row(2, "Registered script count",buf);
-
+	php_info_print_table_row(2, "File count",buf);
 	php_info_print_table_end();
 
-	DISPLAY_INI_ENTRIES();
+	modes[0] = modes[1] = modes[2] = 0;
+	ZEND_HASH_FOREACH_PTR(fileList, node) {
+		modes [node->load_mode -1 ]++;
+	} ZEND_HASH_FOREACH_END();
+
+	php_info_print_table_start();
+
+	php_info_print_table_colspan_header(2, "Load mode");
+
+	sprintf(buf, "%lu", modes[PCS_LOAD_AUTOLOAD -1]);
+	php_info_print_table_row(2, "Autoloaded",buf);
+
+	sprintf(buf, "%lu", modes[PCS_LOAD_RINIT -1]);
+	php_info_print_table_row(2, "Loaded at RINIT",buf);
+
+	sprintf(buf, "%lu", modes[PCS_LOAD_NONE -1]);
+	php_info_print_table_row(2, "Not loaded",buf);
+
+	php_info_print_table_end();
 }
 
 /*---------------------------------------------------------------*/
@@ -178,7 +197,7 @@ static PHP_MINIT_FUNCTION(pcs)
 	DBG_INIT();
 	DBG_MSG("-> PCS MINIT");
 
-	ZEND_INIT_MODULE_GLOBALS(pcs, pcs_globals_ctor, pcs_globals_dtor);
+	ZEND_INIT_MODULE_GLOBALS(pcs, pcs_globals_ctor, NULL);
 
 	
 	if (MINIT_PCS_Utils(TSRMLS_C) == FAILURE) return FAILURE;
@@ -201,12 +220,9 @@ static PHP_MINIT_FUNCTION(pcs)
 
 /*---------------------------------------------------------------*/
 
-/* ARGSUSED*/
 static PHP_MSHUTDOWN_FUNCTION(pcs)
 {
-#ifndef ZTS
-		pcs_globals_dtor(&pcs_globals TSRMLS_CC);
-#endif
+	pcs_globals_dtor(ZEND_MODULE_GLOBALS_BULK(pcs) TSRMLS_CC);
 
 	if (MSHUTDOWN_PCS_API(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MSHUTDOWN_PCS_Loader(TSRMLS_C) == FAILURE) return FAILURE;

@@ -3,5 +3,6 @@
 ARG_ENABLE("ptest", "enable PCS test extension", "no");
 
 if (PHP_PTEST != "no") {
-        EXTENSION("ptest", "php_ptest.c", PHP_PTEST_SHARED, "/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1");
+	ADD_EXTENSION_DEP('ptest, 'pcs'); 
+	EXTENSION("ptest", "php_ptest.c", PHP_PTEST_SHARED, "/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1");
 }

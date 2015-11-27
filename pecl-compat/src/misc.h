@@ -176,6 +176,17 @@ which is the case in this extension. */
 #	endif
 #endif
 
+#ifndef ZEND_MODULE_GLOBALS_BULK
+#	ifdef ZTS
+#		define ZEND_MODULE_GLOBALS_BULK(module_name) \
+			((zend_##module_name##_globals *) \
+				(*((void ***) tsrm_ls))[module_name##_globals_id - 1])
+#	else
+#		define ZEND_MODULE_GLOBALS_BULK(module_name) \
+			(&module_name##_globals)
+#	endif
+#endif
+
 #ifndef ZEND_TSRMLS_CACHE_DEFINE
 #	define ZEND_TSRMLS_CACHE_DEFINE()
 #endif
