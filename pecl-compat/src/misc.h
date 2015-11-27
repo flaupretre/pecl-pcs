@@ -166,6 +166,24 @@ which is the case in this extension. */
 #	define COMPAT_STREAM_CONST_DECL
 #endif
 
+#ifndef ZEND_MODULE_GLOBALS_ACCESSOR
+#	ifdef ZTS
+#		define ZEND_MODULE_GLOBALS_ACCESSOR(module_name, v) \
+			TSRMG(module_name##_globals_id, zend_##module_name##_globals *, v)
+#	else
+#		define ZEND_MODULE_GLOBALS_ACCESSOR(module_name, v) \
+			(module_name##_globals.v)
+#	endif
+#endif
+
+#ifndef ZEND_TSRMLS_CACHE_DEFINE
+#	define ZEND_TSRMLS_CACHE_DEFINE()
+#endif
+
+#ifndef ZEND_TSRMLS_CACHE_UPDATE
+#	define ZEND_TSRMLS_CACHE_UPDATE()
+#endif
+
 /*============================================================================*/
 /* Duplicate a memory buffer */
 /* Supports zero size (allocates 1 byte) */
