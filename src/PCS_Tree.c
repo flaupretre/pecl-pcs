@@ -327,6 +327,15 @@ static PCS_Node *PCS_Tree_getNodeFromID(PCS_ID id)
 	return zend_hash_index_find_ptr(fileList, (zend_ulong)id);
 }
 
+/*--------------------*/
+
+static char PCS_Tree_LoadModeToDisplay(const PCS_Node *node)
+{
+	char *modes="!AR-";
+
+	return modes[node->load_mode & PCS_LOAD_MASK];
+}
+
 /*===============================================================*/
 
 static zend_always_inline int MINIT_PCS_Tree(TSRMLS_D)

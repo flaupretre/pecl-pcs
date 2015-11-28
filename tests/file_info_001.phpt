@@ -1,41 +1,16 @@
 --TEST--
-Retrieve information about virtual files
+Display information about virtual files (text)
 --FILE--
 <?php
-
-var_dump(PCS\Mgr::fileCount());
-
-print_r(PCS\Mgr::fileInfos());
-
+PCS\Display::showFiles('text');
 ?>
 ===DONE===
 --EXPECTF--
-int(3)
-Array
-(
-    [0] => Array
-        (
-            [flags] => 3
-            [load] => 3
-            [size] => %d
-            [path] => internal/parser/ParserInterface.php
-        )
-
-    [1] => Array
-        (
-            [flags] => 3
-            [load] => 3
-            [size] => %d
-            [path] => internal/parser/StringParser.php
-        )
-
-    [2] => Array
-        (
-            [flags] => 3
-            [load] => 3
-            [size] => %d
-            [path] => internal/tools/embed.php
-        )
-
-)
+--------------------------------------------------
+|            Virtual path             | Size | L |
+|-------------------------------------+------+---|
+| internal/parser/ParserInterface.php | %s | - |
+| internal/parser/StringParser.php    | %s | - |
+| internal/tools/Display.php          | %s | A |
+| internal/tools/embed.php            | %s | - |
 ===DONE===

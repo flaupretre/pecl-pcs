@@ -209,8 +209,7 @@ static PHP_MINIT_FUNCTION(pcs)
 
 	/* Register embedded PHP code (tools) */
 
-	if (PCS_registerEmbedded(tools_code, IMM_STRL("internal/tools")
-		, PCS_LOAD_NONE) == FAILURE) {
+	if (PCS_registerEmbedded(tools_code, IMM_STRL("internal/tools"), 0) == FAILURE) {
 		return FAILURE;
 	}
 

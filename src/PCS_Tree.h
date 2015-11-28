@@ -80,13 +80,15 @@ static HashTable *fileList; /* list of file nodes (index = file id) */
 static void PCS_CHECK_NODE(PCS_Node *node)
 {
 	ZEND_ASSERT(node);
-	if (node->parent) {
-		PCS_CHECK_NODE(node->parent);
-		ZEND_ASSERT(PCS_NODE_IS_DIR(node->parent));
-	}
 	if (! (node->flags & PCS_FLAG_NOCHECK)) {
+		if (node->parent) {
+			PCS_CHECK_NODE(node->parent);
+			ZEND_ASSERT(PCS_NODE_IS_DIR(node->parent));
+		}
 		CHECK_ZSTRING(node->path);
 		CHECK_ZSTRING(node->uri);
+		/* load_mode is null between MINIT and first Loader init */
+		ZEND_ASSERT(node->load_mode <= PCS_LOAD_MASK);
 	}
 }
 #else
@@ -152,6 +154,7 @@ static zend_string *PCS_Tree_cleanPath(const char *path, size_t len);
 static PCS_Node *PCS_Tree_resolvePath(zend_string *path);
 static PCS_Node *PCS_Tree_getNodeFromPath(const char *path, size_t len);
 static PCS_Node *PCS_Tree_getNodeFromID(PCS_ID id);
+static char PCS_Tree_LoadModeToDisplay(const PCS_Node *node);
 
 /*============================================================================*/
 #endif

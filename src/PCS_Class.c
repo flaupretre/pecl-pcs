@@ -37,10 +37,15 @@ static PHP_METHOD(PCS, fileCount)
 static PHP_METHOD(PCS, fileInfos)
 {
 	PCS_Node *node;
+	char mode[2];
 
 	array_init_size(return_value, zend_hash_num_elements(fileList));
-
+	
+	mode[1] = '\0';
 	ZEND_HASH_FOREACH_PTR(fileList, node) {
+		mode[0] = PCS_Tree_LoadModeToDisplay(node);
+
+		{
 #ifdef PHP_7
 		zval zv, file;
 		HashTable *ht;
@@ -51,7 +56,7 @@ static PHP_METHOD(PCS, fileInfos)
 		ZVAL_LONG(&zv, (long)(node->flags));
 		zend_hash_str_update(ht, "flags", 5, &zv);
 
-		ZVAL_LONG(&zv, (long)(node->load_mode));
+		ZVAL_STRINGL(&zv, mode, 1);
 		zend_hash_str_update(ht, "load", 4, &zv);
 
 		ZVAL_LONG(&zv, (long)(PCS_FILE_LEN(node)));
@@ -69,12 +74,13 @@ static PHP_METHOD(PCS, fileInfos)
 		array_init_size(file, 4);
 		
 		add_assoc_long(file, "flags", (long)(node->flags));
-		add_assoc_long(file, "load", (long)(node->load_mode));
+		add_assoc_stringl(file, "load", mode, 1, 1);
 		add_assoc_long(file, "size", (long)(PCS_FILE_LEN(node)));
 		add_assoc_stringl(file, "path", ZSTR_VAL(node->path), ZSTR_LEN(node->path), 1);
 
 		add_next_index_zval(return_value, file);
 #endif
+		}
 	} ZEND_HASH_FOREACH_END();
 }
 
