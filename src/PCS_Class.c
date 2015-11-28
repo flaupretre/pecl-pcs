@@ -26,6 +26,60 @@ static PHP_METHOD(PCS, __construct)
 
 /*---------------------------------------------------------------*/
 
+static PHP_METHOD(PCS, fileCount)
+{
+	RETURN_LONG(zend_hash_num_elements(fileList));
+}
+
+/*---------------------------------------------------------------*/
+/* Return array of flags/load/size/path */
+
+static PHP_METHOD(PCS, fileInfos)
+{
+	PCS_Node *node;
+
+	array_init_size(return_value, zend_hash_num_elements(fileList));
+
+	ZEND_HASH_FOREACH_PTR(fileList, node) {
+#ifdef PHP_7
+		zval zv, file;
+		HashTable *ht;
+
+		array_init_size(&file, 4);
+		ht = Z_ARRVAL(file);
+
+		ZVAL_LONG(&zv, (long)(node->flags));
+		zend_hash_str_update(ht, "flags", 5, &zv);
+
+		ZVAL_LONG(&zv, (long)(node->load_mode));
+		zend_hash_str_update(ht, "load", 4, &zv);
+
+		ZVAL_LONG(&zv, (long)(PCS_FILE_LEN(node)));
+		zend_hash_str_update(ht, "size", 4, &zv);
+
+		zend_string_addref(node->path);
+		ZVAL_STR(&zv, node->path);
+		zend_hash_str_update(ht, "path", 4, &zv);
+
+		zend_hash_next_index_insert_new(Z_ARRVAL_P(return_value), &file);
+#else
+		zval *file;
+
+		MAKE_STD_ZVAL(file);
+		array_init_size(file, 4);
+		
+		add_assoc_long(file, "flags", (long)(node->flags));
+		add_assoc_long(file, "load", (long)(node->load_mode));
+		add_assoc_long(file, "size", (long)(PCS_FILE_LEN(node)));
+		add_assoc_stringl(file, "path", ZSTR_VAL(node->path), ZSTR_LEN(node->path), 1);
+
+		add_next_index_zval(return_value, file);
+#endif
+	} ZEND_HASH_FOREACH_END();
+}
+
+/*---------------------------------------------------------------*/
+
 ZEND_BEGIN_ARG_INFO_EX(PCS_autoloadHook_arginfo, 0, 0, 1)
 ZEND_ARG_INFO(0, symbol)
 ZEND_ARG_INFO(0, type)
@@ -46,6 +100,10 @@ static zend_function_entry PCS_methods[] = {
 	PHP_ME(PCS, requireConstant, UT_1arg_arginfo,
 		   ZEND_ACC_STATIC | ZEND_ACC_PUBLIC)
 	PHP_ME(PCS, requireClass, UT_1arg_arginfo,
+		   ZEND_ACC_STATIC | ZEND_ACC_PUBLIC)
+	PHP_ME(PCS, fileCount, UT_noarg_arginfo,
+		   ZEND_ACC_STATIC | ZEND_ACC_PUBLIC)
+	PHP_ME(PCS, fileInfos, UT_noarg_arginfo,
 		   ZEND_ACC_STATIC | ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL, 0, 0}
 };

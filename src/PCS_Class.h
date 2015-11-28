@@ -22,6 +22,8 @@
 /*============================================================================*/
 
 static PHP_METHOD(PCS, __construct);
+static PHP_METHOD(PCS, fileCount);
+static PHP_METHOD(PCS, fileInfos);
 
 /*============================================================================*/
 #endif
