@@ -1,96 +1,35 @@
 --TEST--
-Retrieve information about virtual files
+Display information about virtual files (text)
 --EXTENSIONS--
 pcs
 --INI--
+ptest.load_code1=1
 ptest.load_code3=1
 --SKIPIF--
 <?php if (!extension_loaded("pcs")) print "skip"; ?>
 --FILE--
 <?php
-
-var_dump(PCS\Mgr::fileCount());
-
-print_r(PCS\Mgr::fileInfos());
-
+PCS\Display::showFiles('text');
 ?>
 ===DONE===
 --EXPECTF--
+Loaded code1 set
 Loaded code3 set
-int(9)
-Array
-(
-    [0] => Array
-        (
-            [flags] => 3
-            [load] => 3
-            [size] => %d
-            [path] => internal/parser/ParserInterface.php
-        )
-
-    [1] => Array
-        (
-            [flags] => 3
-            [load] => 3
-            [size] => %d
-            [path] => internal/parser/StringParser.php
-        )
-
-    [2] => Array
-        (
-            [flags] => 3
-            [load] => 3
-            [size] => %d
-            [path] => internal/tools/embed.php
-        )
-
-    [3] => Array
-        (
-            [flags] => 0
-            [load] => 2
-            [size] => %d
-            [path] => ext/ptest/constclass.txt
-        )
-
-    [4] => Array
-        (
-            [flags] => 0
-            [load] => 3
-            [size] => 0
-            [path] => ext/ptest/empty.txt
-        )
-
-    [5] => Array
-        (
-            [flags] => 0
-            [load] => 2
-            [size] => %d
-            [path] => ext/ptest/func.txt
-        )
-
-    [6] => Array
-        (
-            [flags] => 0
-            [load] => 3
-            [size] => %d
-            [path] => ext/ptest/nosymbols.txt
-        )
-
-    [7] => Array
-        (
-            [flags] => 0
-            [load] => 3
-            [size] => %d
-            [path] => ext/ptest/test.txt
-        )
-
-    [8] => Array
-        (
-            [flags] => 0
-            [load] => 3
-            [size] => %d
-            [path] => ext/ptest/unregistered.txt
-        )
-
-)
+--------------------------------------------------
+|            Virtual path             | Size | L |
+|-------------------------------------+------+---|
+| ext/ptest/Dummy1.php                | 163  | A |
+| ext/ptest/Dummy2.php                | 169  | A |
+| ext/ptest/constclass.txt            | 101  | R |
+| ext/ptest/dir/Dummy4.php            | 138  | A |
+| ext/ptest/dir/Dummy5.php            | 166  | A |
+| ext/ptest/empty.txt                 | 0    | - |
+| ext/ptest/func.txt                  | 54   | R |
+| ext/ptest/nosymbols.txt             | 29   | - |
+| ext/ptest/test.txt                  | 11   | - |
+| ext/ptest/unregistered.txt          | 253  | - |
+| internal/parser/ParserInterface.php | %s | - |
+| internal/parser/StringParser.php    | %s | - |
+| internal/tools/Display.php          | %s | A |
+| internal/tools/embed.php            | %s | - |
 ===DONE===
