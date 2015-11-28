@@ -118,6 +118,7 @@ PHP 5 and 7
       <file name="basic_001.phpt" role="test" />
       <file name="class_exists.phpt" role="test" />
       <file name="c_to_php_call.phpt" role="test" />
+      <file name="file_info_001.phpt" role="test" />
       <file name="path_include_001.phpt" role="test" />
       <file name="path_include_002.phpt" role="test" />
       <file name="php_to_c_call.phpt" role="test" />
@@ -205,6 +206,7 @@ PHP 5 and 7
    <dir name="tests">
     <file name="basic_001.phpt" role="test" />
     <file name="basic_002.phpt" role="test" />
+    <file name="file_info_001.phpt" role="test" />
     <file name="stream_001.phpt" role="test" />
    </dir>
    <dir name="travis">
