@@ -24,7 +24,7 @@ Array
         (
             [flags] => 3
             [load] => 3
-            [size] => 134
+            [size] => %d
             [path] => internal/parser/ParserInterface.php
         )
 
@@ -32,7 +32,7 @@ Array
         (
             [flags] => 3
             [load] => 3
-            [size] => 5716
+            [size] => %d
             [path] => internal/parser/StringParser.php
         )
 
@@ -40,7 +40,7 @@ Array
         (
             [flags] => 3
             [load] => 3
-            [size] => 3135
+            [size] => %d
             [path] => internal/tools/embed.php
         )
 
@@ -48,7 +48,7 @@ Array
         (
             [flags] => 0
             [load] => 2
-            [size] => 147
+            [size] => %d
             [path] => ext/ptest/constclass.txt
         )
 
@@ -64,7 +64,7 @@ Array
         (
             [flags] => 0
             [load] => 2
-            [size] => 87
+            [size] => %d
             [path] => ext/ptest/func.txt
         )
 
@@ -72,7 +72,7 @@ Array
         (
             [flags] => 0
             [load] => 3
-            [size] => 107
+            [size] => %d
             [path] => ext/ptest/nosymbols.txt
         )
 
@@ -80,7 +80,7 @@ Array
         (
             [flags] => 0
             [load] => 3
-            [size] => 11
+            [size] => %d
             [path] => ext/ptest/test.txt
         )
 
@@ -88,7 +88,7 @@ Array
         (
             [flags] => 0
             [load] => 3
-            [size] => 253
+            [size] => %d
             [path] => ext/ptest/unregistered.txt
         )
 
