@@ -41,13 +41,18 @@ typedef struct {
 
 /*-- Flags --*/
 
-#define PCS_AUTOLOAD_MASK	0x03
+#define PCS_LOAD_MASK	0x03
 
-/* Whether to parse and autoload the file */
-/* Default (0) = auto : Only compile filenames recognized as PHP scripts */
+/* The way the script will be loaded */
+/* Default (0) = auto :
+	- Script containing classes only -> AUTOLOAD
+	- Script containing at least one function/constant declaration -> RINIT
+	- Script containing no symbol or non-script -> NONE
+A files is recognized as a PHP script if its content starts with '<?php' */
 
-#define PCS_AUTOLOAD_FORCE		0x01
-#define PCS_AUTOLOAD_DISABLE	0x02
+#define PCS_LOAD_AUTOLOAD	0x01	/* Use autoloader */
+#define PCS_LOAD_RINIT		0x02	/* Load script at every RINIT */
+#define PCS_LOAD_NONE		0X03	/* Never load script */
 
 /*============================================================================*/
 

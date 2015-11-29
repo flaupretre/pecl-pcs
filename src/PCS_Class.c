@@ -47,6 +47,12 @@ static zend_function_entry PCS_methods[] = {
 		   ZEND_ACC_STATIC | ZEND_ACC_PUBLIC)
 	PHP_ME(PCS, requireClass, UT_1arg_arginfo,
 		   ZEND_ACC_STATIC | ZEND_ACC_PUBLIC)
+	PHP_ME(PCS, fileCount, UT_noarg_arginfo,
+		   ZEND_ACC_STATIC | ZEND_ACC_PUBLIC)
+	PHP_ME(PCS, fileInfos, UT_noarg_arginfo,
+		   ZEND_ACC_STATIC | ZEND_ACC_PUBLIC)
+	PHP_ME(PCS, symbolInfos, UT_noarg_arginfo,
+		   ZEND_ACC_STATIC | ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL, 0, 0}
 };
 

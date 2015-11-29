@@ -161,7 +161,7 @@ ZEND_DLEXPORT long PCS_registerPath(const char *filename, size_t filename_len
 
 		nb = php_scandir(filename, &namelist, 0, NULL);
 		if (nb < 0) {
-			php_error(E_CORE_ERROR,"%s: Cannot scan directory");
+			php_error(E_CORE_ERROR,"%s: Cannot scan directory", filename);
 			return FAILURE;
 		}
 		if (nb > 0) {

@@ -17,7 +17,8 @@ echo
 cd $BASE/$dir
 phpize || return 1
 ./configure --quiet || return 1
-make -k clean install CFLAGS='-g -Wall' || return 1
+make phpc || return 1
+make -k clean install CFLAGS='-g -Wall -Werror' || return 1
 
 # -m : test using valgrind
 # -q : No interaction

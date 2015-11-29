@@ -1,6 +1,6 @@
 /*
   +----------------------------------------------------------------------+
-  | PCS extension <http://pcs.tekwire.net>                               |
+  | PCS extension <http://PCS.tekwire.net>                       |
   +----------------------------------------------------------------------+
   | Copyright (c) 2015 The PHP Group                                     |
   +----------------------------------------------------------------------+
@@ -16,18 +16,14 @@
   +----------------------------------------------------------------------+
 */
 
-#ifndef __PHP_PCS_H
-#define __PHP_PCS_H
+#ifndef __PCS_INFO_H
+#define __PCS_INFO_H
 
 /*============================================================================*/
 
-#define PHP_PCS_VERSION "1.2.0" /* The extension version */
-
-#define PHP_PCS_EXTNAME "pcs"
-
-extern zend_module_entry pcs_module_entry;
-
-#define phpext_pcs_ptr &pcs_module_entry
+static PHP_METHOD(PCS, fileCount);
+static PHP_METHOD(PCS, fileInfos);
+static PHP_METHOD(PCS, symbolInfos);
 
 /*============================================================================*/
-#endif /* __PHP_PCS_H */
+#endif

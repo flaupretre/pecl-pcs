@@ -252,13 +252,13 @@ static int PCS_Loader_loadNode(PCS_Node *node, int throw TSRMLS_DC)
 static char *PCS_Loader_keyTypeString(char c)
 {
 	switch(c) {
-		case 'L':
+		case PCS_T_CLASS:
 			return "class";
 			break;
-		case 'F':
+		case PCS_T_FUNCTION:
 			return "function";
 			break;
-		case 'C':
+		case PCS_T_CONSTANT:
 			return "constant";
 			break;
 		default:
@@ -305,8 +305,8 @@ PCS_REQUIRE_FUNCTION(Class,PCS_T_CLASS)
 
 static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 {
-	int do_parse, status;
-	char *data;
+	int status, need_rinit, symcount;
+	char *data, type;
 	zval ret, *zkey;
 	zend_string *zp;
 	HashTable *ht;
@@ -315,27 +315,28 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 	DBG_MSG1("-> PCS_Loader_registerNode(%s)",ZSTR_VAL(node->path));
 
 	/* Should we parse this script ? */
+	/* No need to parse if RINIT mode is forced
+	   (note that script symbols won't appear in the table) */
 
-	switch(node->flags & PCS_AUTOLOAD_MASK) {
-		case PCS_AUTOLOAD_FORCE:
-			do_parse = 1;
-			break;
-
-		case PCS_AUTOLOAD_DISABLE:
-			do_parse = 0;
-			break;
-
-		default: /* In order to be scanned, a script must start with '<?php' */
-			data = PCS_FILE_DATA(node);
-			do_parse = ((PCS_FILE_LEN(node) >= 5)
-				&& (data[0] == '<')
-				&& (data[1] == '?')
-				&& (data[2] == 'p')
-				&& (data[3] == 'h')
-				&& (data[4] == 'p'));
+	node->load_mode = (node->flags & PCS_LOAD_MASK);
+	if ((node->load_mode == PCS_LOAD_NONE)||(node->load_mode == PCS_LOAD_RINIT)) {
+		return SUCCESS;
 	}
 
-	if (! do_parse) return SUCCESS;
+	/* In order to be scanned in default mode, a script must start with '<?php' */
+
+	if (node->load_mode == 0) {
+		data = PCS_FILE_DATA(node);
+		if ((PCS_FILE_LEN(node) < 5)
+			|| (data[0] != '<')
+			|| (data[1] != '?')
+			|| (data[2] != 'p')
+			|| (data[3] != 'h')
+			|| (data[4] != 'p')) {
+			node->load_mode = PCS_LOAD_NONE;
+			return SUCCESS;
+		}
+	}
 
 	/* Execute parser on script */
 
@@ -383,6 +384,8 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 	/* Register every symbols returned by the parser */
 
 	ht = Z_ARRVAL(ret);
+
+	symcount = need_rinit = 0;
 	for (zend_hash_internal_pointer_reset(ht);;zend_hash_move_forward(ht)) {
 		if (zend_hash_has_more_elements(ht) != SUCCESS) break;
 		zkey = compat_zend_hash_get_current_zval(ht);
@@ -393,6 +396,7 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 			return FAILURE;
 		}
 		/* Register a persistent copy of the returned symbol */
+		
 #ifdef PHP_7
 		zp = zend_string_dup(Z_STR_P(zkey), 1);
 #else
@@ -403,8 +407,23 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 			compat_zval_ptr_dtor(&ret);
 			return FAILURE;
 		}
+		symcount++;
+		type = Z_STRVAL_P(zkey)[0];
+		if (type != PCS_T_CLASS) {
+			need_rinit++;
+		}
 	}
 
+	if (node->load_mode == 0) {
+		if (symcount == 0) {
+			node->load_mode = PCS_LOAD_NONE;
+		} else if (need_rinit) {
+			node->load_mode = PCS_LOAD_RINIT;
+		} else {
+			node->load_mode = PCS_LOAD_AUTOLOAD;
+		}
+	}
+	
 	compat_zval_ptr_dtor(&ret);
 	return SUCCESS;
 }
@@ -459,7 +478,7 @@ static int PCS_Loader_moduleInit()
 	/* Register the parser */
 
 	if (PCS_registerEmbedded(parser_code, IMM_STRL("internal/parser")
-		, PCS_AUTOLOAD_DISABLE) == FAILURE) {
+		, PCS_LOAD_NONE) == FAILURE) {
 		return FAILURE;
 	}
 
@@ -484,11 +503,14 @@ static int PCS_Loader_moduleInit()
 /* Register symbols from the file tree during RINIT
    This cannot be done during MINIT because the parser is written in PHP
    On entry, the parser is already registered
+   This function is executed only once and is protected bu a mutex.
 */
 
 static int PCS_Loader_Init(TSRMLS_D)
 {
 	PCS_Node *node;
+
+	DBG_MSG("-> PCS Loader_Init");
 
 	/* Load parser */
 
@@ -502,6 +524,7 @@ static int PCS_Loader_Init(TSRMLS_D)
 	} ZEND_HASH_FOREACH_END();
 
 	loader_init_done = 1;
+	DBG_MSG("<- PCS Loader_Init");
 	return SUCCESS;
 }
 
@@ -551,6 +574,7 @@ static zend_always_inline int MSHUTDOWN_PCS_Loader(TSRMLS_D)
 static zend_always_inline int RINIT_PCS_Loader(TSRMLS_D)
 {
 	int status;
+	PCS_Node *node;
 
 	PCS_Loader_registerHook(TSRMLS_C);
 
@@ -560,8 +584,20 @@ static zend_always_inline int RINIT_PCS_Loader(TSRMLS_D)
 	if (! loader_init_done) {
 		status = PCS_Loader_Init(TSRMLS_C);
 		}
+	else {
+		status = SUCCESS;
+	}
 	MutexUnlock(symbols);
 	if (status == FAILURE) return FAILURE;
+
+	/* Load scripts marked as PCS_LOAD_RINIT */
+
+	DBG_MSG("Loading scripts marked as PCS_LOAD_RINIT");
+	ZEND_HASH_FOREACH_PTR(fileList, node) {
+		if (node->load_mode == PCS_LOAD_RINIT) {
+			PCS_Loader_loadNode(node, 1 TSRMLS_CC);
+		}
+	} ZEND_HASH_FOREACH_END();
 
 	return SUCCESS;
 }

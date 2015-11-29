@@ -23,10 +23,12 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <fcntl.h>
 
 #include "php.h"
 #include "zend.h"
 #include "zend_extensions.h"
+#include "zend_API.h"
 
 #define PHP_5_0_X_API_NO                220040412
 #define PHP_5_1_X_API_NO                220051025
@@ -44,6 +46,10 @@
 #	include "config.h"
 #endif
 
+#if HAVE_STRING_H
+#	include <string.h>
+#endif
+
 #ifdef HAVE_SYS_TYPES_H
 #	include <sys/types.h>
 #endif
@@ -59,6 +65,14 @@
 
 #ifdef HAVE_SYS_RESOURCE_H
 #	include <sys/resource.h>
+#endif
+
+#ifdef HAVE_STDARG_H
+#include <stdarg.h>
+#endif
+
+#ifdef HAVE_STDLIB_H
+#	include <stdlib.h>
 #endif
 
 #ifdef HAVE_UNISTD_H
@@ -79,6 +93,10 @@
 #include "zend_virtual_cwd.h"
 #else
 #include "TSRM/tsrm_virtual_cwd.h"
+#endif
+
+#ifdef PHP_7
+#include "Zend/zend_portability.h"
 #endif
 
 /*-- Include submodules */

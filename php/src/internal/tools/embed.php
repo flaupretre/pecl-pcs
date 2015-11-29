@@ -16,10 +16,13 @@
   | Author: Francois Laupretre <francois@tekwire.net>                    |
   +----------------------------------------------------------------------+
 */
+// <Parser>:ignore-file
 
 //=============================================================================
 
-class VFile
+namespace PCS\Parser {
+
+class File
 {
 const DESCRIPTOR_VERSION = 0;
 
@@ -42,14 +45,29 @@ public function __construct($path, $vpath)
 
 /*------------------------------------------------------------------*/
 
-private function is_php_source()
+public static function sortByVpath($f1,$f2)
 {
-	return ((strlen($this->path) > 3) && (strtolower(substr($this->path, -4)) == '.php'));
+	return strcmp($f1->vpath, $f2->vpath);
 }
 
 /*------------------------------------------------------------------*/
+
+private function is_php_source()
+{
+	return ((strlen($this->data) >= 5) && (substr($this->data, 0, 5)=='<?php'));
+}
+
+/*------------------------------------------------------------------*/
+
+private function strip_string($str)
+{
+	return str_repeat("\n", substr_count($str, "\n"));
+}
+	
+/*------------------------------------------------------------------*/
 /**
-* Removes whitespaces from file contents while preserving line numbers.
+* Removes whitespaces from file contents while preserving line numbers and
+* parser directives.
 *
 * Adapted from composer
 */
@@ -60,18 +78,30 @@ public function strip()
 
 	$res = '';
 
-	foreach (token_get_all($this->data) as $token)
-			{
-			if (is_string($token))
-					{
-					$res .= $token;
+	foreach (token_get_all($this->data) as $token) {
+		if (is_string($token)) {
+				$res .= $token;
+		} else {
+			switch($token[0]) {
+				case T_DOC_COMMENT:
+					$res .= self::strip_string($token[1]);
+					break;
+				case T_COMMENT:
+					// Keep parser directives only
+					$keep = false;
+					if (strlen($token[1]) > 3) {
+						$s = ltrim(substr($token[1], 2));
+						if ((strlen($s) > 9) && (substr($s, 0, 9) == '<Parser>:')) {
+							$keep = true;
+						}
 					}
-			elseif (in_array($token[0], array(T_COMMENT, T_DOC_COMMENT)))
-					{
-					$res .= str_repeat("\n", substr_count($token[1], "\n"));
+					if ($keep) {
+						$res .= $token[1];
+					} else {
+						$res .= self::strip_string($token[1]);
 					}
-			elseif (T_WHITESPACE === $token[0])
-					{
+					break;
+				case T_WHITESPACE:
 					// reduce wide spaces
 					$whitespace = preg_replace('{[ \t]+}', ' ', $token[1]);
 					// normalize newlines to \n
@@ -79,12 +109,12 @@ public function strip()
 					// trim leading spaces
 					$whitespace = preg_replace('{\n +}', "\n", $whitespace);
 					$res .= $whitespace;
-					}
-			else
-					{
+					break;
+				default:
 					$res .= $token[1];
-					}
 			}
+		}
+	}
 
 	$this->data = $res;
 }
@@ -125,6 +155,8 @@ function dump_descriptor($prefix, $index)
 
 function dump_files($prefix, $table)
 {
+	usort($table, array("PCS\\Parser\\File", 'sortByVpath'));
+
 	$ret = '';
 	foreach($table as $index => $file) {
 		$file->strip();
@@ -139,7 +171,7 @@ function dump_files($prefix, $table)
 	foreach($table as $index => $file) {
 		$ret .= $file->dump_descriptor($prefix, $index);
 	}
-	$ret .= "  { ".VFile::DESCRIPTOR_VERSION.", NULL }\n};\n";
+	$ret .= "  { ".File::DESCRIPTOR_VERSION.", NULL }\n};\n";
 
 	return $ret;
 }
@@ -166,7 +198,7 @@ function register_path($path, $vpath, &$table)
 			break;
 	
 		case 'file':
-			$table[] = new VFile($path, $vpath);
+			$table[] = new File($path, $vpath);
 			break;
 	
 		default:
@@ -206,4 +238,5 @@ $output =
 file_put_contents($opath, $output);
 
 //=============================================================================
+}
 ?>
