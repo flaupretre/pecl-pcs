@@ -3,6 +3,8 @@
 ARG_ENABLE("pcs", "enable the PHP Code Service", "no");
 
 if (PHP_PCS != "no") {
+		ADD_EXTENSION_DEP('pcs', 'tokenizer'); 
+		ADD_EXTENSION_DEP('pcs', 'pcre'); 
 		ADD_EXTENSION_DEP('pcs', 'spl'); 
         EXTENSION("pcs", "php_pcs.c", PHP_PCS_SHARED, "/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1");
 }
