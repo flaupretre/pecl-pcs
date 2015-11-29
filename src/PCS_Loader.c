@@ -315,9 +315,11 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 	DBG_MSG1("-> PCS_Loader_registerNode(%s)",ZSTR_VAL(node->path));
 
 	/* Should we parse this script ? */
+	/* No need to parse if RINIT mode is forced
+	   (note that script symbols won't appear in the table) */
 
 	node->load_mode = (node->flags & PCS_LOAD_MASK);
-	if (node->load_mode == PCS_LOAD_NONE) {
+	if ((node->load_mode == PCS_LOAD_NONE)||(node->load_mode == PCS_LOAD_RINIT)) {
 		return SUCCESS;
 	}
 

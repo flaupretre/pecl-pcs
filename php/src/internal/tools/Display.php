@@ -41,18 +41,25 @@ private static function displayFormat($format=null)
 
 //---------
 
+private static function sortByPath($s1,$s2)
+{
+	return strcmp($s1['path'],$s2['path']);
+}
+
+//---------
+
+private static function sortByName($s1,$s2)
+{
+	return strcmp($s1['name'],$s2['name']);
+}
+
+//---------
+
 public static function showFiles($format=null, $path_to_url_function=null)
 {
 	$format = self::displayFormat($format);
 	$method = (($format == 'text') ? 'showFilesAsText' : 'showFilesAsHtml');
 	self::$method($path_to_url_function);
-}
-
-//---------
-
-private static function sortByPath($s1,$s2)
-{
-	return strcmp($s1['path'],$s2['path']);
 }
 
 //---------
@@ -88,7 +95,6 @@ private static function showFilesAsText($path_to_url_function=null)
 }
 
 //---
-// The same in HTML
 
 private static function showFilesAsHtml($path_to_url_function=null)
 {
@@ -97,7 +103,7 @@ private static function showFilesAsHtml($path_to_url_function=null)
 
 	echo '<table border=1 bordercolor="#BBBBBB" cellpadding=3 '
 		,'cellspacing=0 style="border-collapse: collapse">'."\n";
-	echo '<tr><th>Path</th><th>Size</th><th>Load</th></tr>'."\n";
+	echo '<tr><th>Virtual path</th><th>Size</th><th>Load</th></tr>'."\n";
 	foreach($infos as $info) {
 		echo '<tr><td>';
 		if (!is_null($path_to_url_function)) 
@@ -105,6 +111,77 @@ private static function showFilesAsHtml($path_to_url_function=null)
 		echo htmlspecialchars($info['path']);
 		if (!is_null($path_to_url_function)) echo '</a>';
 		echo '</td><td>'.$info['size'].'</td><td><center>'
+			.$info['load'].'</center></td>';
+		echo "</tr>\n";
+	}
+	echo "</table>\n";
+}
+
+//---------
+
+public static function showSymbols($format=null, $path_to_url_function=null)
+{
+	$format = self::displayFormat($format);
+	$method = (($format == 'text') ? 'showSymbolsAsText' : 'showSymbolsAsHtml');
+	self::$method($path_to_url_function);
+}
+
+//---------
+
+private static function showSymbolsAsText($path_to_url_function=null)
+{
+	$infos = Mgr::symbolInfos();
+	usort($infos, array(__CLASS__,'sortByName'));
+
+	$type_len = 4;
+	$name_len=4;
+	$path_len=12;
+	foreach($infos as $info) {
+		$type_len=max($type_len, strlen($info['type'])+2);
+		$name_len=max($name_len, strlen($info['name'])+2);
+		$path_len=max($path_len,strlen($info['path'])+2);
+	}
+
+	echo
+		 str_repeat('-',$type_len+$name_len+$path_len+8)."\n"
+		,'|'.str_pad('Type',$type_len,' ',STR_PAD_BOTH)
+		,'|'.str_pad('Name',$name_len,' ',STR_PAD_BOTH)
+		,'|'.str_pad('Virtual path',$path_len,' ',STR_PAD_BOTH)
+		,"| L |\n"
+		,'|'.str_repeat('-',$type_len)
+		,'+'.str_repeat('-',$name_len)
+		,'+'.str_repeat('-',$path_len)
+		,"+---|\n";
+
+	foreach($infos as $info) {
+		echo
+			 '| '.str_pad(ucfirst($info['type']),$type_len-1,' ',STR_PAD_RIGHT)
+			,'| '.str_pad($info['name'],$name_len-1,' ',STR_PAD_RIGHT)
+			,'| '.str_pad($info['path'],$path_len-1,' ',STR_PAD_RIGHT)
+			,'| '.$info['load']
+			," |\n";
+	}
+}
+
+//---
+
+private static function showSymbolsAsHtml($path_to_url_function=null)
+{
+	$infos = Mgr::symbolInfos();
+	usort($infos, array(__CLASS__,'sortByName'));
+
+	echo '<table border=1 bordercolor="#BBBBBB" cellpadding=3 '
+		,'cellspacing=0 style="border-collapse: collapse">'."\n";
+	echo '<tr><th>Type</th><th>Name</th><th>Virtual path</th><th>Load</th></tr>'."\n";
+	foreach($infos as $info) {
+		echo '<tr><td>';
+		echo '<center>'.ucfirst($info['type']).'</center></td>';
+		echo '<td>'.$info['name'].'</td><td>';
+		if (!is_null($path_to_url_function)) 
+			echo '<a href="'.call_user_func($path_to_url_function,$info['path']).'">';
+		echo htmlspecialchars($info['path']);
+		if (!is_null($path_to_url_function)) echo '</a>';
+		echo '</td><td><center>'
 			.$info['load'].'</center></td>';
 		echo "</tr>\n";
 	}

@@ -16,12 +16,14 @@
   +----------------------------------------------------------------------+
 */
 
-#ifndef __PCS_CLASS_H
-#define __PCS_CLASS_H
+#ifndef __PCS_INFO_H
+#define __PCS_INFO_H
 
 /*============================================================================*/
 
-static PHP_METHOD(PCS, __construct);
+static PHP_METHOD(PCS, fileCount);
+static PHP_METHOD(PCS, fileInfos);
+static PHP_METHOD(PCS, symbolInfos);
 
 /*============================================================================*/
 #endif

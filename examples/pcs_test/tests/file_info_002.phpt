@@ -16,7 +16,7 @@ PCS\Display::showFiles('html');
 Loaded code1 set
 Loaded code3 set
 <table border=1 bordercolor="#BBBBBB" cellpadding=3 cellspacing=0 style="border-collapse: collapse">
-<tr><th>Path</th><th>Size</th><th>Load</th></tr>
+<tr><th>Virtual path</th><th>Size</th><th>Load</th></tr>
 <tr><td>ext/ptest/Dummy1.php</td><td>163</td><td><center>A</center></td></tr>
 <tr><td>ext/ptest/Dummy2.php</td><td>169</td><td><center>A</center></td></tr>
 <tr><td>ext/ptest/constclass.txt</td><td>101</td><td><center>R</center></td></tr>

@@ -54,6 +54,7 @@
 #include "src/PCS_Stream.h"
 #include "src/PCS_Loader.h"
 #include "src/PCS_API.h"
+#include "src/PCS_Info.h"
 
 /*------------------------*/
 /* Include embedded PHP code */
@@ -90,6 +91,7 @@ ZEND_DECLARE_MODULE_GLOBALS(pcs)
 #include "src/PCS_Stream.c"
 #include "src/PCS_Loader.c"
 #include "src/PCS_API.c"
+#include "src/PCS_Info.c"
 
 /*---------------------------------------------------------------*/
 /* phpinfo() output                                              */
@@ -163,6 +165,7 @@ static PHP_RINIT_FUNCTION(pcs)
 	if (RINIT_PCS_Stream(TSRMLS_C) == FAILURE) return FAILURE;
 	if (RINIT_PCS_Loader(TSRMLS_C) == FAILURE) return FAILURE;
 	if (RINIT_PCS_API(TSRMLS_C) == FAILURE) return FAILURE;
+	if (RINIT_PCS_Info(TSRMLS_C) == FAILURE) return FAILURE;
 
 	DBG_MSG("<- PCS RINIT");
 	return SUCCESS;
@@ -172,6 +175,7 @@ static PHP_RINIT_FUNCTION(pcs)
 
 static PHP_RSHUTDOWN_FUNCTION(pcs)
 {
+	if (RSHUTDOWN_PCS_Info(TSRMLS_C) == FAILURE) return FAILURE;
 	if (RSHUTDOWN_PCS_API(TSRMLS_C) == FAILURE) return FAILURE;
 	if (RSHUTDOWN_PCS_Loader(TSRMLS_C) == FAILURE) return FAILURE;
 	if (RSHUTDOWN_PCS_Stream(TSRMLS_C) == FAILURE) return FAILURE;
@@ -206,6 +210,7 @@ static PHP_MINIT_FUNCTION(pcs)
 	if (MINIT_PCS_Stream(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MINIT_PCS_Loader(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MINIT_PCS_API(TSRMLS_C) == FAILURE) return FAILURE;
+	if (MINIT_PCS_Info(TSRMLS_C) == FAILURE) return FAILURE;
 
 	/* Register embedded PHP code (tools) */
 
@@ -223,6 +228,7 @@ static PHP_MSHUTDOWN_FUNCTION(pcs)
 {
 	pcs_globals_dtor(ZEND_MODULE_GLOBALS_BULK(pcs) TSRMLS_CC);
 
+	if (MSHUTDOWN_PCS_Info(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MSHUTDOWN_PCS_API(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MSHUTDOWN_PCS_Loader(TSRMLS_C) == FAILURE) return FAILURE;
 	if (MSHUTDOWN_PCS_Stream(TSRMLS_C) == FAILURE) return FAILURE;
