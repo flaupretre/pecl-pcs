@@ -246,7 +246,12 @@ static const zend_module_dep pcs_deps[] = {
 	ZEND_MOD_REQUIRED("tokenizer")
 	ZEND_MOD_REQUIRED("pcre")
 	ZEND_MOD_REQUIRED("SPL")
+#ifdef ZEND_MOD_END
 	ZEND_MOD_END
+#else
+	/* for php < 5.3.7 */
+	{NULL, NULL, NULL}
+#endif
 };
 
 zend_module_entry pcs_module_entry = {
