@@ -244,6 +244,7 @@ static PHP_MSHUTDOWN_FUNCTION(pcs)
 
 static const zend_module_dep pcs_deps[] = {
 	ZEND_MOD_REQUIRED("tokenizer")
+	ZEND_MOD_REQUIRED("pcre")
 	ZEND_MOD_REQUIRED("SPL")
 	ZEND_MOD_END
 };
