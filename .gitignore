@@ -22,6 +22,7 @@ include
 install-sh
 libtool
 ltmain.sh
+ltmain.sh.backup
 missing
 mkinstalldirs
 modules
