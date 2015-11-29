@@ -12,7 +12,8 @@ if test "$PHP_PCS" != "no"; then
 		fi
 	fi
 	PHP_NEW_EXTENSION(pcs, php_pcs.c, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
-	# PCS must be loaded after SPL
+	# PCS must be loaded after tokenizer and SPL
+	PHP_ADD_EXTENSION_DEP(pcs, tokenizer)
 	PHP_ADD_EXTENSION_DEP(pcs, spl)
 fi
 
