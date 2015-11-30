@@ -195,6 +195,15 @@ which is the case in this extension. */
 #	define ZEND_TSRMLS_CACHE_UPDATE()
 #endif
 
+#ifndef PHP_FE_END
+# define PHP_FE_END { NULL, NULL, NULL }
+#endif
+
+#ifndef ZEND_MOD_END
+	/* for php < 5.3.7 */
+#	define ZEND_MOD_END {NULL, NULL, NULL}
+#endif
+
 /*============================================================================*/
 /* Duplicate a memory buffer */
 /* Supports zero size (allocates 1 byte) */
