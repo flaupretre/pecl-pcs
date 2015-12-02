@@ -22,10 +22,10 @@ Compatibility : PHP 5 (5.3+) and 7
   <email>francois@php.net</email>
   <active>yes</active>
  </lead>
- <date>2015-11-29</date>
+ <date>2015-12-02</date>
  <time>00:00:00</time>
  <version>
-  <release>1.2.0</release>
+  <release>1.2.1</release>
   <api>1.2.0</api>
  </version>
  <stability>
@@ -34,11 +34,8 @@ Compatibility : PHP 5 (5.3+) and 7
  </stability>
  <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
  <notes>
-- Improve registration and load logic
-- Fix static compile
-- Add information methods: PCS\Mgr::fileCount/fileInfos/symbolInfos
-- Add PCS\Display class (PHP code) to display information about virtual files and symbols as plain text or html
-- Add tests
+- Remove the '-s' option in the embed converter
+- Add dependencies to pcre and tokenizer (thanks to R. Collet)
  </notes>
  <contents>
   <dir baseinstalldir="/" name="/">
@@ -240,6 +237,22 @@ Compatibility : PHP 5 (5.3+) and 7
  <providesextension>pcs</providesextension>
  <extsrcrelease/>
  <changelog>
+  <release>
+   <version>
+    <release>1.2.1</release>
+    <api>1.2.0</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2015-12-02</date>
+   <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
+   <notes>
+- Remove the '-s' option in the embed converter
+- Add dependencies to pcre and tokenizer (thanks to R. Collet)
+   </notes>
+  </release>
   <release>
    <version>
     <release>1.2.0</release>
