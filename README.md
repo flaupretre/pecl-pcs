@@ -2,22 +2,17 @@
 [![GitHub release](https://img.shields.io/github/release/flaupretre/pecl-pcs.svg)](https://pecl.php.net/package/pcs)
 [![License](https://img.shields.io/badge/License-PHP-blue.svg)](http://php.net/license/3_01.txt)
 
-This project is a [PHP PECL extension](http://pecl.php.net/package/pcs "PHP PECL extension").
+PCS provides a fast and easy way to mix C and PHP code in your PHP extension.
 
-This extension provides a service to other PHP extensions, allowing
-PHP extension developers to write parts of their extensions in PHP.
+PHP code can be embedded in the compiled module or distributed as a separate file tree.
 
-Generally, extensions are written 100% in C but, in many cases, it would be more efficient, especially in terms of maintainability, to write parts of it in PHP.
-While it is theoritically possible today, it is rather complex and, as far as I know, almost never done.
+----
 
-PCS makes it much easier because interactions with 'client' extensions (the extensions mixing C and PHP code) are reduced
-to the bare minimum : each client extension just registers its PHP code into PCS once at MINIT time (just once C call). During this registration, PCS scans the PHP code and registers the symbols defined by the registered scripts in its integrated autoloader. Then, the classes contained in the registered
-PHP code are automatically autoloaded everytime they are accessed.
+This project is a [PHP PECL extension](http://pecl.php.net/package/pcs "PHP PECL extension"). More information is available at [the project home site](http://pcs.tekwire.net).
 
-For examples of 'client' extensions, please look into the [examples](https://github.com/flaupretre/pecl-pcs/tree/master/examples) subdirectory.
 
 <u>PHP version compatibility</u> : PHP 5.3 and above, including PHP 7.
 
-Please, download the latest stable releases from [PECL](https://pecl.php.net/package/pcs).
+Please, download the latest stable releases from [the PECL repository](https://pecl.php.net/package/pcs).
 
-Please note that this extension uses and includes the [PECL Compatibility Library](https://github.com/flaupretre/pecl-compat).
+This extension uses the [PECL Compatibility Library](https://github.com/flaupretre/pecl-compat).
