@@ -242,8 +242,17 @@ static PHP_MSHUTDOWN_FUNCTION(pcs)
 /*---------------------------------------------------------------*/
 /*-- Module definition --*/
 
+static const zend_module_dep pcs_deps[] = {
+	ZEND_MOD_REQUIRED("tokenizer")
+	ZEND_MOD_REQUIRED("pcre")
+	ZEND_MOD_REQUIRED("SPL")
+	ZEND_MOD_END
+};
+
 zend_module_entry pcs_module_entry = {
-	STANDARD_MODULE_HEADER,
+	STANDARD_MODULE_HEADER_EX,
+	NULL,
+	pcs_deps,
 	MODULE_NAME,
 	NULL,
 	PHP_MINIT(pcs),

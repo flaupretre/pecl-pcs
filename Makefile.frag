@@ -10,11 +10,11 @@ PHPC_EMBED = $(srcdir)/php/src/internal/tools/embed.php
 phpc: parser_code tools_code
 
 parser_code:
-	$(PHP_EXECUTABLE) $(PHPC_EMBED) -s $(srcdir)/php/src/internal/parser \
+	$(PHP_EXECUTABLE) $(PHPC_EMBED) $(srcdir)/php/src/internal/parser \
 		parser_code $(srcdir)/php/phpc/$@.phpc
 
 tools_code:
-	$(PHP_EXECUTABLE) $(PHPC_EMBED) -s $(srcdir)/php/src/internal/tools \
+	$(PHP_EXECUTABLE) $(PHPC_EMBED) $(srcdir)/php/src/internal/tools \
 		tools_code $(srcdir)/php/phpc/$@.phpc
 
 cleanup: clean

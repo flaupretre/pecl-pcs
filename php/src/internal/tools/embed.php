@@ -163,11 +163,7 @@ function dump_files($prefix, $table)
 		$ret .= $file->dump_data($prefix, $index);
 	}
 
-	$ret .= "\n";
-	if ($GLOBALS['static']) {
-		$ret .= 'static ';
-	}
-	$ret .= "PCS_DESCRIPTOR ".$prefix."[".(count($table) + 1)."] = {\n";
+	$ret .= "\nstatic PCS_DESCRIPTOR ".$prefix."[".(count($table) + 1)."] = {\n";
 	foreach($table as $index => $file) {
 		$ret .= $file->dump_descriptor($prefix, $index);
 	}
@@ -209,16 +205,13 @@ function register_path($path, $vpath, &$table)
 /*------------------------------------------------------------------*/
 // MAIN
 
-$GLOBALS['static'] = false;
-
 $prog = basename($argv[0]);
 
 if ($argc < 4) {
-	throw new Exception("Usage: ".$argv[0]." [-s] <input-path> <var> <output-file>\n");
+	throw new Exception("Usage: ".$argv[0]." <input-path> <var> <output-file>\n");
 }
 
-if ($argv[1] == '-s') {
-	$GLOBALS['static'] = true;
+if ($argv[1] == '-s') { /* Ignore obsolete option */
 	array_shift($argv);
 }
 
