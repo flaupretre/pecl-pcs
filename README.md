@@ -18,6 +18,6 @@ For examples of 'client' extensions, please look into the [examples](https://git
 
 <u>PHP version compatibility</u> : PHP 5.3 and above, including PHP 7.
 
-Please, download stable releases from the [PECL website](https://pecl.php.net/package/pcs).
+Please, download the latest stable releases from [PECL](https://pecl.php.net/package/pcs).
 
 Please note that this extension uses and includes the [PECL Compatibility Library](https://github.com/flaupretre/pecl-compat).

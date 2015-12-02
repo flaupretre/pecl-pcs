@@ -13,17 +13,17 @@ PHPC_CMD = $(PHP_EXECUTABLE) -d "extension=pcs.$(SHLIB_DL_SUFFIX_NAME)" -r "requ
 phpc: code1 code2 code3 empty
 
 code1:
-	$(PHPC_CMD) -s $(srcdir)/php/src/$@ $@ $(srcdir)/php/phpc/$@.phpc
+	$(PHPC_CMD) $(srcdir)/php/src/$@ $@ $(srcdir)/php/phpc/$@.phpc
 
 code2:
-	$(PHPC_CMD) -s $(srcdir)/php/src/$@ $@ $(srcdir)/php/phpc/$@.phpc
+	$(PHPC_CMD) $(srcdir)/php/src/$@ $@ $(srcdir)/php/phpc/$@.phpc
 
 code3:
-	$(PHPC_CMD) -s $(srcdir)/php/src/$@ $@ $(srcdir)/php/phpc/$@.phpc
+	$(PHPC_CMD) $(srcdir)/php/src/$@ $@ $(srcdir)/php/phpc/$@.phpc
 
 empty:
 	[ -d $(srcdir)/php/src/$@ ] || mkdir $(srcdir)/php/src/$@
-	$(PHPC_CMD) -s $(srcdir)/php/src/$@ $@ $(srcdir)/php/phpc/$@.phpc
+	$(PHPC_CMD) $(srcdir)/php/src/$@ $@ $(srcdir)/php/phpc/$@.phpc
 
 #-----------------------
 

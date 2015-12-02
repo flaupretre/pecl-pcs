@@ -13,7 +13,7 @@ PHPC_CMD = $(PHP_EXECUTABLE) -d "extension=pcs.$(SHLIB_DL_SUFFIX_NAME)" -r "requ
 phpc: code
 
 code:
-	$(PHPC_CMD) -s $(srcdir)/php/src $@ $(srcdir)/php/phpc/$@.phpc
+	$(PHPC_CMD) $(srcdir)/php/src $@ $(srcdir)/php/phpc/$@.phpc
 
 #-----------------------
 
