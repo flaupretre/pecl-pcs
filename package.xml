@@ -6,15 +6,11 @@
 			http://pear.php.net/dtd/tasks-1.0.xsd
 			http://pear.php.net/dtd/package-2.0
 			http://pear.php.net/dtd/package-2.0.xsd">
- <name>pcs</name>
+ <name>ptest</name>
  <channel>pecl.php.net</channel>
- <summary>PHP Code Service</summary>
+ <summary>PCS test client</summary>
  <description>
-PCS provides a fast and easy way to mix C and PHP code in your PHP extension.
-
-PHP code can be embedded in the compiled module or distributed as a separate file tree.
-
-Compatibility : PHP 5 (5.3+) and 7
+This extension tests PCS features.
  </description>
  <lead>
   <name>Francois Laupretre</name>
@@ -22,10 +18,10 @@ Compatibility : PHP 5 (5.3+) and 7
   <email>francois@php.net</email>
   <active>yes</active>
  </lead>
- <date>2015-12-02</date>
+ <date>2015-12-04</date>
  <time>00:00:00</time>
  <version>
-  <release>1.2.1</release>
+  <release>2.0.0</release>
   <api>1.2.0</api>
  </version>
  <stability>
@@ -34,193 +30,83 @@ Compatibility : PHP 5 (5.3+) and 7
  </stability>
  <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
  <notes>
-- Remove the '-s' option in the embed converter
-- Add dependencies to pcre and tokenizer (thanks to R. Collet)
+- Move ptest out of the PCS tree
  </notes>
  <contents>
   <dir baseinstalldir="/" name="/">
-   <file name="client.h" role="src" />
    <file name="config.m4" role="src" />
    <file name="config.w32" role="src" />
-   <file name="CREDITS" role="doc"/>
-   <file name="LICENSE" role="doc"/>
    <file name="Makefile.frag" role="src" />
-   <file name="php_pcs.c" role="src" />
-   <file name="php_pcs.h" role="src" />
+   <file name="php_ptest.c" role="src" />
+   <file name="php_ptest.h" role="src" />
    <file name="README.md" role="doc"/>
-   <dir name="examples">
-    <dir name="example1">
-     <file name="config.m4" role="src" />
-     <file name="config.w32" role="src" />
-     <file name="Makefile.frag" role="src" />
-     <file name="php_ex1.c" role="src" />
-     <file name="php_ex1.h" role="src" />
-     <file name="README.md" role="doc"/>
-     <dir name="php">
-      <dir name="phpc">
-       <file name="code.phpc" role="src" />
-      </dir>
-      <dir name="src">
-       <file name="Dummy1.php" role="src" />
-       <file name="Dummy2.php" role="src" />
-       <file name="Dummy3.php" role="src" />
-       <file name="Dummy4.php" role="src" />
-       <file name="Dummy5.php" role="src" />
-      </dir>
-     </dir>
-     <dir name="tests">
-      <file name="autoload_ext_class.phpt" role="test" />
-      <file name="class_exists.phpt" role="test" />
-      <file name="c_to_php_call.phpt" role="test" />
-      <file name="php_to_c_call.phpt" role="test" />
-      <file name="reflection_001.phpt" role="test" />
-     </dir>
-	</dir>
-    <dir name="pcs_test">
-     <file name="config.m4" role="src" />
-     <file name="config.w32" role="src" />
-     <file name="Makefile.frag" role="src" />
-     <file name="php_ptest.c" role="src" />
-     <file name="php_ptest.h" role="src" />
-     <file name="README.md" role="doc"/>
-     <dir name="php">
-      <dir name="phpc">
-       <file name="code1.phpc" role="src" />
-       <file name="code2.phpc" role="src" />
-       <file name="code3.phpc" role="src" />
-       <file name="empty.phpc" role="src" />
-      </dir>
-      <dir name="src">
-       <dir name="code1">
-        <dir name="dir">
-         <file name="Dummy4.php" role="src" />
-         <file name="Dummy5.php" role="src" />
-	    </dir>
-        <file name="Dummy1.php" role="src" />
-        <file name="Dummy2.php" role="src" />
-	   </dir>
-       <dir name="code2">
-        <file name="Dummy1.php" role="src" />
-	   </dir>
-       <dir name="code3">
-        <file name="constclass.txt" role="src" />
-        <file name="empty.txt" role="src" />
-        <file name="func.txt" role="src" />
-        <file name="nosymbols.txt" role="src" />
-        <file name="test.txt" role="src" />
-        <file name="unregistered.txt" role="src" />
-	   </dir>
-       <dir name="empty">
-	   </dir>
-      </dir>
-     </dir>
-     <dir name="tests">
-      <file name="autoload_ext_class.phpt" role="test" />
-      <file name="basic_001.phpt" role="test" />
-      <file name="class_exists.phpt" role="test" />
-      <file name="c_to_php_call.phpt" role="test" />
-      <file name="file_info_001.phpt" role="test" />
-      <file name="file_info_002.phpt" role="test" />
-      <file name="path_include_001.phpt" role="test" />
-      <file name="path_include_002.phpt" role="test" />
-      <file name="php_to_c_call.phpt" role="test" />
-      <file name="reflection_001.phpt" role="test" />
-      <file name="register_code1.phpt" role="test" />
-      <file name="register_code3_001.phpt" role="test" />
-      <file name="register_code3_002.phpt" role="test" />
-      <file name="register_code3_003.phpt" role="test" />
-      <file name="register_code3_004.phpt" role="test" />
-      <file name="register_conflict_001.phpt" role="test" />
-      <file name="register_data_tc001.phpt" role="test" />
-      <file name="register_data_tc002.phpt" role="test" />
-      <file name="register_data_tc003.phpt" role="test" />
-      <file name="register_data_tc004.phpt" role="test" />
-      <file name="register_data_tc005.phpt" role="test" />
-      <file name="register_data_tc006.phpt" role="test" />
-      <file name="register_data_tc007.phpt" role="test" />
-      <file name="register_data_tc008.phpt" role="test" />
-      <file name="register_data_tc009.phpt" role="test" />
-      <file name="register_empty.phpt" role="test" />
-      <file name="register_external_tc020.phpt" role="test" />
-      <file name="register_external_tc021.phpt" role="test" />
-      <file name="register_external_tc022.phpt" role="test" />
-      <file name="register_external_tc023.phpt" role="test" />
-      <file name="register_external_tc024.phpt" role="test" />
-      <file name="register_multiple_codesets_001.phpt" role="test" />
-      <file name="stream_001.phpt" role="test" />
-      <file name="symbol_info_001.phpt" role="test" />
-      <file name="symbol_info_002.phpt" role="test" />
-     </dir>
-    </dir>
-   </dir>
-   <dir name="pecl-compat">
-    <file name="compat.h" role="src" />
-    <file name="README.md" role="doc" />
-    <dir name="src">
-     <file name="misc.h" role="src" />
-     <file name="zend_hash.h" role="src" />
-     <file name="zend_string.h" role="src" />
-    </dir>
-   </dir>
-   <dir name="pecl-utils">
-    <file name="utils.h" role="src" />
-    <file name="utils.c" role="src" />
-    <file name="README.md" role="doc" />
-    <dir name="src">
-     <file name="arginfo.h" role="src" />
-     <file name="debug.c" role="src" />
-     <file name="debug.h" role="src" />
-     <file name="exceptions.h" role="src" />
-     <file name="mem.h" role="src" />
-     <file name="misc.h" role="src" />
-     <file name="mutex.h" role="src" />
-    </dir>
-   </dir>
    <dir name="php">
     <dir name="phpc">
-     <file name="parser_code.phpc" role="src" />
-     <file name="tools_code.phpc" role="src" />
+     <file name="code1.phpc" role="src" />
+     <file name="code2.phpc" role="src" />
+     <file name="code3.phpc" role="src" />
+     <file name="empty.phpc" role="src" />
     </dir>
     <dir name="src">
-     <dir name="internal">
-      <dir name="parser">
-       <file name="ParserInterface.php" role="src" />
-       <file name="StringParser.php" role="src" />
-      </dir>
-      <dir name="tools">
-       <file name="embed.php" role="src" />
-       <file name="Display.php" role="src" />
-      </dir>
-     </dir>
+     <dir name="code1">
+      <dir name="dir">
+       <file name="Dummy4.php" role="src" />
+       <file name="Dummy5.php" role="src" />
+	  </dir>
+      <file name="Dummy1.php" role="src" />
+      <file name="Dummy2.php" role="src" />
+	 </dir>
+     <dir name="code2">
+      <file name="Dummy1.php" role="src" />
+	 </dir>
+     <dir name="code3">
+      <file name="constclass.txt" role="src" />
+      <file name="empty.txt" role="src" />
+      <file name="func.txt" role="src" />
+      <file name="nosymbols.txt" role="src" />
+      <file name="test.txt" role="src" />
+      <file name="unregistered.txt" role="src" />
+	 </dir>
+     <dir name="empty">
+	 </dir>
     </dir>
    </dir>
-   <dir name="src">
-    <file name="PCS_API.c" role="src" />
-    <file name="PCS_API.h" role="src" />
-    <file name="PCS_Class.c" role="src" />
-    <file name="PCS_Class.h" role="src" />
-    <file name="PCS_Info.c" role="src" />
-    <file name="PCS_Info.h" role="src" />
-    <file name="PCS_Loader.c" role="src" />
-    <file name="PCS_Loader.h" role="src" />
-    <file name="PCS_Stream.c" role="src" />
-    <file name="PCS_Stream.h" role="src" />
-    <file name="PCS_Tree.c" role="src" />
-    <file name="PCS_Tree.h" role="src" />
-    <file name="PCS_Utils.c" role="src" />
-    <file name="PCS_Utils.h" role="src" />
-   </dir>
    <dir name="tests">
+    <file name="autoload_ext_class.phpt" role="test" />
     <file name="basic_001.phpt" role="test" />
-    <file name="basic_002.phpt" role="test" />
+    <file name="class_exists.phpt" role="test" />
+    <file name="c_to_php_call.phpt" role="test" />
     <file name="file_info_001.phpt" role="test" />
     <file name="file_info_002.phpt" role="test" />
+    <file name="path_include_001.phpt" role="test" />
+    <file name="path_include_002.phpt" role="test" />
+    <file name="php_to_c_call.phpt" role="test" />
+    <file name="reflection_001.phpt" role="test" />
+    <file name="register_code1.phpt" role="test" />
+    <file name="register_code3_001.phpt" role="test" />
+    <file name="register_code3_002.phpt" role="test" />
+    <file name="register_code3_003.phpt" role="test" />
+    <file name="register_code3_004.phpt" role="test" />
+    <file name="register_conflict_001.phpt" role="test" />
+    <file name="register_data_tc001.phpt" role="test" />
+    <file name="register_data_tc002.phpt" role="test" />
+    <file name="register_data_tc003.phpt" role="test" />
+    <file name="register_data_tc004.phpt" role="test" />
+    <file name="register_data_tc005.phpt" role="test" />
+    <file name="register_data_tc006.phpt" role="test" />
+    <file name="register_data_tc007.phpt" role="test" />
+    <file name="register_data_tc008.phpt" role="test" />
+    <file name="register_data_tc009.phpt" role="test" />
+    <file name="register_empty.phpt" role="test" />
+    <file name="register_external_tc020.phpt" role="test" />
+    <file name="register_external_tc021.phpt" role="test" />
+    <file name="register_external_tc022.phpt" role="test" />
+    <file name="register_external_tc023.phpt" role="test" />
+    <file name="register_external_tc024.phpt" role="test" />
+    <file name="register_multiple_codesets_001.phpt" role="test" />
     <file name="stream_001.phpt" role="test" />
     <file name="symbol_info_001.phpt" role="test" />
     <file name="symbol_info_002.phpt" role="test" />
-   </dir>
-   <dir name="travis">
-    <file name="run-test.sh" role="src" />
    </dir>
   </dir>
  </contents>
@@ -234,9 +120,24 @@ Compatibility : PHP 5 (5.3+) and 7
    </pearinstaller>
   </required>
  </dependencies>
- <providesextension>pcs</providesextension>
+ <providesextension>ptest</providesextension>
  <extsrcrelease/>
  <changelog>
+  <release>
+   <version>
+    <release>2.0.0</release>
+    <api>1.2.0</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2015-12-04</date>
+   <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
+   <notes>
+- Move ptest out of the PCS tree
+   </notes>
+  </release>
   <release>
    <version>
     <release>1.2.1</release>
