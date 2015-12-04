@@ -22,10 +22,10 @@ Compatibility : PHP 5 (5.3+) and 7
   <email>francois@php.net</email>
   <active>yes</active>
  </lead>
- <date>2015-12-02</date>
+ <date>2015-12-05</date>
  <time>00:00:00</time>
  <version>
-  <release>1.2.1</release>
+  <release>1.3.0</release>
   <api>1.2.0</api>
  </version>
  <stability>
@@ -34,8 +34,8 @@ Compatibility : PHP 5 (5.3+) and 7
  </stability>
  <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
  <notes>
-- Remove the '-s' option in the embed converter
-- Add dependencies to pcre and tokenizer (thanks to R. Collet)
+- Take example/test client extensions out of the tree (to fix install via the 'pecl' CLI command)
+- Adapt travis-ci build script
  </notes>
  <contents>
   <dir baseinstalldir="/" name="/">
@@ -49,109 +49,7 @@ Compatibility : PHP 5 (5.3+) and 7
    <file name="php_pcs.h" role="src" />
    <file name="README.md" role="doc"/>
    <dir name="examples">
-    <dir name="example1">
-     <file name="config.m4" role="src" />
-     <file name="config.w32" role="src" />
-     <file name="Makefile.frag" role="src" />
-     <file name="php_ex1.c" role="src" />
-     <file name="php_ex1.h" role="src" />
-     <file name="README.md" role="doc"/>
-     <dir name="php">
-      <dir name="phpc">
-       <file name="code.phpc" role="src" />
-      </dir>
-      <dir name="src">
-       <file name="Dummy1.php" role="src" />
-       <file name="Dummy2.php" role="src" />
-       <file name="Dummy3.php" role="src" />
-       <file name="Dummy4.php" role="src" />
-       <file name="Dummy5.php" role="src" />
-      </dir>
-     </dir>
-     <dir name="tests">
-      <file name="autoload_ext_class.phpt" role="test" />
-      <file name="class_exists.phpt" role="test" />
-      <file name="c_to_php_call.phpt" role="test" />
-      <file name="php_to_c_call.phpt" role="test" />
-      <file name="reflection_001.phpt" role="test" />
-     </dir>
-	</dir>
-    <dir name="pcs_test">
-     <file name="config.m4" role="src" />
-     <file name="config.w32" role="src" />
-     <file name="Makefile.frag" role="src" />
-     <file name="php_ptest.c" role="src" />
-     <file name="php_ptest.h" role="src" />
-     <file name="README.md" role="doc"/>
-     <dir name="php">
-      <dir name="phpc">
-       <file name="code1.phpc" role="src" />
-       <file name="code2.phpc" role="src" />
-       <file name="code3.phpc" role="src" />
-       <file name="empty.phpc" role="src" />
-      </dir>
-      <dir name="src">
-       <dir name="code1">
-        <dir name="dir">
-         <file name="Dummy4.php" role="src" />
-         <file name="Dummy5.php" role="src" />
-	    </dir>
-        <file name="Dummy1.php" role="src" />
-        <file name="Dummy2.php" role="src" />
-	   </dir>
-       <dir name="code2">
-        <file name="Dummy1.php" role="src" />
-	   </dir>
-       <dir name="code3">
-        <file name="constclass.txt" role="src" />
-        <file name="empty.txt" role="src" />
-        <file name="func.txt" role="src" />
-        <file name="nosymbols.txt" role="src" />
-        <file name="test.txt" role="src" />
-        <file name="unregistered.txt" role="src" />
-	   </dir>
-       <dir name="empty">
-	   </dir>
-      </dir>
-     </dir>
-     <dir name="tests">
-      <file name="autoload_ext_class.phpt" role="test" />
-      <file name="basic_001.phpt" role="test" />
-      <file name="class_exists.phpt" role="test" />
-      <file name="c_to_php_call.phpt" role="test" />
-      <file name="file_info_001.phpt" role="test" />
-      <file name="file_info_002.phpt" role="test" />
-      <file name="path_include_001.phpt" role="test" />
-      <file name="path_include_002.phpt" role="test" />
-      <file name="php_to_c_call.phpt" role="test" />
-      <file name="reflection_001.phpt" role="test" />
-      <file name="register_code1.phpt" role="test" />
-      <file name="register_code3_001.phpt" role="test" />
-      <file name="register_code3_002.phpt" role="test" />
-      <file name="register_code3_003.phpt" role="test" />
-      <file name="register_code3_004.phpt" role="test" />
-      <file name="register_conflict_001.phpt" role="test" />
-      <file name="register_data_tc001.phpt" role="test" />
-      <file name="register_data_tc002.phpt" role="test" />
-      <file name="register_data_tc003.phpt" role="test" />
-      <file name="register_data_tc004.phpt" role="test" />
-      <file name="register_data_tc005.phpt" role="test" />
-      <file name="register_data_tc006.phpt" role="test" />
-      <file name="register_data_tc007.phpt" role="test" />
-      <file name="register_data_tc008.phpt" role="test" />
-      <file name="register_data_tc009.phpt" role="test" />
-      <file name="register_empty.phpt" role="test" />
-      <file name="register_external_tc020.phpt" role="test" />
-      <file name="register_external_tc021.phpt" role="test" />
-      <file name="register_external_tc022.phpt" role="test" />
-      <file name="register_external_tc023.phpt" role="test" />
-      <file name="register_external_tc024.phpt" role="test" />
-      <file name="register_multiple_codesets_001.phpt" role="test" />
-      <file name="stream_001.phpt" role="test" />
-      <file name="symbol_info_001.phpt" role="test" />
-      <file name="symbol_info_002.phpt" role="test" />
-     </dir>
-    </dir>
+    <file name="README.md" role="doc"/>
    </dir>
    <dir name="pecl-compat">
     <file name="compat.h" role="src" />
@@ -237,6 +135,22 @@ Compatibility : PHP 5 (5.3+) and 7
  <providesextension>pcs</providesextension>
  <extsrcrelease/>
  <changelog>
+  <release>
+   <version>
+    <release>1.3.0</release>
+    <api>1.2.0</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2015-12-05</date>
+   <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
+   <notes>
+- Take example/test client extensions out of the tree (to fix install via the 'pecl' CLI command)
+- Adapt travis-ci build script
+   </notes>
+  </release>
   <release>
    <version>
     <release>1.2.1</release>

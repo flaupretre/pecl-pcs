@@ -20,7 +20,6 @@ tools_code:
 cleanup: clean
 	phpize --clean
 	@rm -rf $(WIN_CLEANUP) include modules
-	@for i in examples/* ; do if [ -f $$i/Makefile ] ; then $(MAKE) -C $$i $@ ; fi ; done
 
 fulltest:
 	sh travis/run-test.sh
