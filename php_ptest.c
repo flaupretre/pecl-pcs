@@ -19,7 +19,7 @@
 
 /*============================================================================*/
 
-#include "../../pecl-compat/compat.h"
+#include "pecl-compat/compat.h"
 
 #include "ext/standard/info.h"
 
