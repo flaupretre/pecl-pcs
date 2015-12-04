@@ -21,7 +21,7 @@
 
 /*============================================================================*/
 
-#define PHP_PTEST_VERSION "1.0.0" /* The extension version */
+#define PHP_PTEST_VERSION "2.0.0" /* The extension version */
 
 #define PHP_PTEST_EXTNAME "ptest"
 
