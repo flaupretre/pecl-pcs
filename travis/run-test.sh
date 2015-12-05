@@ -1,8 +1,16 @@
 #!/bin/sh
-# Run PCS base and example clients tests
+# Run PCS tests
+#
+# Tests we run here include :
+#		- the PCS base tests,
+#		- those from pcs-example if available on the local host,
+#		- and those from the pcs-test extension (download if not present).
 #=============================================================================
 
 #set -x
+set -e	# Exit on non-zero status
+
+#-----
 
 run_tests()
 {
@@ -11,14 +19,17 @@ dir="$1"
 _ret=0
 
 echo
-echo "=============== Running tests in <base>/$dir"
+echo "=============== Testing <base>/$dir"
 echo
 
 cd $BASE/$dir
+echo "--- Configuring ---"
 phpize || return 1
 ./configure --quiet || return 1
+echo "--- Rebuilding phpc files ---"
 make phpc || return 1
-make -k clean install CFLAGS='-g -Wall -Werror' || return 1
+echo "--- Compiling/installing ---"
+make -k clean all CFLAGS='-g -Wall -Werror' || return 1
 
 # -m : test using valgrind
 # -q : No interaction
@@ -36,6 +47,7 @@ if [ -n "$USE_VALGRIND" ] ; then
 fi
 export TEST_PHP_ARGS
 
+echo "--- Running tests ---"
 make test
 
 for i in tests/*.diff tests/*.mem
@@ -49,15 +61,22 @@ for i in tests/*.diff tests/*.mem
 	cat $i
 done
 
+cd $BASE
+
 return $_ret
 }
 
-#----------------
+#---------------------------------------------------------------------------
 
 export USE_VALGRIND
 
 BASE=`pwd`
 export BASE
+
+if [ ! -f $BASE/php_pcs.c ] ; then
+	echo "**ERROR: This script must be run from the PCS extension base directory"
+	exit 1
+fi
 
 ret=0
 
@@ -70,13 +89,35 @@ if [ -n "$TRAVIS" ] ; then
 	phpenv config-rm xdebug.ini || :
 fi
 
-#-- First, run base tests, then examples
+#===========================================================================
+#-- Run base tests
 
-for d in . examples/example1 examples/pcs_test
-do
-	run_tests $d
-	[ $? = 0 ] || ret=$?
-done
+run_tests . || ret=$?
+
+echo "--- Installing the PCS extension ---"
+make install
+
+#-- Run pcs-example tests, just if they are present locally
+
+rdir=../pcs-example
+if [ -d $BASE/$rdir ] ;then
+	run_tests $rdir || ret=$?
+else
+	echo "----- Ignoring pcs-example tests ------"
+fi
+
+#-- Run tests from pcs-test
+# If source tree is not present, download it
+
+rdir=../pcs-test
+if [ ! -d $BASE/$rdir ] ; then
+	echo "---- Downloading pcs-test"
+	git clone --depth 20 https://github.com/flaupretre/pcs-test $BASE/$rdir
+	cd $BASE/$rdir
+	git status
+fi
+
+run_tests $rdir || ret=$?
 
 #----
 

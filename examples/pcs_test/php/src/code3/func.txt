@@ -1,7 +1,0 @@
-<?php
-// This script defines a function
-
-function greet()
-{
-echo("Hello World !\n");
-}

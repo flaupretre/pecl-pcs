@@ -1,5 +1,0 @@
-<?php
-// This script is recognized as a PHP script but does not define any
-// symbol.
-
-echo "nosymbols\n";
