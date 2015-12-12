@@ -72,7 +72,7 @@
 
 ZEND_BEGIN_MODULE_GLOBALS(pcs)
 
-int dummy; /* Struct cannot be empty (error on Windows) */
+zend_function *autoload_func; /* Original content of EG(autoload_func) */
 
 ZEND_END_MODULE_GLOBALS(pcs)
 
@@ -242,6 +242,23 @@ static PHP_MSHUTDOWN_FUNCTION(pcs)
 /*---------------------------------------------------------------*/
 /*-- Module definition --*/
 
+ZEND_BEGIN_ARG_INFO_EX(_pcs_autoload_arginfo, 0, 0, 1)
+	ZEND_ARG_INFO(0, symbol)
+	ZEND_ARG_INFO(0, type)
+	ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(_pcs_autoload_register_arginfo, 0, 0, 0)
+	ZEND_ARG_INFO(0, autoload_function)
+	ZEND_ARG_INFO(0, throw)
+	ZEND_ARG_INFO(0, prepend)
+ZEND_END_ARG_INFO()
+
+static zend_function_entry pcs_functions[] = {
+	PHP_FE(_pcs_autoload, _pcs_autoload_arginfo)
+	PHP_FE(_pcs_autoload_register, _pcs_autoload_register_arginfo)
+	PHP_FE_END
+};
+
 static const zend_module_dep pcs_deps[] = {
 	ZEND_MOD_REQUIRED("tokenizer")
 	ZEND_MOD_REQUIRED("pcre")
@@ -254,7 +271,7 @@ zend_module_entry pcs_module_entry = {
 	NULL,
 	pcs_deps,
 	MODULE_NAME,
-	NULL,
+	pcs_functions,
 	PHP_MINIT(pcs),
 	PHP_MSHUTDOWN(pcs),
 	PHP_RINIT(pcs),

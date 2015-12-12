@@ -20,76 +20,85 @@
 #include "Zend/zend_compile.h"
 #include "Zend/zend_execute.h"
 #include "Zend/zend_hash.h"
+#include "Zend/zend_interfaces.h"
 
 /*==========================================================================*/
 
 /*---------------------------------------------------------------*/
-/* Register the PCS autoloader */
+/* This function intercepts calls to spl_autoload_register(),
+   calls the original function, and then reinserts the PCS
+   autoloader, so that it will be called first   */
 
-static void PCS_Loader_registerHook(TSRMLS_D)
+static PHP_FUNCTION(_pcs_autoload_register)
 {
-	zval ret;
+	spl_register_handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 
-#ifdef PHP_7
-	zval func, args[3];
-
-	ZVAL_STR(&func, spl_ar_func_name);
-	ZVAL_STR(&(args[0]), hook_func_name);
-	ZVAL_TRUE(&(args[1]));	/* do_throw */
-	ZVAL_TRUE(&(args[2]));	/* prepend */
-
-	call_user_function(NULL, NULL, &func, &ret, 3, args TSRMLS_CC);
-#else
-	zval *func_zp, *args[3];
-
-	MAKE_STD_ZVAL(func_zp);
-	ZVAL_STRINGL(func_zp, ZSTR_VAL(spl_ar_func_name), ZSTR_LEN(spl_ar_func_name), 1);
-
-	MAKE_STD_ZVAL(args[0]);
-	ZVAL_STRINGL(args[0], ZSTR_VAL(hook_func_name), ZSTR_LEN(hook_func_name), 1);
-	MAKE_STD_ZVAL(args[1]);
-	ZVAL_TRUE(args[1]);
-	MAKE_STD_ZVAL(args[2]);
-	ZVAL_TRUE(args[2]);
-
-	call_user_function(NULL, NULL, func_zp, &ret, 3,	args TSRMLS_CC);
-
-	zval_ptr_dtor(&func_zp);
-	zval_ptr_dtor(&(args[0]));
-	zval_ptr_dtor(&(args[1]));
-	zval_ptr_dtor(&(args[2]));
-#endif
-
-	compat_zval_ptr_dtor(&ret);
-
+	PCS_Loader_insertAutoloadHook(TSRMLS_C);
 }
 
 /*---------------------------------------------------------------*/
-/* {{{ proto void \PCS\Mgr::autoloadHook(string symbol [, string type ]) */
 
-static PHP_METHOD(PCS, autoloadHook)
+static void PCS_Loader_insertAutoloadHook(TSRMLS_D)
 {
-	char *symbol,*type, ctype;
-	COMPAT_ARG_SIZE_T slen,tlen;
+	PCS_G(autoload_func) = EG(autoload_func);
+	EG(autoload_func) = pcs_autoload_func;
+}
+
+/*---------------------------------------------------------------*/
+/* {{{ proto void _pcs_autoload(string symbol [, string type ]) */
+
+static PHP_FUNCTION(_pcs_autoload)
+{
+	zval *zsymbol;
+	char *type, ctype;
+	COMPAT_ARG_SIZE_T tlen;
+	int status;
 
 	type=NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS()TSRMLS_CC, "s|s",&symbol, &slen
+	DBG_MSG("-> _pcs_autoload");
+	
+	if (zend_parse_parameters(ZEND_NUM_ARGS()TSRMLS_CC, "z|s",&zsymbol
 		,&type,&tlen)==FAILURE) EXCEPTION_ABORT("Cannot parse parameters");
 
+	if (UNEXPECTED(Z_TYPE_P(zsymbol) != IS_STRING)) {
+		EXCEPTION_ABORT_1("Symbol should a string (received type %d)"
+				, Z_TYPE_P(zsymbol));
+	}
+
 	ctype = (type ? (*type) : PCS_T_CLASS);
-	DBG_MSG2("-> PCS autoloader(%s %s)", PCS_Loader_keyTypeString(ctype), symbol);
+	DBG_MSG2("-> PCS autoloader(%s %s)", PCS_Loader_keyTypeString(ctype), Z_STRVAL_P(zsymbol));
 
-	PCS_Loader_loadSymbol(ctype , symbol, (size_t)slen, 1, 0 TSRMLS_CC);
+	status = PCS_Loader_loadSymbol(ctype , Z_STRVAL_P(zsymbol)
+		, (size_t)Z_STRLEN_P(zsymbol), 1, 0 TSRMLS_CC);
+	if (status == NOT_FOUND) { /* Transfer control to remaining autoloaders */
+		if (! PCS_G(autoload_func)) { /* Search an __autoload() function */
+			PCS_G(autoload_func) = PCS_Loader_get_function(EG(function_table)
+				, ZEND_AUTOLOAD_FUNC_NAME, 0);
+		if (PCS_G(autoload_func)) DBG_MSG1("Found %s()", ZEND_AUTOLOAD_FUNC_NAME);
+		}
 
-	DBG_MSG("<- PCS autoloader");
+		if (PCS_G(autoload_func)) {
+			zend_call_method(NULL, NULL, NULL,
+#ifdef PHP_7
+				ZSTR_VAL(PCS_G(autoload_func)->common.function_name)
+				, ZSTR_LEN(PCS_G(autoload_func)->common.function_name)
+#else
+				PCS_G(autoload_func)->common.function_name
+				, strlen(PCS_G(autoload_func)->common.function_name)
+#endif
+				, NULL, 1, zsymbol, NULL TSRMLS_CC);
+		}
+	}
+
+	DBG_MSG("<- _pcs_autoload");
 }
 
 /*---------------------------------------------------------------*/
-/* Returns SUCCESS/FAILURE */
+/* Returns SUCCESS/FAILURE/NOT_FOUND */
 
-static int PCS_Loader_loadSymbol(char type, char *symbol, size_t slen, zend_bool autoload
-	, zend_bool exception TSRMLS_DC)
+static int PCS_Loader_loadSymbol(char type, char *symbol, size_t slen
+	, zend_bool autoload, zend_bool exception TSRMLS_DC)
 {
 	zend_string *key = NULL;
 	PCS_Node *node;
@@ -113,7 +122,7 @@ static int PCS_Loader_loadSymbol(char type, char *symbol, size_t slen, zend_bool
 			THROW_EXCEPTION_2("PCS: Unknown %s (%s)"
 				, PCS_Loader_keyTypeString(type), symbol);
 		}
-		return FAILURE;
+		return NOT_FOUND;
 	}
 
 	if (FAILURE == PCS_Loader_loadNode(node, exception TSRMLS_CC)) {
@@ -459,14 +468,46 @@ static int PCS_Loader_registerKey(zend_string *key, PCS_Node *node)
 }
 
 /*--------------------*/
+/* Use with lowercase function names only */
+/* Input = Null-terminated string */
+
+static zend_function *PCS_Loader_get_function(HashTable *h, char *fname, int err)
+{
+	zend_function *func;
+
+#ifdef PHP_7
+	func = zend_hash_str_find_ptr(h, fname, strlen(fname));
+#else
+	func = NULL;
+	zend_hash_find(h, fname, strlen(fname)+1, (void **)(&func));
+#endif
+
+	if (err && (! func)) {
+		php_error(E_CORE_ERROR, "Function %s not found in function table", fname);
+	}
+
+	return func;
+}
+
+/*--------------------*/
 /* Executed at MINIT
    Creates the symbol table and registers the parser
    This code must not throw exceptions
 */
 
-static int PCS_Loader_moduleInit()
+static int PCS_Loader_moduleInit(TSRMLS_D)
 {
 	PCS_Node *node;
+	zend_function *func;
+
+	pcs_autoload_func = PCS_Loader_get_function(CG(function_table), "_pcs_autoload", 1);
+	if (! pcs_autoload_func) return FAILURE;
+
+	/* Redirect spl_autoload_register() to _pcs_autoload_register() */
+
+	func = PCS_Loader_get_function(CG(function_table), "spl_autoload_register", 1);
+	spl_register_handler = func->internal_function.handler;
+	func->internal_function.handler = PHP_FN(_pcs_autoload_register);
 
 	/* Init symbol table */
 	/* No destructor because PCS_Node structs are destroyed with the tree */
@@ -539,15 +580,13 @@ static zend_always_inline int MINIT_PCS_Loader(TSRMLS_D)
 		return FAILURE;
 	}
 
-	/* Init constant zvals */
+	/* Init constant strings */
 
-	spl_ar_func_name = zend_string_init(IMM_STRL("spl_autoload_register"), 1);
-	hook_func_name = zend_string_init(IMM_STRL("PCS\\Mgr::autoloadHook"), 1);
 	parser_func_name = zend_string_init(IMM_STRL("PCS\\Parser\\StringParser::parse"), 1);
 
 	/* Create and init symbol table */
 
-	return PCS_Loader_moduleInit();
+	return PCS_Loader_moduleInit(TSRMLS_C);
 }
 
 /*---------------------------------------------------------------*/
@@ -556,8 +595,6 @@ static zend_always_inline int MSHUTDOWN_PCS_Loader(TSRMLS_D)
 {
 	/* Destroy constant zvals */
 
-	zend_string_release(spl_ar_func_name);
-	zend_string_release(hook_func_name);
 	zend_string_release(parser_func_name);
 
 	/* Free symbol table */
@@ -576,7 +613,7 @@ static zend_always_inline int RINIT_PCS_Loader(TSRMLS_D)
 	int status;
 	PCS_Node *node;
 
-	PCS_Loader_registerHook(TSRMLS_C);
+	PCS_Loader_insertAutoloadHook(TSRMLS_C);
 
 	/* Mutex ensures symbol table is populated only once */
 
