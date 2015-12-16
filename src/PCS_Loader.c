@@ -220,9 +220,12 @@ static int PCS_Loader_loadNode(PCS_Node *node, int throw TSRMLS_DC)
 		ZVAL_UNDEF(&zret);
 		zend_execute(op_array, &zret);
 	} zend_catch {
+		if (throw) {
+			THROW_EXCEPTION_1("%s: Script execution failure", ZSTR_VAL(node->uri));
+		}
 		destroy_op_array(op_array TSRMLS_CC);
 		EFREE(op_array);
-		zend_bailout();
+		return FAILURE;
 	} zend_end_try();
 	EG(no_extensions)=0;
 
@@ -243,8 +246,17 @@ static int PCS_Loader_loadNode(PCS_Node *node, int throw TSRMLS_DC)
 		return FAILURE;
 	}
 
-	EG(return_value_ptr_ptr) = NULL;
-	zend_execute(EG(active_op_array) TSRMLS_CC);
+	zend_try {
+		EG(return_value_ptr_ptr) = NULL;
+		zend_execute(EG(active_op_array) TSRMLS_CC);
+	} zend_catch {
+		if (throw) {
+			THROW_EXCEPTION_1("%s: Script execution failure", ZSTR_VAL(node->uri));
+		}
+		destroy_op_array(EG(active_op_array) TSRMLS_CC);
+		efree(EG(active_op_array));
+		return FAILURE;
+	} zend_end_try();
 	destroy_op_array(EG(active_op_array) TSRMLS_CC);
 	efree(EG(active_op_array));
 
@@ -555,10 +567,12 @@ static int PCS_Loader_Init(TSRMLS_D)
 
 	/* Load parser */
 
-	PCS_Loader_loadNode(ParserInterface_node, 1 TSRMLS_CC);
-	ON_EXCEPTION_RETURN(FAILURE);
-	PCS_Loader_loadNode(StringParser_node, 1 TSRMLS_CC);
-	ON_EXCEPTION_RETURN(FAILURE);
+	if (PCS_Loader_loadNode(ParserInterface_node, 1 TSRMLS_CC) == FAILURE) {
+		return FAILURE;
+	}
+	if (PCS_Loader_loadNode(StringParser_node, 1 TSRMLS_CC) == FAILURE) {
+		return FAILURE;
+	}
 
 	ZEND_HASH_FOREACH_PTR(fileList, node) {
 		PCS_Loader_registerNode(node TSRMLS_CC);
@@ -632,7 +646,9 @@ static zend_always_inline int RINIT_PCS_Loader(TSRMLS_D)
 	DBG_MSG("Loading scripts marked as PCS_LOAD_RINIT");
 	ZEND_HASH_FOREACH_PTR(fileList, node) {
 		if (node->load_mode == PCS_LOAD_RINIT) {
-			PCS_Loader_loadNode(node, 1 TSRMLS_CC);
+			if (PCS_Loader_loadNode(node, 1 TSRMLS_CC) == FAILURE) {
+				return FAILURE;
+			}
 		}
 	} ZEND_HASH_FOREACH_END();
 
