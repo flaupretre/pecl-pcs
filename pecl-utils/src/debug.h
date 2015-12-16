@@ -40,7 +40,6 @@
 #define DBG_MSG1(_format,_var1) { ut_dbg_print_time(); php_printf(_format "\n",_var1); }
 #define DBG_MSG2(_format,_var1,_var2) { ut_dbg_print_time(); php_printf(_format "\n",_var1,_var2); }
 #define DBG_MSG3(_format,_var1,_var2,_var3) { ut_dbg_print_time(); php_printf(_format "\n",_var1,_var2,_var3); }
-#define CHECK_MEM()	full_mem_check(1)
 
 static void ut_dbg_init_time();
 static void ut_dbg_print_time();
@@ -51,7 +50,6 @@ static void ut_dbg_print_time();
 #define DBG_MSG1(_format,_var1)
 #define DBG_MSG2(_format,_var1,_var2)
 #define DBG_MSG3(_format,_var1,_var2,_var3)
-#define CHECK_MEM()
 #endif	/* UT_DEBUG */
 
 /*---------------------------------------------------------------*/

@@ -26,15 +26,8 @@ static PHP_METHOD(PCS, __construct)
 
 /*---------------------------------------------------------------*/
 
-ZEND_BEGIN_ARG_INFO_EX(PCS_autoloadHook_arginfo, 0, 0, 1)
-ZEND_ARG_INFO(0, symbol)
-ZEND_ARG_INFO(0, type)
-ZEND_END_ARG_INFO()
-
 static zend_function_entry PCS_methods[] = {
 	PHP_ME(PCS, __construct, UT_noarg_arginfo, ZEND_ACC_PRIVATE)
-	PHP_ME(PCS, autoloadHook, PCS_autoloadHook_arginfo,
-		   ZEND_ACC_STATIC | ZEND_ACC_PUBLIC)
 	PHP_ME(PCS, getFunction, UT_1arg_arginfo,
 		   ZEND_ACC_STATIC | ZEND_ACC_PUBLIC)
 	PHP_ME(PCS, getConstant, UT_1arg_arginfo,

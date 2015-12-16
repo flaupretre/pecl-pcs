@@ -39,9 +39,10 @@ StaticMutexDeclare(symbols)
 static PCS_Node *StringParser_node;
 static PCS_Node *ParserInterface_node;
 
-static zend_string *spl_ar_func_name;
-static zend_string *hook_func_name;
 static zend_string *parser_func_name;
+
+static void (*spl_register_handler)(INTERNAL_FUNCTION_PARAMETERS);
+static zend_function *pcs_autoload_func;
 
 /*============================================================================*/
 
@@ -51,8 +52,11 @@ static zend_string *parser_func_name;
 
 /*---------------------------------------------------------------*/
 
-static void PCS_Loader_registerHook(TSRMLS_D);
-static PHP_METHOD(PCS, autoloadHook);
+extern PHP_FUNCTION(spl_autoload_register);
+
+static PHP_FUNCTION(_pcs_autoload_register);
+static void PCS_Loader_insertAutoloadHook(TSRMLS_D);
+static PHP_FUNCTION(_pcs_autoload);
 static int PCS_Loader_loadSymbol(char type, char *symbol, size_t slen, zend_bool autoload
 	, zend_bool exception TSRMLS_DC);
 static int PCS_Loader_symbolIsDefined(char type, char *symbol, size_t slen TSRMLS_DC);
@@ -65,7 +69,8 @@ PCS_DECLARE_GET_REQUIRE_FUNCTIONS(Class)
 
 static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC);
 static int PCS_Loader_registerKey(zend_string *key, PCS_Node *node);
-static int PCS_Loader_moduleInit();
+static zend_function *PCS_Loader_get_function(HashTable *h, char *fname, int err);
+static int PCS_Loader_moduleInit(TSRMLS_D);
 static int PCS_Loader_Init(TSRMLS_D);
 
 /*============================================================================*/

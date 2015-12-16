@@ -27,7 +27,7 @@
 
 typedef zend_ulong PCS_ID;
 
-/* The structure produced by pcs_process_code.php */
+/* The structure contained in '.phpc' files */
 
 typedef struct {
 	int version;		/* Descriptor version (current: 0) */

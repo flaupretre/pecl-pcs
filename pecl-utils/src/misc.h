@@ -41,6 +41,10 @@
 
 #define IMM_STRL(_str)	_str, sizeof(_str) - 1
 
+/* Additional status values */
+
+#define NOT_FOUND	-2
+
 /*---------------------------------------------------------------*/
 
 static zend_always_inline int ut_is_web()
