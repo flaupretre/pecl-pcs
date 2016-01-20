@@ -10,9 +10,6 @@ php:
   - nightly
 
 env:
-    global:
-      - REPORT_EXIT_STATUS=1
-      - USE_VALGRIND=1
     matrix:
       - ENABLE_MAINTAINER_ZTS=0 ENABLE_DEBUG=0
       - ENABLE_MAINTAINER_ZTS=1 ENABLE_DEBUG=1
@@ -22,4 +19,4 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y --force-yes valgrind
 
-script: sh travis/run-test.sh
+script: sh ci/run-test.sh
