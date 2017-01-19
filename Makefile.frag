@@ -22,4 +22,4 @@ cleanup: clean
 	@rm -rf $(WIN_CLEANUP) include modules
 
 fulltest:
-	sh travis/run-test.sh
+	sh ci/run-test.sh

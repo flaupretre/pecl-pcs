@@ -17,4 +17,4 @@ Please, download the latest stable releases from [the PECL repository](https://p
 
 This extension uses the [PECL Compatibility Library](https://github.com/flaupretre/pecl-compat).
 
-In order to run the full PCS test suite, run 'sh travis/run-test.sh' (note that it will install the PCS extension in your PHP environment).
+In order to run the full PCS test suite, run 'sh ci/run-test.sh' (note that it will install the PCS extension in your PHP environment).
