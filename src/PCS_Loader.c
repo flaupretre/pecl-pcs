@@ -31,17 +31,59 @@
 
 static PHP_FUNCTION(_pcs_autoload_register)
 {
+	DBG_MSG("-> _pcs_autoload_register");
+
+	EG(autoload_func)=PCS_G(autoload_func);
+
 	spl_register_handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 
 	PCS_Loader_insertAutoloadHook(TSRMLS_C);
 }
 
 /*---------------------------------------------------------------*/
+/* This function intercepts calls to spl_autoload_unregister(),
+   and calls the original function with EG(autoload_func) modified. */
+
+static PHP_FUNCTION(_pcs_autoload_unregister)
+{
+	DBG_MSG("-> _pcs_autoload_unregister");
+
+	EG(autoload_func)=PCS_G(autoload_func);
+
+	spl_unregister_handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+
+	PCS_Loader_insertAutoloadHook(TSRMLS_C);
+}
+
+/*---------------------------------------------------------------*/
+/* This function intercepts calls to spl_autoload_functions(),
+   and calls the original function with EG(autoload_func) modified.
+   This way, sp_autoload_functions() returns the functions
+   defined in SPL_G(autoload_functions), which is what we want. */
+
+static PHP_FUNCTION(_pcs_autoload_functions)
+{
+	zend_function *func;
+
+	DBG_MSG("-> _pcs_autoload_functions");
+
+	func=EG(autoload_func);
+	EG(autoload_func)=PCS_G(autoload_func);
+
+	spl_functions_handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+
+	EG(autoload_func)=func;
+}
+
+/*---------------------------------------------------------------*/
 
 static void PCS_Loader_insertAutoloadHook(TSRMLS_D)
 {
-	PCS_G(autoload_func) = EG(autoload_func);
-	EG(autoload_func) = pcs_autoload_func;
+	if (EG(autoload_func) != pcs_autoload_func) {
+		DBG_MSG("Inserting autoload hook in EG(autoload)");
+		PCS_G(autoload_func) = EG(autoload_func);
+		EG(autoload_func) = pcs_autoload_func;
+	}
 }
 
 /*---------------------------------------------------------------*/
@@ -50,9 +92,10 @@ static void PCS_Loader_insertAutoloadHook(TSRMLS_D)
 static PHP_FUNCTION(_pcs_autoload)
 {
 	zval *zsymbol;
-	char *type, ctype;
+	char *type, ctype, *fname;
 	COMPAT_ARG_SIZE_T tlen;
 	int status;
+	COMPAT_ARG_SIZE_T flen;
 
 	type=NULL;
 
@@ -72,6 +115,7 @@ static PHP_FUNCTION(_pcs_autoload)
 	status = PCS_Loader_loadSymbol(ctype , Z_STRVAL_P(zsymbol)
 		, (size_t)Z_STRLEN_P(zsymbol), 1, 0 TSRMLS_CC);
 	if (status == NOT_FOUND) { /* Transfer control to remaining autoloaders */
+		DBG_MSG("Symbol could not be loaded by PCS_Loader_loadSymbol");
 		if (! PCS_G(autoload_func)) { /* Search an __autoload() function */
 			PCS_G(autoload_func) = PCS_Loader_get_function(EG(function_table)
 				, ZEND_AUTOLOAD_FUNC_NAME, 0);
@@ -79,16 +123,20 @@ static PHP_FUNCTION(_pcs_autoload)
 		}
 
 		if (PCS_G(autoload_func)) {
-			zend_call_method(NULL, NULL, NULL,
 #ifdef PHP_7
-				ZSTR_VAL(PCS_G(autoload_func)->common.function_name)
-				, ZSTR_LEN(PCS_G(autoload_func)->common.function_name)
+			fname=ZSTR_VAL(PCS_G(autoload_func)->common.function_name);
+			flen=ZSTR_LEN(PCS_G(autoload_func)->common.function_name);
 #else
-				PCS_G(autoload_func)->common.function_name
-				, strlen(PCS_G(autoload_func)->common.function_name)
+			fname=PCS_G(autoload_func)->common.function_name;
+			flen=strlen(PCS_G(autoload_func)->common.function_name);
 #endif
-				, NULL, 1, zsymbol, NULL TSRMLS_CC);
+			DBG_MSG1("-> PCS is transferring control to '%s'", fname);
+			zend_call_method(NULL, NULL, NULL, fname, flen, NULL, 1, zsymbol, NULL TSRMLS_CC);
+			DBG_MSG1("<- Returning to PCS from '%s'", fname);
+		} else {
 		}
+	} else {
+		DBG_MSG("PCS cannot transfer control - no autoloader defined");
 	}
 
 	DBG_MSG("<- _pcs_autoload");
@@ -118,6 +166,7 @@ static int PCS_Loader_loadSymbol(char type, char *symbol, size_t slen
 	node = zend_hash_find_ptr(symbols, key);
 	zend_string_release(key);
 	if (! node) {
+		DBG_MSG("Symbol not found in PCS maps");
 		if ((exception)&&(!EG(exception))) {
 			THROW_EXCEPTION_2("PCS: Unknown %s (%s)"
 				, PCS_Loader_keyTypeString(type), symbol);
@@ -187,6 +236,7 @@ static int PCS_Loader_loadNode(PCS_Node *node, int throw TSRMLS_DC)
 	DBG_MSG1("-> PCS_Loader_loadNode(%s)",ZSTR_VAL(node->path));
 
 	if (!PCS_NODE_IS_FILE(node)) {
+		DBG_MSG1("%s: node is not a regular file - load aborted", ZSTR_VAL(node->uri));
 		if (throw) {
 			THROW_EXCEPTION_1("%s: node is not a regular file - load aborted"
 				, ZSTR_VAL(node->uri));
@@ -515,11 +565,26 @@ static int PCS_Loader_moduleInit(TSRMLS_D)
 	pcs_autoload_func = PCS_Loader_get_function(CG(function_table), "_pcs_autoload", 1);
 	if (! pcs_autoload_func) return FAILURE;
 
+	spl_autoload_call_func = PCS_Loader_get_function(CG(function_table), "spl_autoload_call", 1);
+	if (! spl_autoload_call_func) return FAILURE;
+
 	/* Redirect spl_autoload_register() to _pcs_autoload_register() */
 
 	func = PCS_Loader_get_function(CG(function_table), "spl_autoload_register", 1);
 	spl_register_handler = func->internal_function.handler;
 	func->internal_function.handler = PHP_FN(_pcs_autoload_register);
+
+	/* Redirect spl_autoload_unregister() to _pcs_autoload_unregister() */
+
+	func = PCS_Loader_get_function(CG(function_table), "spl_autoload_unregister", 1);
+	spl_unregister_handler = func->internal_function.handler;
+	func->internal_function.handler = PHP_FN(_pcs_autoload_unregister);
+
+	/* Wrap spl_autoload_functions() into _pcs_autoload_functions() */
+
+	func = PCS_Loader_get_function(CG(function_table), "spl_autoload_functions", 1);
+	spl_functions_handler = func->internal_function.handler;
+	func->internal_function.handler = PHP_FN(_pcs_autoload_functions);
 
 	/* Init symbol table */
 	/* No destructor because PCS_Node structs are destroyed with the tree */

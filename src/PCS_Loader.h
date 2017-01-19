@@ -42,7 +42,10 @@ static PCS_Node *ParserInterface_node;
 static zend_string *parser_func_name;
 
 static void (*spl_register_handler)(INTERNAL_FUNCTION_PARAMETERS);
+static void (*spl_unregister_handler)(INTERNAL_FUNCTION_PARAMETERS);
+static void (*spl_functions_handler)(INTERNAL_FUNCTION_PARAMETERS);
 static zend_function *pcs_autoload_func;
+static zend_function *spl_autoload_call_func;
 
 /*============================================================================*/
 
