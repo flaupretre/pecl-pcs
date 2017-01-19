@@ -53,10 +53,12 @@ Compatibility : PHP 5 (5.3+) and 7
    <dir name="pecl-compat">
     <file name="compat.h" role="src" />
     <file name="README.md" role="doc" />
+    <file name="LICENSE" role="doc" />
     <dir name="src">
      <file name="misc.h" role="src" />
      <file name="zend_hash.h" role="src" />
      <file name="zend_string.h" role="src" />
+     <file name="zend_resource.h" role="src" />
     </dir>
    </dir>
    <dir name="pecl-utils">
