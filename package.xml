@@ -22,10 +22,10 @@ Compatibility : PHP 5 (5.3+) and 7
   <email>francois@php.net</email>
   <active>yes</active>
  </lead>
- <date>2015-12-16</date>
+ <date>2017-01-19</date>
  <time>00:00:00</time>
  <version>
-  <release>1.3.1</release>
+  <release>1.3.2</release>
   <api>1.2.0</api>
  </version>
  <stability>
@@ -34,8 +34,7 @@ Compatibility : PHP 5 (5.3+) and 7
  </stability>
  <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
  <notes>
-- Fix issue #4 : Incompatibility with suhosin (seg fault)
-- Fix issue #5 : User code can override PCS scripts (autoload order)
+- Fix issue #6 : pcs breaks spl_autoload_* function
  </notes>
  <contents>
   <dir baseinstalldir="/" name="/">
@@ -114,11 +113,12 @@ Compatibility : PHP 5 (5.3+) and 7
     <file name="basic_002.phpt" role="test" />
     <file name="file_info_001.phpt" role="test" />
     <file name="file_info_002.phpt" role="test" />
+    <file name="register_001.phpt" role="test" />
     <file name="stream_001.phpt" role="test" />
     <file name="symbol_info_001.phpt" role="test" />
     <file name="symbol_info_002.phpt" role="test" />
    </dir>
-   <dir name="travis">
+   <dir name="ci">
     <file name="run-test.sh" role="src" />
    </dir>
   </dir>
@@ -136,6 +136,21 @@ Compatibility : PHP 5 (5.3+) and 7
  <providesextension>pcs</providesextension>
  <extsrcrelease/>
  <changelog>
+  <release>
+   <version>
+    <release>1.3.2</release>
+    <api>1.2.0</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2017-01-19</date>
+   <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
+   <notes>
+- Fix issue #6 : pcs breaks spl_autoload_* function
+   </notes>
+  </release>
   <release>
    <version>
     <release>1.3.1</release>
