@@ -92,7 +92,8 @@ static void PCS_Loader_insertAutoloadHook(TSRMLS_D)
 static PHP_FUNCTION(_pcs_autoload)
 {
 	zval *zsymbol;
-	char *type, ctype, *fname;
+	char *type, ctype;
+	const char *fname;
 	COMPAT_ARG_SIZE_T tlen;
 	int status;
 	COMPAT_ARG_SIZE_T flen;
@@ -131,7 +132,7 @@ static PHP_FUNCTION(_pcs_autoload)
 			flen=strlen(PCS_G(autoload_func)->common.function_name);
 #endif
 			DBG_MSG1("-> PCS is transferring control to '%s'", fname);
-			zend_call_method(NULL, NULL, NULL, fname, flen, NULL, 1, zsymbol, NULL TSRMLS_CC);
+			zend_call_method(NULL, NULL, NULL, (char *)fname, flen, NULL, 1, zsymbol, NULL TSRMLS_CC);
 			DBG_MSG1("<- Returning to PCS from '%s'", fname);
 		} else {
 		}
