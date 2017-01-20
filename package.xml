@@ -22,19 +22,20 @@ Compatibility : PHP 5 (5.3+) and 7
   <email>francois@php.net</email>
   <active>yes</active>
  </lead>
- <date>2017-01-19</date>
+ <date>2017-01-20</date>
  <time>00:00:00</time>
  <version>
-  <release>1.3.2</release>
+  <release>1.3.3</release>
   <api>1.2.0</api>
  </version>
  <stability>
-  <release>beta</release>
-  <api>beta</api>
+  <release>rc</release>
+  <api>rc</api>
  </stability>
  <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
  <notes>
-- Fix issue #6 : pcs breaks spl_autoload_* function
+* Fix issue #8 : 1.3.2 missing file in archive
+* Fix compile warning in PHP 5.x
  </notes>
  <contents>
   <dir baseinstalldir="/" name="/">
@@ -53,10 +54,12 @@ Compatibility : PHP 5 (5.3+) and 7
    <dir name="pecl-compat">
     <file name="compat.h" role="src" />
     <file name="README.md" role="doc" />
+    <file name="LICENSE" role="doc" />
     <dir name="src">
      <file name="misc.h" role="src" />
      <file name="zend_hash.h" role="src" />
      <file name="zend_string.h" role="src" />
+     <file name="zend_resource.h" role="src" />
     </dir>
    </dir>
    <dir name="pecl-utils">
@@ -136,6 +139,22 @@ Compatibility : PHP 5 (5.3+) and 7
  <providesextension>pcs</providesextension>
  <extsrcrelease/>
  <changelog>
+  <release>
+   <version>
+    <release>1.3.3</release>
+    <api>1.2.0</api>
+   </version>
+   <stability>
+    <release>rc</release>
+    <api>rc</api>
+   </stability>
+   <date>2017-01-20</date>
+   <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
+   <notes>
+* Fix issue #8 : 1.3.2 missing file in archive
+* Fix compile warning in PHP 5.x
+   </notes>
+  </release>
   <release>
    <version>
     <release>1.3.2</release>
