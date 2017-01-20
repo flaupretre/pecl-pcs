@@ -29,8 +29,8 @@ Compatibility : PHP 5 (5.3+) and 7
   <api>1.2.0</api>
  </version>
  <stability>
-  <release>rc</release>
-  <api>rc</api>
+  <release>beta</release>
+  <api>beta</api>
  </stability>
  <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
  <notes>
@@ -145,8 +145,8 @@ Compatibility : PHP 5 (5.3+) and 7
     <api>1.2.0</api>
    </version>
    <stability>
-    <release>rc</release>
-    <api>rc</api>
+    <release>beta</release>
+    <api>beta</api>
    </stability>
    <date>2017-01-20</date>
    <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
