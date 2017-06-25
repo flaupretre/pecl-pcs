@@ -112,6 +112,7 @@ Compatibility : PHP 5 (5.3+) and 7
    </dir>
    <dir name="tests">
     <file name="autoload_001.phpt" role="test" />
+    <file name="autoload_002.phpt" role="test" />
     <file name="basic_001.phpt" role="test" />
     <file name="basic_002.phpt" role="test" />
     <file name="file_info_001.phpt" role="test" />
