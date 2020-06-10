@@ -4,15 +4,15 @@ language: php
 jobs:
   include:
     - os: linux
-      distribution: precise
+      distro: precise
       php:
-      - 5.3
-      - 5.4
-      - 5.5
-      - 5.6
-      - 7.0
+        - 5.3
+        - 5.4
+        - 5.5
+        - 5.6
+        - 7.0
     - os: linux
-      distribution: xenial
+      distro: xenial
       php:
         - 7.0
         - 7.1
@@ -21,7 +21,7 @@ jobs:
         - 7.4
         - nightly
     - os: linux
-      distribution: bionic
+      distro: bionic
       php:
         - 7.0
         - 7.1
