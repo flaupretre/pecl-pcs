@@ -20,7 +20,8 @@ jobs:
         - 7.3
         - 7.4
         - nightly
-    - os: bionic
+    - os: linux
+      distribution: bionic
       php:
         - 7.0
         - 7.1
