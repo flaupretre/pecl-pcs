@@ -244,14 +244,9 @@ static int PCS_Loader_loadNode(PCS_Node *node, int throw TSRMLS_DC)
 		}
 		return FAILURE;
 	}
-	file_handle.type = ZEND_HANDLE_FILENAME;
-#if ZEND_EXTENSION_API_NO <= 320180731
-	file_handle.handle.fd = 0;
-#endif
-	file_handle.handle.fp = NULL;
+	memset(&file_handle, 0, sizeof(zend_file_handle));
+  file_handle.type = ZEND_HANDLE_FILENAME;
 	file_handle.filename = ZSTR_VAL(node->uri);
-	file_handle.opened_path = NULL;
-	file_handle.free_filename = 0;
 
 	{
 #ifdef PHP_7
