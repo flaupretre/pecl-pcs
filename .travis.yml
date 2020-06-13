@@ -1,5 +1,7 @@
-
+os: linux
+dist: xenial
 language: php
+
 
 php:
   - 5.4
@@ -12,11 +14,50 @@ php:
   - 7.4
   - nightly
 
+jobs:
+  include:
+    - os: linux
+      dist: precise
+      php: 5.3
+      env: ENABLE_MAINTAINER_ZTS=0 ENABLE_DEBUG=0
+    - os: linux
+      dist: precise
+      php: 5.3
+      env: ENABLE_MAINTAINER_ZTS=1 ENABLE_DEBUG=1
+    - os: linux
+      dist: precise
+      php: 5.3
+      env: ENABLE_MAINTAINER_ZTS=1 ENABLE_DEBUG=1 USE_ZEND_ALLOC=0
+    - os: linux
+      dist: precise
+      php: 5.4
+      env: ENABLE_MAINTAINER_ZTS=0 ENABLE_DEBUG=0
+    - os: linux
+      dist: precise
+      php: 5.4
+      env: ENABLE_MAINTAINER_ZTS=1 ENABLE_DEBUG=1
+    - os: linux
+      dist: precise
+      php: 5.4
+      env: ENABLE_MAINTAINER_ZTS=1 ENABLE_DEBUG=1 USE_ZEND_ALLOC=0
+    - os: linux
+      dist: precise
+      php: 5.5
+      env: ENABLE_MAINTAINER_ZTS=0 ENABLE_DEBUG=0
+    - os: linux
+      dist: precise
+      php: 5.5
+      env: ENABLE_MAINTAINER_ZTS=1 ENABLE_DEBUG=1
+    - os: linux
+      dist: precise
+      php: 5.5
+      env: ENABLE_MAINTAINER_ZTS=1 ENABLE_DEBUG=1 USE_ZEND_ALLOC=0
+
 env:
-    matrix:
-      - ENABLE_MAINTAINER_ZTS=0 ENABLE_DEBUG=0
-      - ENABLE_MAINTAINER_ZTS=1 ENABLE_DEBUG=1
-      - ENABLE_MAINTAINER_ZTS=1 ENABLE_DEBUG=1 USE_ZEND_ALLOC=0
+  matrix:
+    - ENABLE_MAINTAINER_ZTS=0 ENABLE_DEBUG=0
+    - ENABLE_MAINTAINER_ZTS=1 ENABLE_DEBUG=1
+    - ENABLE_MAINTAINER_ZTS=1 ENABLE_DEBUG=1 USE_ZEND_ALLOC=0
 
 before_install:
   - sudo apt-get update -qq
