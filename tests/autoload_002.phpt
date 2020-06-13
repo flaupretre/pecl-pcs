@@ -1,15 +1,13 @@
 --TEST--
-__autoload() is functional
---SKIPIF--
-<?php if (PHP_VERSION_ID >= 70200) die("skip PHP < 7.2 only"); ?>
+spl_autoload() is functional
 --FILE--
 <?php
 
-function __autoload($sym)
+function my_autoload($sym)
 {
 var_dump($sym);
 }
-
+spl_autoload_register('my_autoload');
 class_exists('undefined');
 
 ?>

@@ -245,7 +245,9 @@ static int PCS_Loader_loadNode(PCS_Node *node, int throw TSRMLS_DC)
 		return FAILURE;
 	}
 	file_handle.type = ZEND_HANDLE_FILENAME;
+#if ZEND_EXTENSION_API_NO <= 320180731
 	file_handle.handle.fd = 0;
+#endif
 	file_handle.handle.fp = NULL;
 	file_handle.filename = ZSTR_VAL(node->uri);
 	file_handle.opened_path = NULL;
@@ -382,6 +384,7 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 	zval ret, *zkey;
 	zend_string *zp;
 	HashTable *ht;
+	HashPosition pos;
 
 	ZEND_ASSERT(PCS_NODE_IS_FILE(node));
 	DBG_MSG1("-> PCS_Loader_registerNode(%s)",ZSTR_VAL(node->path));
@@ -458,9 +461,9 @@ static int PCS_Loader_registerNode(PCS_Node *node TSRMLS_DC)
 	ht = Z_ARRVAL(ret);
 
 	symcount = need_rinit = 0;
-	for (zend_hash_internal_pointer_reset(ht);;zend_hash_move_forward(ht)) {
-		if (zend_hash_has_more_elements(ht) != SUCCESS) break;
-		zkey = compat_zend_hash_get_current_zval(ht);
+	for (zend_hash_internal_pointer_reset_ex(ht, &pos);;zend_hash_move_forward_ex(ht, &pos)) {
+		if (zend_hash_has_more_elements_ex(ht, &pos) != SUCCESS) break;
+		zkey = compat_zend_hash_get_current_zval_ex(ht, &pos);
 		if (Z_TYPE_P(zkey) != IS_STRING) {
 			compat_zval_ptr_dtor(&ret);
 			php_error(E_CORE_ERROR, "%s: Elements returned by the parser should be strings"

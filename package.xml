@@ -22,10 +22,10 @@ Compatibility : PHP 5 (5.3+) and 7
   <email>francois@php.net</email>
   <active>yes</active>
  </lead>
- <date>2017-01-20</date>
+ <date>2020-06-12</date>
  <time>00:00:00</time>
  <version>
-  <release>1.3.3</release>
+  <release>1.3.4</release>
   <api>1.2.0</api>
  </version>
  <stability>
@@ -34,8 +34,7 @@ Compatibility : PHP 5 (5.3+) and 7
  </stability>
  <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
  <notes>
-* Fix issue #8 : 1.3.2 missing file in archive
-* Fix compile warning in PHP 5.x
+* Fix issue #12 : Fails to install in PHP 7.4.6
  </notes>
  <contents>
   <dir baseinstalldir="/" name="/">
@@ -112,6 +111,7 @@ Compatibility : PHP 5 (5.3+) and 7
    </dir>
    <dir name="tests">
     <file name="autoload_001.phpt" role="test" />
+    <file name="autoload_002.phpt" role="test" />
     <file name="basic_001.phpt" role="test" />
     <file name="basic_002.phpt" role="test" />
     <file name="file_info_001.phpt" role="test" />
@@ -139,6 +139,21 @@ Compatibility : PHP 5 (5.3+) and 7
  <providesextension>pcs</providesextension>
  <extsrcrelease/>
  <changelog>
+  <release>
+   <version>
+    <release>1.3.4</release>
+    <api>1.2.0</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2020/06/12</date>
+   <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
+   <notes>
+* Fix issue #12: Fails to install in PHP 7.4.6
+   </notes>
+  </release>
   <release>
    <version>
     <release>1.3.3</release>

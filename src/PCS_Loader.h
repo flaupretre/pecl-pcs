@@ -41,9 +41,15 @@ static PCS_Node *ParserInterface_node;
 
 static zend_string *parser_func_name;
 
-static void (*spl_register_handler)(INTERNAL_FUNCTION_PARAMETERS);
-static void (*spl_unregister_handler)(INTERNAL_FUNCTION_PARAMETERS);
-static void (*spl_functions_handler)(INTERNAL_FUNCTION_PARAMETERS);
+#if PHP_VERSION_ID >= 70300
+typedef void (ZEND_FASTCALL *pcs_zif_handler)(INTERNAL_FUNCTION_PARAMETERS);
+#else
+typedef void (*pcs_zif_handler)(INTERNAL_FUNCTION_PARAMETERS);
+#endif
+
+static pcs_zif_handler spl_register_handler;
+static pcs_zif_handler spl_unregister_handler;
+static pcs_zif_handler spl_functions_handler;
 static zend_function *pcs_autoload_func;
 static zend_function *spl_autoload_call_func;
 
