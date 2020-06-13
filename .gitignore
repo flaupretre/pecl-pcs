@@ -18,6 +18,7 @@ config.status
 config.sub
 configure
 configure.in
+configure.ac
 include
 install-sh
 libtool
@@ -28,6 +29,7 @@ mkinstalldirs
 modules
 *.lo
 *.loT
+pcs-*.tgz
 run-tests.php
 tests/00*.diff
 tests/00*.exp
