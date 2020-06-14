@@ -94,7 +94,7 @@ static void free_dp(PCS_STREAM_DATA **dpp)
 /*--------------------*/
 /* File read */
 
-static size_t PCS_Stream_read(php_stream *stream, char *buf, size_t count TSRMLS_DC)
+static STREAM_READER_TYPE PCS_Stream_read(php_stream *stream, char *buf, size_t count TSRMLS_DC)
 {
 	size_t max;
 	PCS_STREAM_DATA *dp = stream->abstract;
@@ -112,7 +112,7 @@ static size_t PCS_Stream_read(php_stream *stream, char *buf, size_t count TSRMLS
 	dp->offset += count;
 	stream->eof = (PCS_FILE_LEN(dp->node) == dp->offset);
 
-	return count;
+	return (STREAM_READER_TYPE)count;
 }
 
 /*--------------------*/
@@ -239,7 +239,7 @@ static int PCS_Stream_fstat(php_stream *stream, php_stream_statbuf *ssb TSRMLS_D
 /*---------------------------------------------------------------*/
 /* readdir */
 
-static size_t PCS_Stream_readdir(php_stream *stream, char *buf, size_t count TSRMLS_DC)
+static STREAM_READER_TYPE PCS_Stream_readdir(php_stream *stream, char *buf, size_t count TSRMLS_DC)
 {
 	php_stream_dirent *ent = (php_stream_dirent *) buf;
 	PCS_STREAM_DATA *dp = stream->abstract;
@@ -264,7 +264,7 @@ static size_t PCS_Stream_readdir(php_stream *stream, char *buf, size_t count TSR
 	zend_hash_move_forward_ex(ht, &(dp->pos));
 	stream->eof = (zend_hash_has_more_elements_ex(ht, &(dp->pos)) == FAILURE);
 
-	return sizeof(php_stream_dirent);
+	return (STREAM_READER_TYPE)sizeof(php_stream_dirent);
 }
 
 /*--------------------*/
