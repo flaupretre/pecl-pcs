@@ -33,9 +33,9 @@ make phpc || return 1
 echo "--- Compiling ---"
 make -k clean all CFLAGS='-g -Wall -Werror' || return 1
 
-dlname=`cat modules/*.la | grep dlname= | sed 's/^.*=//' | tr -d "'" | sed 's/\..*$//'`
+dlname=`cat modules/*.la | grep dlname= | sed 's/^.*=//' | tr -d "'"`
 make_opts="-d extension=$dlname"
-[ "X$dlname" = Xpcs ] || make_opts="-d extension=pcs $make_opts"
+[ "X$dlname" = 'Xpcs.so' ] || make_opts="-d extension=pcs $make_opts"
 if [ ! -f modules/pcs.so ] ; then
   for i in ../modules ../pecl-pcs/modules ; do
     if [ -f $i/pcs.so ] ; then
