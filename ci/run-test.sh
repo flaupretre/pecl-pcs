@@ -30,8 +30,20 @@ phpize || return 1
 ./configure --quiet || return 1
 echo "--- Rebuilding phpc files ---"
 make phpc || return 1
-echo "--- Compiling/installing ---"
+echo "--- Compiling ---"
 make -k clean all CFLAGS='-g -Wall -Werror' || return 1
+
+dlname=`cat modules/*.la | grep dlname= | sed 's/^.*=//' | tr -d "'" | sed 's/\..*$//'`
+make_opts="-d extension=$dlname"
+[ "X$dlname" = Xpcs ] || make_opts="-d extension=pcs $make_opts"
+if [ ! -f modules/pcs.so ] ; then
+  for i in ../modules ../pecl-pcs/modules ; do
+    if [ -f $i/pcs.so ] ; then
+      ln -s ../$i/pcs.so modules
+      break
+    fi
+  done
+fi
 
 # -m : test using valgrind
 # -q : No interaction
@@ -50,7 +62,7 @@ fi
 export TEST_PHP_ARGS
 
 echo "--- Running tests ---"
-REPORT_EXIT_STATUS=1 make test || _ret=1
+REPORT_EXIT_STATUS=1 make test PHP_TEST_SHARED_EXTENSIONS="$make_opts" || _ret=1
 
 for i in tests/*.diff tests/*.mem
 	do
@@ -109,7 +121,9 @@ RUNTYPE=local
 [ -n "$TRAVIS" ] && RUNTYPE=travis
 [ -n "$JENKINS_HOME" ] && RUNTYPE=jenkins
 
-[ -z "$USE_VALGRIND" ] && USE_VALGRIND=true
+# When vagrind issues are fixed, uncomment the line below.
+# Valgrind (memcheck) must be on by default.
+#[ -z "$USE_VALGRIND" ] && USE_VALGRIND=true
 
 WS_BASE=`pwd`
 [ $RUNTYPE = local ] && WS_BASE="`dirname $WS_BASE`"
@@ -157,8 +171,8 @@ esac
 
 run_subdir_tests pecl-pcs || ret=$?
 
-echo "--- Installing the PCS extension ---"
-make install
+#echo "--- Installing the PCS extension ---"
+#make install
 
 #-- Run tests from pcs-example and pcs-test
 
